@@ -21,7 +21,7 @@ sdist/
 var/
 wheels/
 pip-wheel-metadata/
-share/python-wheels/
+share-python-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
@@ -60,6 +60,14 @@ coverage.xml
 local_settings.py
 db.sqlite3
 db.sqlite3-journal
+
+# Django collected static files (not source static files)
+staticfiles/
+
+# Django media files - ignore uploaded content but keep directory structure
+# Allow empty directories and placeholder files for teammates
+media/*
+!media/.gitkeep
 
 # Flask stuff:
 instance/
@@ -169,14 +177,19 @@ Temporary Items
 .env.test.local
 .env.production.local
 
-# Drone/AI specific files
+# Drone/AI specific - ignore large model files but keep structure
 *.weights
 *.pt
 *.onnx
-models/
-checkpoints/
-logs/
-runs/
+# Allow model directories but ignore contents
+models/*
+!models/.gitkeep
+checkpoints/*
+!checkpoints/.gitkeep
+logs/*
+!logs/.gitkeep
+runs/*
+!runs/.gitkeep
 wandb/
 
 # OpenCV cache
