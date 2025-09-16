@@ -162,13 +162,6 @@ Network Trash Folder
 Temporary Items
 .apdisk
 
-# Django media files (uploaded content)
-media/
-
-# Django static files (collected static files)
-staticfiles/
-static/
-
 # Local environment variables
 .env
 .env.local
