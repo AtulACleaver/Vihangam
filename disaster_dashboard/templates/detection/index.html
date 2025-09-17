@@ -114,15 +114,36 @@
                 </div>
                 <div class="card-body">
                     <div class="detection-container bg-dark d-flex align-items-center justify-content-center position-relative" style="height: 450px;">
-                        <div class="text-center text-light">
+                        <div class="text-center text-light" id="default-message">
                             <i class="fas fa-eye fa-3x mb-3"></i>
                             <p>AI Detection processing will appear here</p>
                             <small>YOLO model analyzing live feed...</small>
                         </div>
                         
-                        <!-- Detection Overlay (would contain bounding boxes in real implementation) -->
-                        <div class="detection-overlay position-absolute top-0 start-0 w-100 h-100 d-none">
-                            <!-- Bounding boxes would be dynamically added here -->
+                        <!-- Image Upload Area -->
+                        <div class="text-center text-light d-none" id="upload-area">
+                            <i class="fas fa-cloud-upload-alt fa-3x mb-3"></i>
+                            <p>Upload an image for YOLO detection</p>
+                            <input type="file" class="d-none" id="image-upload" accept="image/*">
+                            <button class="btn btn-primary" onclick="document.getElementById('image-upload').click()">
+                                <i class="fas fa-upload me-2"></i>Choose Image
+                            </button>
+                        </div>
+                        
+                        <!-- Detection Results Display -->
+                        <canvas id="detection-canvas" class="w-100 h-100 d-none"></canvas>
+                        
+                        <!-- Detection Overlay for bounding boxes -->
+                        <div class="detection-overlay position-absolute top-0 start-0 w-100 h-100" id="detection-overlay">
+                            <!-- Bounding boxes will be dynamically added here -->
+                        </div>
+                        
+                        <!-- Processing indicator -->
+                        <div class="processing-indicator position-absolute top-50 start-50 translate-middle d-none" id="processing-indicator">
+                            <div class="spinner-border text-light" role="status">
+                                <span class="visually-hidden">Processing...</span>
+                            </div>
+                            <p class="text-light mt-2">Processing with YOLO...</p>
                         </div>
                     </div>
                     
@@ -138,11 +159,14 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="btn-group btn-group-sm w-100">
-                                    <button class="btn btn-outline-secondary">
-                                        <i class="fas fa-expand"></i> Fullscreen
+                                    <button class="btn btn-outline-primary" id="upload-mode-btn">
+                                        <i class="fas fa-upload"></i> Upload
                                     </button>
-                                    <button class="btn btn-outline-secondary">
-                                        <i class="fas fa-camera"></i> Capture
+                                    <button class="btn btn-outline-secondary" id="live-mode-btn">
+                                        <i class="fas fa-video"></i> Live
+                                    </button>
+                                    <button class="btn btn-outline-success" id="process-btn" disabled>
+                                        <i class="fas fa-play"></i> Process
                                     </button>
                                     <button class="btn btn-outline-secondary">
                                         <i class="fas fa-download"></i> Export
@@ -168,10 +192,11 @@
                     <div class="mb-4">
                         <h6 class="fw-bold">AI Model</h6>
                         <select class="form-select" id="model-select">
-                            <option selected>YOLOv8 - General Objects</option>
-                            <option>YOLOv8 - People Detection</option>
-                            <option>YOLOv8 - Vehicle Detection</option>
-                            <option>Custom - Disaster Objects</option>
+                            <option value="yolov8n.pt" selected>YOLOv8n - Nano (fastest)</option>
+                            <option value="yolov8s.pt">YOLOv8s - Small</option>
+                            <option value="yolov8m.pt">YOLOv8m - Medium</option>
+                            <option value="yolov8l.pt">YOLOv8l - Large</option>
+                            <option value="yolov8x.pt">YOLOv8x - Extra Large</option>
                         </select>
                     </div>
 
@@ -316,49 +341,348 @@
 </div>
 
 <script>
-    // Detection specific JavaScript
-    document.addEventListener('DOMContentLoaded', function() {
-        const startBtn = document.getElementById('start-detection-btn');
-        const stopBtn = document.getElementById('stop-detection-btn');
-        const statusBadge = document.getElementById('detection-status');
-        const confidenceSlider = document.getElementById('confidence-slider');
-        const confidenceValue = document.getElementById('confidence-value');
-        
-        // Start detection
-        startBtn.addEventListener('click', function() {
-            startBtn.disabled = true;
-            stopBtn.disabled = false;
-            statusBadge.textContent = 'PROCESSING';
-            statusBadge.className = 'badge bg-warning';
-            
-            // Simulate detection start
-            setTimeout(() => {
-                statusBadge.textContent = 'ACTIVE';
-                statusBadge.className = 'badge bg-success';
-            }, 1000);
-        });
-        
-        // Stop detection
-        stopBtn.addEventListener('click', function() {
-            startBtn.disabled = false;
-            stopBtn.disabled = true;
-            statusBadge.textContent = 'STOPPED';
-            statusBadge.className = 'badge bg-secondary';
-        });
-        
-        // Confidence slider
-        confidenceSlider.addEventListener('input', function() {
-            confidenceValue.textContent = this.value + '%';
-        });
-        
-        // Simulate real-time detection count updates
-        setInterval(() => {
-            const objectsCount = document.getElementById('objects-count');
-            const currentCount = parseInt(objectsCount.textContent);
-            if (statusBadge.textContent === 'ACTIVE') {
-                objectsCount.textContent = currentCount + Math.floor(Math.random() * 3);
+// Enhanced YOLO Detection JavaScript
+class VihangamDetection {
+    constructor() {
+        this.websocket = null;
+        this.isLiveDetection = false;
+        this.currentMode = 'live'; // 'live' or 'upload'
+        this.confidenceThreshold = 0.75;
+        this.init();
+    }
+    
+    init() {
+        this.setupEventListeners();
+        this.connectWebSocket();
+    }
+    
+    setupEventListeners() {
+        // Main control buttons
+        document.getElementById('start-detection-btn').addEventListener('click', () => {
+            if (this.currentMode === 'live') {
+                this.startLiveDetection();
+            } else {
+                this.processUploadedImage();
             }
-        }, 5000);
-    });
+        });
+        
+        document.getElementById('stop-detection-btn').addEventListener('click', () => {
+            this.stopLiveDetection();
+        });
+        
+        // Mode switching
+        document.getElementById('upload-mode-btn').addEventListener('click', () => {
+            this.switchToUploadMode();
+        });
+        
+        document.getElementById('live-mode-btn').addEventListener('click', () => {
+            this.switchToLiveMode();
+        });
+        
+        // Image upload
+        document.getElementById('image-upload').addEventListener('change', (e) => {
+            this.handleImageUpload(e.target.files[0]);
+        });
+        
+        document.getElementById('process-btn').addEventListener('click', () => {
+            this.processUploadedImage();
+        });
+        
+        // Confidence threshold
+        document.getElementById('confidence-slider').addEventListener('input', (e) => {
+            this.confidenceThreshold = e.target.value / 100;
+            document.getElementById('confidence-value').textContent = e.target.value + '%';
+        });
+        
+        // Model selection
+        document.getElementById('model-select').addEventListener('change', (e) => {
+            this.switchModel(e.target.value);
+        });
+    }
+    
+    connectWebSocket() {
+        const wsScheme = window.location.protocol === "https:" ? "wss" : "ws";
+        const wsPath = `${wsScheme}://${window.location.host}/ws/detection/`;
+        
+        this.websocket = new WebSocket(wsPath);
+        
+        this.websocket.onopen = () => {
+            console.log('WebSocket connected to Vihangam Detection System');
+        };
+        
+        this.websocket.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            this.handleWebSocketMessage(data);
+        };
+        
+        this.websocket.onclose = () => {
+            console.log('WebSocket connection closed');
+            // Attempt to reconnect after 5 seconds
+            setTimeout(() => this.connectWebSocket(), 5000);
+        };
+        
+        this.websocket.onerror = (error) => {
+            console.error('WebSocket error:', error);
+        };
+    }
+    
+    handleWebSocketMessage(data) {
+        switch (data.type) {
+            case 'detection_started':
+                this.onDetectionStarted(data);
+                break;
+            case 'detection_stopped':
+                this.onDetectionStopped(data);
+                break;
+            case 'detection_update':
+                this.updateDetectionResults(data.data);
+                break;
+            case 'model_info':
+                this.displayModelInfo(data.model_info);
+                break;
+            case 'error':
+                this.showError(data.message);
+                break;
+        }
+    }
+    
+    switchToUploadMode() {
+        this.currentMode = 'upload';
+        document.getElementById('default-message').classList.add('d-none');
+        document.getElementById('upload-area').classList.remove('d-none');
+        document.getElementById('upload-mode-btn').classList.replace('btn-outline-primary', 'btn-primary');
+        document.getElementById('live-mode-btn').classList.replace('btn-primary', 'btn-outline-secondary');
+        document.getElementById('start-detection-btn').textContent = 'Process Image';
+    }
+    
+    switchToLiveMode() {
+        this.currentMode = 'live';
+        document.getElementById('upload-area').classList.add('d-none');
+        document.getElementById('default-message').classList.remove('d-none');
+        document.getElementById('live-mode-btn').classList.replace('btn-outline-secondary', 'btn-primary');
+        document.getElementById('upload-mode-btn').classList.replace('btn-primary', 'btn-outline-primary');
+        document.getElementById('start-detection-btn').innerHTML = '<i class="fas fa-play me-1"></i>Start Detection';
+    }
+    
+    handleImageUpload(file) {
+        if (!file) return;
+        
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const canvas = document.getElementById('detection-canvas');
+            const ctx = canvas.getContext('2d');
+            const img = new Image();
+            
+            img.onload = () => {
+                canvas.width = img.width;
+                canvas.height = img.height;
+                ctx.drawImage(img, 0, 0);
+                
+                document.getElementById('upload-area').classList.add('d-none');
+                document.getElementById('detection-canvas').classList.remove('d-none');
+                document.getElementById('process-btn').disabled = false;
+                
+                // Store image data for processing
+                this.currentImageData = e.target.result;
+            };
+            
+            img.src = e.target.result;
+        };
+        
+        reader.readAsDataURL(file);
+    }
+    
+    async processUploadedImage() {
+        if (!this.currentImageData) return;
+        
+        this.showProcessing(true);
+        
+        try {
+            const response = await fetch('/detection/api/process-image/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': this.getCSRFToken()
+                },
+                body: JSON.stringify({
+                    image: this.currentImageData,
+                    confidence: this.confidenceThreshold
+                })
+            });
+            
+            const result = await response.json();
+            
+            if (result.status === 'success') {
+                this.displayDetectionResults(result);
+                this.drawBoundingBoxes(result.detections);
+            } else {
+                this.showError(result.message || 'Detection failed');
+            }
+        } catch (error) {
+            console.error('Detection error:', error);
+            this.showError('Network error occurred');
+        } finally {
+            this.showProcessing(false);
+        }
+    }
+    
+    startLiveDetection() {
+        if (this.websocket && this.websocket.readyState === WebSocket.OPEN) {
+            this.websocket.send(JSON.stringify({
+                command: 'start_detection',
+                confidence: this.confidenceThreshold
+            }));
+        }
+    }
+    
+    stopLiveDetection() {
+        if (this.websocket && this.websocket.readyState === WebSocket.OPEN) {
+            this.websocket.send(JSON.stringify({
+                command: 'stop_detection'
+            }));
+        }
+    }
+    
+    onDetectionStarted(data) {
+        document.getElementById('start-detection-btn').disabled = true;
+        document.getElementById('stop-detection-btn').disabled = false;
+        document.getElementById('detection-status').textContent = 'ACTIVE';
+        document.getElementById('detection-status').className = 'badge bg-success';
+        this.isLiveDetection = true;
+    }
+    
+    onDetectionStopped(data) {
+        document.getElementById('start-detection-btn').disabled = false;
+        document.getElementById('stop-detection-btn').disabled = true;
+        document.getElementById('detection-status').textContent = 'STOPPED';
+        document.getElementById('detection-status').className = 'badge bg-secondary';
+        this.isLiveDetection = false;
+    }
+    
+    updateDetectionResults(data) {
+        // Update statistics
+        document.getElementById('objects-count').textContent = data.total_count;
+        document.getElementById('priority-count').textContent = data.high_priority_count;
+        
+        // Update recent detections list
+        this.updateDetectionsList(data.detections);
+    }
+    
+    updateDetectionsList(detections) {
+        const listContainer = document.querySelector('.detection-list');
+        listContainer.innerHTML = '';
+        
+        detections.slice(0, 4).forEach(detection => {
+            const item = document.createElement('div');
+            item.className = 'd-flex justify-content-between align-items-center mb-2 p-2 bg-light rounded';
+            
+            const priorityClass = detection.is_high_priority ? 'text-danger' : 'text-info';
+            const confidencePercent = Math.round(detection.confidence * 100);
+            
+            item.innerHTML = `
+                <div>
+                    <small class="fw-bold ${priorityClass}">${detection.class_name}</small><br>
+                    <small class="text-muted">Conf: ${confidencePercent}%</small>
+                </div>
+                <small class="text-muted">${new Date().toLocaleTimeString()}</small>
+            `;
+            
+            listContainer.appendChild(item);
+        });
+    }
+    
+    drawBoundingBoxes(detections) {
+        const overlay = document.getElementById('detection-overlay');
+        overlay.innerHTML = '';
+        
+        const container = document.querySelector('.detection-container');
+        const containerRect = container.getBoundingClientRect();
+        
+        detections.forEach(detection => {
+            const box = document.createElement('div');
+            box.className = 'position-absolute border';
+            box.style.cssText = `
+                left: ${detection.bbox[0]}px;
+                top: ${detection.bbox[1]}px;
+                width: ${detection.bbox[2] - detection.bbox[0]}px;
+                height: ${detection.bbox[3] - detection.bbox[1]}px;
+                border-color: ${detection.is_high_priority ? '#dc3545' : '#0d6efd'} !important;
+                border-width: 2px;
+            `;
+            
+            // Add label
+            const label = document.createElement('div');
+            label.className = 'position-absolute bg-primary text-white px-2 py-1 small';
+            label.style.top = '-25px';
+            label.textContent = `${detection.class_name}: ${Math.round(detection.confidence * 100)}%`;
+            
+            box.appendChild(label);
+            overlay.appendChild(box);
+        });
+    }
+    
+    displayDetectionResults(result) {
+        // Update statistics cards
+        document.getElementById('objects-count').textContent = result.total_detections;
+        document.getElementById('priority-count').textContent = result.high_priority_objects;
+        
+        // Show success message
+        const message = `Detected ${result.total_detections} objects in ${result.processing_time}s`;
+        this.showSuccess(message);
+    }
+    
+    async switchModel(modelPath) {
+        try {
+            const response = await fetch('/detection/api/switch-model/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': this.getCSRFToken()
+                },
+                body: JSON.stringify({ model_path: modelPath })
+            });
+            
+            const result = await response.json();
+            
+            if (result.status === 'success') {
+                this.showSuccess(`Switched to model: ${modelPath}`);
+            } else {
+                this.showError(result.message || 'Failed to switch model');
+            }
+        } catch (error) {
+            console.error('Model switch error:', error);
+            this.showError('Failed to switch model');
+        }
+    }
+    
+    showProcessing(show) {
+        const indicator = document.getElementById('processing-indicator');
+        if (show) {
+            indicator.classList.remove('d-none');
+        } else {
+            indicator.classList.add('d-none');
+        }
+    }
+    
+    showError(message) {
+        // You can implement a toast notification system here
+        console.error('Detection Error:', message);
+        alert('Error: ' + message);
+    }
+    
+    showSuccess(message) {
+        // You can implement a toast notification system here
+        console.log('Detection Success:', message);
+    }
+    
+    getCSRFToken() {
+        return document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
+    }
+}
+
+// Initialize the detection system when the page loads
+document.addEventListener('DOMContentLoaded', function() {
+    window.vihangamDetection = new VihangamDetection();
+});
 </script>
 {% endblock %}
