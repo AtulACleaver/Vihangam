@@ -15,8 +15,24 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
+from django.conf import settings
+from django.conf.urls.static import static
+from django.shortcuts import redirect
+
+# Root redirect to dashboard
+def root_redirect(request):
+    return redirect('dashboard:index')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('', root_redirect, name='root'),
+    path('dashboard/', include('apps.dashboard.urls')),
+    path('detection/', include('apps.detection.urls')),
+    path('pathfinding/', include('apps.pathfinding.urls')),
 ]
+
+# Serve static and media files during development
+if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATICFILES_DIRS[0])
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

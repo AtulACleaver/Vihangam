@@ -1,0 +1,303 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - Vihangam Drone Control{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Emergency Alert Banner -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="alert alert-danger alert-dismissible fade show" role="alert" id="emergency-alert" style="display: none;">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                <strong>EMERGENCY ALERT:</strong> <span id="emergency-message"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Dashboard Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1 class="display-6 fw-bold text-primary">
+                    <i class="fas fa-tachometer-alt me-2"></i>Mission Control Dashboard
+                </h1>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-success" id="emergency-btn">
+                        <i class="fas fa-exclamation-triangle me-1"></i>Emergency Protocol
+                    </button>
+                    <button class="btn btn-outline-primary" id="refresh-btn">
+                        <i class="fas fa-sync-alt me-1"></i>Refresh Data
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Status Cards Row -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="card bg-primary text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title">Active Drones</h6>
+                            <h2 class="fw-bold">3</h2>
+                            <small><i class="fas fa-arrow-up me-1"></i>2 operational</small>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-helicopter fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="card bg-success text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title">Areas Monitored</h6>
+                            <h2 class="fw-bold">12</h2>
+                            <small><i class="fas fa-map-marker-alt me-1"></i>5 critical zones</small>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-map fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="card bg-warning text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title">Detection Alerts</h6>
+                            <h2 class="fw-bold">7</h2>
+                            <small><i class="fas fa-eye me-1"></i>2 high priority</small>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-exclamation-circle fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="card bg-info text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title">Mission Time</h6>
+                            <h2 class="fw-bold">2h 45m</h2>
+                            <small><i class="fas fa-clock me-1"></i>Since deployment</small>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-stopwatch fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Dashboard Content -->
+    <div class="row">
+        <!-- Live Video Feed -->
+        <div class="col-lg-8 mb-4">
+            <div class="card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-video me-2"></i>Live Drone Feed - Drone Alpha
+                    </h5>
+                    <div class="btn-group btn-group-sm">
+                        <button class="btn btn-outline-primary">Alpha</button>
+                        <button class="btn btn-outline-primary">Beta</button>
+                        <button class="btn btn-outline-primary">Gamma</button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="video-container bg-dark d-flex align-items-center justify-content-center" style="height: 400px;">
+                        <div class="text-center text-light">
+                            <i class="fas fa-video fa-3x mb-3"></i>
+                            <p>Live video feed will appear here</p>
+                            <small>Connecting to drone camera...</small>
+                        </div>
+                    </div>
+                    <div class="mt-3 d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="badge bg-success">LIVE</span>
+                            <small class="text-muted ms-2">1920x1080 @ 30fps</small>
+                        </div>
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-outline-secondary">
+                                <i class="fas fa-expand"></i>
+                            </button>
+                            <button class="btn btn-outline-secondary">
+                                <i class="fas fa-download"></i>
+                            </button>
+                            <button class="btn btn-outline-secondary">
+                                <i class="fas fa-camera"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Control Panel -->
+        <div class="col-lg-4 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-gamepad me-2"></i>Drone Control
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <!-- Drone Status -->
+                    <div class="mb-4">
+                        <h6 class="fw-bold">Current Status</h6>
+                        <div class="row text-center">
+                            <div class="col-6">
+                                <div class="bg-light p-2 rounded">
+                                    <small class="text-muted">Altitude</small>
+                                    <div class="fw-bold text-primary">150m</div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="bg-light p-2 rounded">
+                                    <small class="text-muted">Battery</small>
+                                    <div class="fw-bold text-success">87%</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="mb-4">
+                        <h6 class="fw-bold">Quick Actions</h6>
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-primary">
+                                <i class="fas fa-play me-1"></i>Start Detection
+                            </button>
+                            <button class="btn btn-info">
+                                <i class="fas fa-route me-1"></i>Auto Pathfinding
+                            </button>
+                            <button class="btn btn-warning">
+                                <i class="fas fa-home me-1"></i>Return to Base
+                            </button>
+                            <button class="btn btn-danger">
+                                <i class="fas fa-stop me-1"></i>Emergency Land
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- GPS Coordinates -->
+                    <div>
+                        <h6 class="fw-bold">GPS Coordinates</h6>
+                        <div class="bg-light p-3 rounded">
+                            <div class="small">
+                                <div><strong>Lat:</strong> 28.6139° N</div>
+                                <div><strong>Lng:</strong> 77.2090° E</div>
+                                <div><strong>Alt:</strong> 150m ASL</div>
+                                <div class="mt-2">
+                                    <span class="badge bg-success">GPS Lock: Strong</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-history me-2"></i>Recent Activity Log
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Time</th>
+                                    <th>Drone</th>
+                                    <th>Event</th>
+                                    <th>Status</th>
+                                    <th>Details</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>18:03:45</td>
+                                    <td>Alpha</td>
+                                    <td>Object Detection</td>
+                                    <td><span class="badge bg-warning">Alert</span></td>
+                                    <td>Person detected in restricted zone</td>
+                                </tr>
+                                <tr>
+                                    <td>18:01:22</td>
+                                    <td>Beta</td>
+                                    <td>Route Update</td>
+                                    <td><span class="badge bg-info">Info</span></td>
+                                    <td>Path recalculated due to weather</td>
+                                </tr>
+                                <tr>
+                                    <td>17:58:10</td>
+                                    <td>Gamma</td>
+                                    <td>Battery Check</td>
+                                    <td><span class="badge bg-success">OK</span></td>
+                                    <td>Battery level: 92%</td>
+                                </tr>
+                                <tr>
+                                    <td>17:55:33</td>
+                                    <td>Alpha</td>
+                                    <td>Mission Start</td>
+                                    <td><span class="badge bg-success">Success</span></td>
+                                    <td>Disaster response mission initiated</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Dashboard specific JavaScript
+    document.addEventListener('DOMContentLoaded', function() {
+        // Emergency button handler
+        document.getElementById('emergency-btn').addEventListener('click', function() {
+            const alert = document.getElementById('emergency-alert');
+            document.getElementById('emergency-message').textContent = 'Emergency protocol activated - All drones returning to base';
+            alert.style.display = 'block';
+            alert.classList.add('show');
+        });
+
+        // Refresh button handler
+        document.getElementById('refresh-btn').addEventListener('click', function() {
+            const btn = this;
+            const icon = btn.querySelector('i');
+            
+            icon.classList.add('fa-spin');
+            btn.disabled = true;
+            
+            setTimeout(() => {
+                icon.classList.remove('fa-spin');
+                btn.disabled = false;
+            }, 2000);
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,490 @@
+{% extends 'base.html' %}
+
+{% block title %}Pathfinding - Vihangam Navigation System{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1 class="display-6 fw-bold text-primary">
+                    <i class="fas fa-route me-2"></i>Autonomous Navigation System
+                </h1>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-success" id="calculate-path-btn">
+                        <i class="fas fa-calculator me-1"></i>Calculate Path
+                    </button>
+                    <button class="btn btn-primary" id="start-navigation-btn">
+                        <i class="fas fa-play me-1"></i>Start Navigation
+                    </button>
+                    <button class="btn btn-danger" id="emergency-return-btn">
+                        <i class="fas fa-home me-1"></i>Emergency Return
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation Stats Cards -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="card bg-primary text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title">Current Distance</h6>
+                            <h2 class="fw-bold">2.4 km</h2>
+                            <small><i class="fas fa-map-marker-alt me-1"></i>To destination</small>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-ruler fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="card bg-info text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title">ETA</h6>
+                            <h2 class="fw-bold">12 min</h2>
+                            <small><i class="fas fa-clock me-1"></i>At current speed</small>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-hourglass-half fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="card bg-warning text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title">Obstacles</h6>
+                            <h2 class="fw-bold">3</h2>
+                            <small><i class="fas fa-exclamation-triangle me-1"></i>Detected ahead</small>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-exclamation-circle fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="card bg-success text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title">Path Efficiency</h6>
+                            <h2 class="fw-bold">92%</h2>
+                            <small><i class="fas fa-check me-1"></i>Optimal route</small>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-chart-line fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Navigation Content -->
+    <div class="row">
+        <!-- Interactive Map -->
+        <div class="col-lg-8 mb-4">
+            <div class="card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-map me-2"></i>Flight Path Visualization
+                    </h5>
+                    <div class="d-flex gap-2 align-items-center">
+                        <span class="badge bg-info" id="navigation-status">PLANNING</span>
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-outline-primary" id="satellite-view">Satellite</button>
+                            <button class="btn btn-outline-primary active" id="terrain-view">Terrain</button>
+                            <button class="btn btn-outline-primary" id="hybrid-view">Hybrid</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div class="map-container bg-light position-relative" style="height: 500px;">
+                        <!-- Map placeholder with grid pattern -->
+                        <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" 
+                             style="background-image: repeating-linear-gradient(0deg, rgba(0,0,0,0.05) 0px, rgba(0,0,0,0.05) 1px, transparent 1px, transparent 20px), repeating-linear-gradient(90deg, rgba(0,0,0,0.05) 0px, rgba(0,0,0,0.05) 1px, transparent 1px, transparent 20px);">
+                            
+                            <!-- Start Point -->
+                            <div class="position-absolute" style="top: 20%; left: 20%;">
+                                <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center" 
+                                     style="width: 40px; height: 40px;">
+                                    <i class="fas fa-play"></i>
+                                </div>
+                                <small class="position-absolute text-success fw-bold" style="top: 45px; left: -15px;">START</small>
+                            </div>
+                            
+                            <!-- Waypoints -->
+                            <div class="position-absolute" style="top: 40%; left: 45%;">
+                                <div class="bg-warning text-white rounded-circle d-flex align-items-center justify-content-center" 
+                                     style="width: 30px; height: 30px;">
+                                    <i class="fas fa-circle"></i>
+                                </div>
+                            </div>
+                            
+                            <div class="position-absolute" style="top: 60%; left: 65%;">
+                                <div class="bg-warning text-white rounded-circle d-flex align-items-center justify-content-center" 
+                                     style="width: 30px; height: 30px;">
+                                    <i class="fas fa-circle"></i>
+                                </div>
+                            </div>
+                            
+                            <!-- End Point -->
+                            <div class="position-absolute" style="top: 80%; left: 80%;">
+                                <div class="bg-danger text-white rounded-circle d-flex align-items-center justify-content-center" 
+                                     style="width: 40px; height: 40px;">
+                                    <i class="fas fa-flag"></i>
+                                </div>
+                                <small class="position-absolute text-danger fw-bold" style="top: 45px; left: -10px;">DEST</small>
+                            </div>
+                            
+                            <!-- Current Drone Position -->
+                            <div class="position-absolute animate-drone" style="top: 25%; left: 30%;">
+                                <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" 
+                                     style="width: 35px; height: 35px;">
+                                    <i class="fas fa-helicopter"></i>
+                                </div>
+                            </div>
+                            
+                            <!-- Path Lines (simplified) -->
+                            <svg class="position-absolute top-0 start-0 w-100 h-100" style="pointer-events: none;">
+                                <!-- Planned path -->
+                                <path d="M 20% 20% Q 35% 25% 45% 40% T 65% 60% T 80% 80%" 
+                                      stroke="#007bff" stroke-width="3" fill="none" stroke-dasharray="10,5"/>
+                                <!-- Completed path -->
+                                <path d="M 20% 20% L 30% 25%" 
+                                      stroke="#28a745" stroke-width="4" fill="none"/>
+                            </svg>
+                            
+                            <!-- Obstacles -->
+                            <div class="position-absolute" style="top: 35%; left: 50%;">
+                                <div class="bg-dark text-white rounded" style="width: 20px; height: 20px;">
+                                </div>
+                            </div>
+                            
+                            <div class="position-absolute" style="top: 55%; left: 55%;">
+                                <div class="bg-dark text-white rounded" style="width: 15px; height: 15px;">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Map Legend -->
+                        <div class="position-absolute bottom-0 start-0 m-3">
+                            <div class="bg-white p-2 rounded shadow-sm">
+                                <div class="d-flex align-items-center mb-1">
+                                    <div class="bg-success rounded-circle me-2" style="width: 12px; height: 12px;"></div>
+                                    <small>Start Point</small>
+                                </div>
+                                <div class="d-flex align-items-center mb-1">
+                                    <div class="bg-danger rounded-circle me-2" style="width: 12px; height: 12px;"></div>
+                                    <small>Destination</small>
+                                </div>
+                                <div class="d-flex align-items-center mb-1">
+                                    <div class="bg-primary rounded-circle me-2" style="width: 12px; height: 12px;"></div>
+                                    <small>Current Position</small>
+                                </div>
+                                <div class="d-flex align-items-center mb-1">
+                                    <div class="bg-warning rounded-circle me-2" style="width: 12px; height: 12px;"></div>
+                                    <small>Waypoints</small>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-dark rounded me-2" style="width: 12px; height: 12px;"></div>
+                                    <small>Obstacles</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Control Panel -->
+        <div class="col-lg-4 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-cogs me-2"></i>Navigation Control
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <!-- Waypoint Management -->
+                    <div class="mb-4">
+                        <h6 class="fw-bold">Waypoint Management</h6>
+                        <div class="mb-2">
+                            <label class="form-label">Destination Coordinates</label>
+                            <div class="row">
+                                <div class="col-6">
+                                    <input type="text" class="form-control form-control-sm" placeholder="Latitude" value="28.6143">
+                                </div>
+                                <div class="col-6">
+                                    <input type="text" class="form-control form-control-sm" placeholder="Longitude" value="77.2095">
+                                </div>
+                            </div>
+                        </div>
+                        <button class="btn btn-outline-primary btn-sm w-100">
+                            <i class="fas fa-plus me-1"></i>Add Waypoint
+                        </button>
+                    </div>
+
+                    <!-- Algorithm Settings -->
+                    <div class="mb-4">
+                        <h6 class="fw-bold">Algorithm Settings</h6>
+                        <div class="mb-2">
+                            <label class="form-label">Pathfinding Algorithm</label>
+                            <select class="form-select form-select-sm">
+                                <option selected>A* (A-Star)</option>
+                                <option>Dijkstra</option>
+                                <option>RRT (Rapidly-exploring Random Tree)</option>
+                                <option>Potential Field</option>
+                            </select>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Optimization Priority</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="priority" id="shortest-path" checked>
+                                <label class="form-check-label" for="shortest-path">Shortest Path</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="priority" id="safest-path">
+                                <label class="form-check-label" for="safest-path">Safest Route</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="priority" id="fuel-efficient">
+                                <label class="form-check-label" for="fuel-efficient">Fuel Efficient</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Flight Parameters -->
+                    <div class="mb-4">
+                        <h6 class="fw-bold">Flight Parameters</h6>
+                        <div class="mb-2">
+                            <label class="form-label">Cruise Altitude</label>
+                            <div class="d-flex align-items-center">
+                                <input type="range" class="form-range flex-grow-1 me-2" id="altitude-slider" min="50" max="500" value="150">
+                                <span class="badge bg-secondary" id="altitude-value">150m</span>
+                            </div>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Max Speed</label>
+                            <div class="d-flex align-items-center">
+                                <input type="range" class="form-range flex-grow-1 me-2" id="speed-slider" min="5" max="25" value="12">
+                                <span class="badge bg-secondary" id="speed-value">12 m/s</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Safety Settings -->
+                    <div class="mb-4">
+                        <h6 class="fw-bold">Safety Settings</h6>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="obstacle-avoidance" checked>
+                            <label class="form-check-label" for="obstacle-avoidance">Dynamic Obstacle Avoidance</label>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="weather-routing" checked>
+                            <label class="form-check-label" for="weather-routing">Weather-Based Routing</label>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="no-fly-zones" checked>
+                            <label class="form-check-label" for="no-fly-zones">Respect No-Fly Zones</label>
+                        </div>
+                    </div>
+
+                    <!-- Path Statistics -->
+                    <div>
+                        <h6 class="fw-bold">Path Statistics</h6>
+                        <div class="bg-light p-3 rounded">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Total Distance:</span>
+                                <span class="fw-bold">2.4 km</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Flight Time:</span>
+                                <span class="fw-bold">12 min</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Battery Usage:</span>
+                                <span class="fw-bold">23%</span>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span>Waypoints:</span>
+                                <span class="fw-bold">2</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation Log -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-list me-2"></i>Navigation Log
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Time</th>
+                                    <th>Event</th>
+                                    <th>Location</th>
+                                    <th>Status</th>
+                                    <th>Details</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>18:04:15</td>
+                                    <td>Path Recalculation</td>
+                                    <td>28.6140°N, 77.2091°E</td>
+                                    <td><span class="badge bg-warning">Processing</span></td>
+                                    <td>Obstacle detected, recalculating route</td>
+                                </tr>
+                                <tr>
+                                    <td>18:03:42</td>
+                                    <td>Waypoint Reached</td>
+                                    <td>28.6141°N, 77.2092°E</td>
+                                    <td><span class="badge bg-success">Complete</span></td>
+                                    <td>Waypoint #1 reached successfully</td>
+                                </tr>
+                                <tr>
+                                    <td>18:02:18</td>
+                                    <td>Course Correction</td>
+                                    <td>28.6139°N, 77.2090°E</td>
+                                    <td><span class="badge bg-info">Complete</span></td>
+                                    <td>Wind compensation applied</td>
+                                </tr>
+                                <tr>
+                                    <td>18:00:00</td>
+                                    <td>Navigation Started</td>
+                                    <td>28.6139°N, 77.2090°E</td>
+                                    <td><span class="badge bg-success">Complete</span></td>
+                                    <td>A* pathfinding algorithm initiated</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Pathfinding specific JavaScript
+    document.addEventListener('DOMContentLoaded', function() {
+        const calculateBtn = document.getElementById('calculate-path-btn');
+        const startNavBtn = document.getElementById('start-navigation-btn');
+        const emergencyBtn = document.getElementById('emergency-return-btn');
+        const statusBadge = document.getElementById('navigation-status');
+        const altitudeSlider = document.getElementById('altitude-slider');
+        const altitudeValue = document.getElementById('altitude-value');
+        const speedSlider = document.getElementById('speed-slider');
+        const speedValue = document.getElementById('speed-value');
+        
+        // Calculate path
+        calculateBtn.addEventListener('click', function() {
+            statusBadge.textContent = 'CALCULATING';
+            statusBadge.className = 'badge bg-warning';
+            calculateBtn.disabled = true;
+            
+            // Simulate path calculation
+            setTimeout(() => {
+                statusBadge.textContent = 'READY';
+                statusBadge.className = 'badge bg-success';
+                calculateBtn.disabled = false;
+                startNavBtn.disabled = false;
+            }, 2000);
+        });
+        
+        // Start navigation
+        startNavBtn.addEventListener('click', function() {
+            statusBadge.textContent = 'NAVIGATING';
+            statusBadge.className = 'badge bg-primary';
+            startNavBtn.disabled = true;
+            calculateBtn.disabled = true;
+        });
+        
+        // Emergency return
+        emergencyBtn.addEventListener('click', function() {
+            statusBadge.textContent = 'RETURNING';
+            statusBadge.className = 'badge bg-danger';
+            startNavBtn.disabled = true;
+            calculateBtn.disabled = true;
+            
+            if (confirm('Are you sure you want to initiate emergency return to base?')) {
+                // Emergency return logic would go here
+            }
+        });
+        
+        // Altitude slider
+        altitudeSlider.addEventListener('input', function() {
+            altitudeValue.textContent = this.value + 'm';
+        });
+        
+        // Speed slider
+        speedSlider.addEventListener('input', function() {
+            speedValue.textContent = this.value + ' m/s';
+        });
+        
+        // Animate drone position
+        const drone = document.querySelector('.animate-drone');
+        if (drone) {
+            setInterval(() => {
+                if (statusBadge.textContent === 'NAVIGATING') {
+                    const currentLeft = parseFloat(drone.style.left) || 30;
+                    const currentTop = parseFloat(drone.style.top) || 25;
+                    
+                    // Simple animation towards destination
+                    if (currentLeft < 75 || currentTop < 75) {
+                        drone.style.left = (currentLeft + 0.5) + '%';
+                        drone.style.top = (currentTop + 0.5) + '%';
+                    }
+                }
+            }, 1000);
+        }
+    });
+</script>
+
+<style>
+    .animate-drone {
+        transition: all 1s ease-in-out;
+    }
+    
+    .map-container {
+        background-color: #f8f9fa;
+    }
+    
+    .form-range::-webkit-slider-thumb {
+        background: #007bff;
+    }
+    
+    .form-range::-moz-range-thumb {
+        background: #007bff;
+        border: none;
+    }
+</style>
+{% endblock %}

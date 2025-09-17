@@ -1,0 +1,364 @@
+{% extends 'base.html' %}
+
+{% block title %}Object Detection - Vihangam AI Vision{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1 class="display-6 fw-bold text-primary">
+                    <i class="fas fa-eye me-2"></i>AI Object Detection System
+                </h1>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-success" id="start-detection-btn">
+                        <i class="fas fa-play me-1"></i>Start Detection
+                    </button>
+                    <button class="btn btn-danger" id="stop-detection-btn" disabled>
+                        <i class="fas fa-stop me-1"></i>Stop Detection
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detection Stats Cards -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="card bg-info text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title">Objects Detected</h6>
+                            <h2 class="fw-bold" id="objects-count">247</h2>
+                            <small><i class="fas fa-clock me-1"></i>Last hour</small>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-search fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="card bg-warning text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title">High Priority</h6>
+                            <h2 class="fw-bold" id="priority-count">12</h2>
+                            <small><i class="fas fa-exclamation-triangle me-1"></i>Require attention</small>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-exclamation-circle fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="card bg-success text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title">Detection Accuracy</h6>
+                            <h2 class="fw-bold">94.2%</h2>
+                            <small><i class="fas fa-arrow-up me-1"></i>+2.1% today</small>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-bullseye fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="card bg-primary text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title">Processing Speed</h6>
+                            <h2 class="fw-bold">28 FPS</h2>
+                            <small><i class="fas fa-tachometer-alt me-1"></i>Real-time</small>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-bolt fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Detection Content -->
+    <div class="row">
+        <!-- Live Detection Feed -->
+        <div class="col-lg-8 mb-4">
+            <div class="card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-video me-2"></i>Live Detection Feed
+                    </h5>
+                    <div class="d-flex gap-2 align-items-center">
+                        <span class="badge bg-success" id="detection-status">ACTIVE</span>
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-outline-primary">Drone Alpha</button>
+                            <button class="btn btn-outline-primary">Drone Beta</button>
+                            <button class="btn btn-outline-primary">Drone Gamma</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="detection-container bg-dark d-flex align-items-center justify-content-center position-relative" style="height: 450px;">
+                        <div class="text-center text-light">
+                            <i class="fas fa-eye fa-3x mb-3"></i>
+                            <p>AI Detection processing will appear here</p>
+                            <small>YOLO model analyzing live feed...</small>
+                        </div>
+                        
+                        <!-- Detection Overlay (would contain bounding boxes in real implementation) -->
+                        <div class="detection-overlay position-absolute top-0 start-0 w-100 h-100 d-none">
+                            <!-- Bounding boxes would be dynamically added here -->
+                        </div>
+                    </div>
+                    
+                    <!-- Detection Controls -->
+                    <div class="mt-3">
+                        <div class="row align-items-center">
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-center">
+                                    <label class="form-label me-2 mb-0">Confidence Threshold:</label>
+                                    <input type="range" class="form-range flex-grow-1 me-2" id="confidence-slider" min="0" max="100" value="75">
+                                    <span class="badge bg-secondary" id="confidence-value">75%</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="btn-group btn-group-sm w-100">
+                                    <button class="btn btn-outline-secondary">
+                                        <i class="fas fa-expand"></i> Fullscreen
+                                    </button>
+                                    <button class="btn btn-outline-secondary">
+                                        <i class="fas fa-camera"></i> Capture
+                                    </button>
+                                    <button class="btn btn-outline-secondary">
+                                        <i class="fas fa-download"></i> Export
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detection Settings & Results -->
+        <div class="col-lg-4 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-cogs me-2"></i>Detection Settings
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <!-- Model Selection -->
+                    <div class="mb-4">
+                        <h6 class="fw-bold">AI Model</h6>
+                        <select class="form-select" id="model-select">
+                            <option selected>YOLOv8 - General Objects</option>
+                            <option>YOLOv8 - People Detection</option>
+                            <option>YOLOv8 - Vehicle Detection</option>
+                            <option>Custom - Disaster Objects</option>
+                        </select>
+                    </div>
+
+                    <!-- Detection Classes -->
+                    <div class="mb-4">
+                        <h6 class="fw-bold">Object Classes</h6>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="person" checked>
+                            <label class="form-check-label" for="person">Person</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="vehicle" checked>
+                            <label class="form-check-label" for="vehicle">Vehicle</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="building">
+                            <label class="form-check-label" for="building">Building</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="debris" checked>
+                            <label class="form-check-label" for="debris">Debris</label>
+                        </div>
+                    </div>
+
+                    <!-- Alert Settings -->
+                    <div class="mb-4">
+                        <h6 class="fw-bold">Alert Settings</h6>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="auto-alerts" checked>
+                            <label class="form-check-label" for="auto-alerts">Auto Alerts</label>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="priority-only">
+                            <label class="form-check-label" for="priority-only">High Priority Only</label>
+                        </div>
+                    </div>
+
+                    <!-- Current Detections -->
+                    <div>
+                        <h6 class="fw-bold">Recent Detections</h6>
+                        <div class="detection-list" style="max-height: 200px; overflow-y: auto;">
+                            <div class="d-flex justify-content-between align-items-center mb-2 p-2 bg-light rounded">
+                                <div>
+                                    <small class="fw-bold text-warning">Person</small><br>
+                                    <small class="text-muted">Conf: 89%</small>
+                                </div>
+                                <small class="text-muted">18:04:12</small>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mb-2 p-2 bg-light rounded">
+                                <div>
+                                    <small class="fw-bold text-info">Vehicle</small><br>
+                                    <small class="text-muted">Conf: 92%</small>
+                                </div>
+                                <small class="text-muted">18:03:45</small>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mb-2 p-2 bg-light rounded">
+                                <div>
+                                    <small class="fw-bold text-danger">Debris</small><br>
+                                    <small class="text-muted">Conf: 76%</small>
+                                </div>
+                                <small class="text-muted">18:02:33</small>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mb-2 p-2 bg-light rounded">
+                                <div>
+                                    <small class="fw-bold text-warning">Person</small><br>
+                                    <small class="text-muted">Conf: 94%</small>
+                                </div>
+                                <small class="text-muted">18:01:21</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detection Analytics -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-chart-line me-2"></i>Detection Analytics
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <!-- Chart placeholder -->
+                            <div class="bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                                <div class="text-center text-muted">
+                                    <i class="fas fa-chart-line fa-3x mb-3"></i>
+                                    <p>Detection frequency chart would appear here</p>
+                                    <small>Real-time analytics visualization</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <h6 class="fw-bold">Object Summary</h6>
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between">
+                                    <span>Persons</span>
+                                    <span class="fw-bold text-warning">87</span>
+                                </div>
+                                <div class="progress" style="height: 8px;">
+                                    <div class="progress-bar bg-warning" style="width: 60%"></div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between">
+                                    <span>Vehicles</span>
+                                    <span class="fw-bold text-info">43</span>
+                                </div>
+                                <div class="progress" style="height: 8px;">
+                                    <div class="progress-bar bg-info" style="width: 30%"></div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between">
+                                    <span>Debris</span>
+                                    <span class="fw-bold text-danger">23</span>
+                                </div>
+                                <div class="progress" style="height: 8px;">
+                                    <div class="progress-bar bg-danger" style="width: 16%"></div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between">
+                                    <span>Buildings</span>
+                                    <span class="fw-bold text-success">12</span>
+                                </div>
+                                <div class="progress" style="height: 8px;">
+                                    <div class="progress-bar bg-success" style="width: 8%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Detection specific JavaScript
+    document.addEventListener('DOMContentLoaded', function() {
+        const startBtn = document.getElementById('start-detection-btn');
+        const stopBtn = document.getElementById('stop-detection-btn');
+        const statusBadge = document.getElementById('detection-status');
+        const confidenceSlider = document.getElementById('confidence-slider');
+        const confidenceValue = document.getElementById('confidence-value');
+        
+        // Start detection
+        startBtn.addEventListener('click', function() {
+            startBtn.disabled = true;
+            stopBtn.disabled = false;
+            statusBadge.textContent = 'PROCESSING';
+            statusBadge.className = 'badge bg-warning';
+            
+            // Simulate detection start
+            setTimeout(() => {
+                statusBadge.textContent = 'ACTIVE';
+                statusBadge.className = 'badge bg-success';
+            }, 1000);
+        });
+        
+        // Stop detection
+        stopBtn.addEventListener('click', function() {
+            startBtn.disabled = false;
+            stopBtn.disabled = true;
+            statusBadge.textContent = 'STOPPED';
+            statusBadge.className = 'badge bg-secondary';
+        });
+        
+        // Confidence slider
+        confidenceSlider.addEventListener('input', function() {
+            confidenceValue.textContent = this.value + '%';
+        });
+        
+        // Simulate real-time detection count updates
+        setInterval(() => {
+            const objectsCount = document.getElementById('objects-count');
+            const currentCount = parseInt(objectsCount.textContent);
+            if (statusBadge.textContent === 'ACTIVE') {
+                objectsCount.textContent = currentCount + Math.floor(Math.random() * 3);
+            }
+        }, 5000);
+    });
+</script>
+{% endblock %}
