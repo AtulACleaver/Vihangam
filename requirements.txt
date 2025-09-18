@@ -1,0 +1,45 @@
+# Django Core
+Django>=5.0,<5.1
+
+# WebSocket support for real-time communication
+channels>=4.0,<5.0
+channels-redis>=4.0,<5.0
+
+# Database
+# SQLite is included with Python, but for production you might want:
+# psycopg2-binary>=2.9  # PostgreSQL
+
+# API Development
+djangorestframework>=3.14,<4.0
+django-cors-headers>=4.0,<5.0
+
+# Computer Vision and Image Processing (for drone detection capabilities)
+opencv-python>=4.8,<5.0
+Pillow>=9.0,<11.0
+numpy>=1.21,<2.0
+
+# Machine Learning (for object detection and pathfinding)
+scikit-learn>=1.0,<2.0
+matplotlib>=3.5,<4.0
+
+# Drone Communication and Control
+# Note: Specific drone SDKs would be added based on hardware
+pyserial>=3.4,<4.0
+requests>=2.25,<3.0
+
+# Environment and Configuration
+python-dotenv>=0.19,<2.0
+
+# Development Tools
+pytest>=7.0,<8.0
+pytest-django>=4.5,<5.0
+black>=22.0,<25.0
+flake8>=5.0,<7.0
+
+# Production Deployment (optional)
+gunicorn>=20.0,<22.0
+whitenoise>=6.0,<7.0
+
+# Async support
+asyncio-mqtt>=0.11,<1.0
+aiofiles>=22.0,<25.0
