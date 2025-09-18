@@ -1,6 +1,6 @@
-# Vihangam - Disaster Management Drone System
+# Vihangam 🦅 - Disaster Management Drone System
 
-Vihangam is a drone-based system for disaster management and search & rescue operations. Uses YOLO object detection to identify people and debris in disaster scenarios.
+Vihangam (Vi-han-gam) is a drone software system designed for disaster management, focusing on search and rescue operations.
 
 ## Features
 
