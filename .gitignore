@@ -177,27 +177,46 @@ Temporary Items
 .env.test.local
 .env.production.local
 
-# Drone/AI specific - ignore large model files but keep structure
+# Vihangam AI Drone specific files
+# Model files - exclude large binary files but keep structure
 *.weights
 *.pt
 *.onnx
-# Allow model directories but ignore contents
-models/*
-!models/.gitkeep
+*.pth
+
+# Training runs and results - keep structure but ignore contents
+yolo_detection/models/runs/*
+!yolo_detection/models/runs/.gitkeep
+yolo_detection/results/detection_results/*
+!yolo_detection/results/detection_results/.gitkeep
+
+# Model checkpoints and logs
 checkpoints/*
 !checkpoints/.gitkeep
 logs/*
 !logs/.gitkeep
-runs/*
-!runs/.gitkeep
 wandb/
 
-# OpenCV cache
+# AI/ML cache directories
 opencv_cache/
-
-# Ultralytics cache
 .ultralytics/
 
-# Temporary files
+# Testing artifacts
+scripts/testing/*_detected.jpg
+scripts/testing/test_images/
+scripts/testing/venv/
+
+# Temporary files and development artifacts
 *.tmp
 *.temp
+*.ps1
+disaster_test_*.jpg
+test_image*.jpg
+validation_*.json
+
+# OS and Editor files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~

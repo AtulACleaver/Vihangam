@@ -4,6 +4,9 @@ from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
 import json
 import random
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def index(request):
@@ -158,3 +161,153 @@ def update_detection_settings(request):
             'status': 'error',
             'message': f'Failed to update settings: {str(e)}'
         }, status=400)
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def process_image(request):
+    """
+    Simulate image processing for demonstration
+    """
+    try:
+        # Simulate processing
+        response_data = {
+            'status': 'success',
+            'message': 'Image processing simulated',
+            'total_detections': random.randint(0, 5),
+            'processing_time': round(random.uniform(0.1, 0.3), 3),
+            'timestamp': '2024-01-16T18:04:45Z'
+        }
+        
+        return JsonResponse(response_data)
+        
+    except Exception as e:
+        logger.error(f"Image processing error: {e}")
+        return JsonResponse({
+            'status': 'error', 
+            'message': str(e)
+        }, status=500)
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def live_detection(request):
+    """
+    Simulate live detection for demonstration
+    """
+    try:
+        mock_results = {
+            'status': 'success',
+            'session_id': f'live_{random.randint(1000, 9999)}',
+            'timestamp': '2024-01-16T18:04:45Z',
+            'frame_id': random.randint(10000, 99999),
+            'detections': [
+                {
+                    'bbox': [random.randint(50, 200), random.randint(50, 200), 
+                            random.randint(100, 150), random.randint(100, 150)],
+                    'confidence': round(random.uniform(0.7, 0.95), 3),
+                    'class_name': random.choice(['person', 'car', 'truck', 'motorbike']),
+                    'is_disaster_related': True,
+                    'is_high_priority': random.choice([True, False])
+                }
+            ],
+            'total_count': random.randint(1, 5),
+            'disaster_count': random.randint(0, 3),
+            'high_priority_count': random.randint(0, 2),
+            'fps': random.randint(25, 30),
+            'accuracy': round(random.uniform(90, 96), 1)
+        }
+        
+        return JsonResponse(mock_results)
+        
+    except Exception as e:
+        logger.error(f"Live detection error: {e}")
+        return JsonResponse({
+            'status': 'error',
+            'message': str(e)
+        }, status=500)
+
+
+@require_http_methods(["GET"])
+def model_info(request):
+    """
+    Get basic model information
+    """
+    try:
+        return JsonResponse({
+            'status': 'success',
+            'model_info': {
+                'name': 'Detection System',
+                'version': '1.0',
+                'status': 'Simulation Mode'
+            },
+            'supported_formats': ['jpg', 'jpeg', 'png', 'bmp', 'tiff'],
+            'max_image_size': '4096x4096'
+        })
+        
+    except Exception as e:
+        logger.error(f"Model info error: {e}")
+        return JsonResponse({
+            'status': 'error',
+            'message': str(e)
+        }, status=500)
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def switch_model(request):
+    """
+    Simulate model switching
+    """
+    try:
+        data = json.loads(request.body)
+        model_path = data.get('model_path', 'default')
+        
+        return JsonResponse({
+            'status': 'success',
+            'message': f'Switched to model: {model_path} (simulated)',
+            'model_info': {
+                'name': f'Model {model_path}',
+                'status': 'Loaded (simulation)'
+            }
+        })
+        
+    except Exception as e:
+        logger.error(f"Model switch error: {e}")
+        return JsonResponse({
+            'status': 'error',
+            'message': str(e)
+        }, status=500)
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def detect_from_url(request):
+    """
+    Simulate detection from image URL
+    """
+    try:
+        data = json.loads(request.body)
+        image_url = data.get('url')
+        
+        if not image_url:
+            return JsonResponse({'error': 'No image URL provided'}, status=400)
+        
+        response_data = {
+            'status': 'success',
+            'source': 'url',
+            'url': image_url,
+            'total_detections': random.randint(0, 3),
+            'processing_time': round(random.uniform(0.1, 0.5), 3),
+            'message': 'URL detection simulated',
+            'timestamp': '2024-01-16T18:04:45Z'
+        }
+        
+        return JsonResponse(response_data)
+        
+    except Exception as e:
+        logger.error(f"URL detection error: {e}")
+        return JsonResponse({
+            'status': 'error',
+            'message': str(e)
+        }, status=500)

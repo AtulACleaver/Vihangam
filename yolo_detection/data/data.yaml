@@ -1,0 +1,107 @@
+# YOLOv8 Dataset Configuration for Vihangam Disaster Management
+# Custom dataset for human and debris detection in search & rescue operations
+
+# Dataset paths (relative to this yaml file)
+path: .  # Root directory
+train: images/train  # Training images directory
+val: images/val      # Validation images directory
+
+# Class names and their corresponding indices
+names:
+  0: human
+  1: debris
+
+# Number of classes
+nc: 2
+
+# Dataset information
+dataset_name: "Vihangam Disaster Dataset"
+description: "Custom dataset for disaster management focusing on human and debris detection"
+version: "1.0"
+created: "2025-01-18"
+
+# Training configuration (optional - can be used with yolo train command)
+# Recommended hyperparameters for disaster detection
+train_settings:
+  epochs: 100
+  batch: 16
+  imgsz: 640
+  patience: 50
+  save_period: 10
+  
+# Data augmentation settings for disaster scenarios
+augment:
+  hsv_h: 0.015      # Hue augmentation
+  hsv_s: 0.7        # Saturation augmentation  
+  hsv_v: 0.4        # Value augmentation
+  degrees: 10.0     # Rotation degrees
+  translate: 0.1    # Translation
+  scale: 0.9        # Scale variation
+  shear: 0.0        # Shear
+  perspective: 0.0  # Perspective
+  flipud: 0.0       # Vertical flip probability
+  fliplr: 0.5       # Horizontal flip probability
+  mosaic: 1.0       # Mosaic augmentation probability
+  mixup: 0.1        # Mixup augmentation probability
+  copy_paste: 0.1   # Copy-paste augmentation probability
+
+# Class weights (optional - useful if dataset is imbalanced)
+# Higher weight = more importance during training
+class_weights:
+  human: 1.2   # Slightly higher weight for human detection (critical for rescue)
+  debris: 1.0  # Standard weight for debris detection
+
+# Validation settings
+val_settings:
+  save_json: True    # Save validation results as JSON
+  save_hybrid: True  # Save hybrid version of labels
+  conf: 0.25        # Confidence threshold for validation
+  iou: 0.45         # IoU threshold for NMS during validation
+
+# Export settings for deployment
+export_settings:
+  formats: ['onnx', 'tensorrt', 'coreml']  # Export formats for different deployment targets
+  optimize: True     # Optimize for mobile/edge deployment
+  half: True        # Use half precision (FP16)
+  dynamic: False    # Dynamic input shapes
+  simplify: True    # Simplify ONNX model
+
+# Notes and usage instructions
+notes: |
+  This dataset is specifically designed for disaster management and search & rescue operations.
+  
+  Directory structure should be:
+  ├── data.yaml (this file)
+  ├── images/
+  │   ├── train/
+  │   │   ├── image001.jpg
+  │   │   ├── image002.jpg
+  │   │   └── ...
+  │   └── val/
+  │       ├── image_val001.jpg
+  │       ├── image_val002.jpg
+  │       └── ...
+  └── labels/
+      ├── train/
+      │   ├── image001.txt
+      │   ├── image002.txt
+      │   └── ...
+      └── val/
+          ├── image_val001.txt
+          ├── image_val002.txt
+          └── ...
+  
+  Usage with YOLOv8:
+  - Training: yolo train data=data.yaml model=yolov8n.pt epochs=100
+  - Validation: yolo val data=data.yaml model=best.pt
+  - Prediction: yolo predict model=best.pt source=path/to/images
+  
+  Label format (YOLO format):
+  Each .txt file should contain one line per object:
+  class_id center_x center_y width height
+  
+  Where coordinates are normalized (0-1) relative to image dimensions.
+  
+  Examples:
+  0 0.5 0.6 0.2 0.3    # Human at center-bottom with 20% width, 30% height
+  1 0.3 0.4 0.15 0.25  # Debris at left-center with 15% width, 25% height
