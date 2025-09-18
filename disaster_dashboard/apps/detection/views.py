@@ -2,19 +2,9 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
-from django.core.files.storage import default_storage
-from django.core.files.base import ContentFile
 import json
 import random
-import base64
-import io
-from PIL import Image
-import cv2
-import numpy as np
-from .yolo_handler import get_yolo_detector
 import logging
-import os
-from django.conf import settings
 
 logger = logging.getLogger(__name__)
 
@@ -177,44 +167,15 @@ def update_detection_settings(request):
 @require_http_methods(["POST"])
 def process_image(request):
     """
-    Process uploaded image with YOLO detection
+    Simulate image processing for demonstration
     """
     try:
-        # Get image data from request
-        if 'image' in request.FILES:
-            # Handle file upload
-            image_file = request.FILES['image']
-            image = Image.open(image_file)
-        elif request.body:
-            # Handle base64 encoded image
-            data = json.loads(request.body)
-            image_data = data.get('image', '')
-            if image_data.startswith('data:image'):
-                image_data = image_data.split(',')[1]  # Remove data:image/jpeg;base64,
-            image_bytes = base64.b64decode(image_data)
-            image = Image.open(io.BytesIO(image_bytes))
-        else:
-            return JsonResponse({'error': 'No image provided'}, status=400)
-        
-        # Get detection parameters
-        confidence_threshold = float(request.POST.get('confidence', 0.5))
-        if request.body:
-            data = json.loads(request.body)
-            confidence_threshold = data.get('confidence', confidence_threshold)
-        
-        # Perform detection
-        detector = get_yolo_detector()
-        results = detector.detect_objects(image, confidence_threshold)
-        
-        # Process results for response
+        # Simulate processing
         response_data = {
             'status': 'success',
-            'total_detections': results['count'],
-            'disaster_objects': results['disaster_related_count'],
-            'high_priority_objects': results['high_priority_count'],
-            'processing_time': results['processing_time'],
-            'average_confidence': results['average_confidence'],
-            'detections': results['detections'][:10],  # Limit to top 10
+            'message': 'Image processing simulated',
+            'total_detections': random.randint(0, 5),
+            'processing_time': round(random.uniform(0.1, 0.3), 3),
             'timestamp': '2024-01-16T18:04:45Z'
         }
         
@@ -232,19 +193,9 @@ def process_image(request):
 @require_http_methods(["POST"])
 def live_detection(request):
     """
-    Handle live video stream detection (simulated for now)
+    Simulate live detection for demonstration
     """
     try:
-        data = json.loads(request.body) if request.body else {}
-        confidence_threshold = data.get('confidence', 0.5)
-        
-        # In a real implementation, this would connect to your drone's video stream
-        # For now, we'll use the existing YOLO detector with simulation
-        detector = get_yolo_detector()
-        
-        # Simulated detection results with real YOLO model info
-        model_info = detector.get_model_info()
-        
         mock_results = {
             'status': 'success',
             'session_id': f'live_{random.randint(1000, 9999)}',
@@ -264,8 +215,7 @@ def live_detection(request):
             'disaster_count': random.randint(0, 3),
             'high_priority_count': random.randint(0, 2),
             'fps': random.randint(25, 30),
-            'accuracy': round(random.uniform(90, 96), 1),
-            'model_info': model_info
+            'accuracy': round(random.uniform(90, 96), 1)
         }
         
         return JsonResponse(mock_results)
@@ -281,22 +231,16 @@ def live_detection(request):
 @require_http_methods(["GET"])
 def model_info(request):
     """
-    Get information about the current YOLO model
+    Get basic model information
     """
     try:
-        detector = get_yolo_detector()
-        info = detector.get_model_info()
-        
         return JsonResponse({
             'status': 'success',
-            'model_info': info,
-            'available_models': [
-                'yolov8n.pt',
-                'yolov8s.pt',
-                'yolov8m.pt',
-                'yolov8l.pt',
-                'yolov8x.pt'
-            ],
+            'model_info': {
+                'name': 'Detection System',
+                'version': '1.0',
+                'status': 'Simulation Mode'
+            },
             'supported_formats': ['jpg', 'jpeg', 'png', 'bmp', 'tiff'],
             'max_image_size': '4096x4096'
         })
@@ -313,24 +257,19 @@ def model_info(request):
 @require_http_methods(["POST"])
 def switch_model(request):
     """
-    Switch to a different YOLO model
+    Simulate model switching
     """
     try:
         data = json.loads(request.body)
-        model_path = data.get('model_path', 'yolov8n.pt')
-        
-        # Reset detector to load new model
-        from .yolo_handler import reset_yolo_detector
-        reset_yolo_detector()
-        
-        # Get new detector with specified model
-        detector = get_yolo_detector(model_path)
-        model_info = detector.get_model_info()
+        model_path = data.get('model_path', 'default')
         
         return JsonResponse({
             'status': 'success',
-            'message': f'Switched to model: {model_path}',
-            'model_info': model_info
+            'message': f'Switched to model: {model_path} (simulated)',
+            'model_info': {
+                'name': f'Model {model_path}',
+                'status': 'Loaded (simulation)'
+            }
         })
         
     except Exception as e:
@@ -345,35 +284,22 @@ def switch_model(request):
 @require_http_methods(["POST"])
 def detect_from_url(request):
     """
-    Detect objects from an image URL
+    Simulate detection from image URL
     """
     try:
         data = json.loads(request.body)
         image_url = data.get('url')
-        confidence_threshold = data.get('confidence', 0.5)
         
         if not image_url:
             return JsonResponse({'error': 'No image URL provided'}, status=400)
-        
-        # Download and process image
-        import requests
-        response = requests.get(image_url, timeout=10)
-        image = Image.open(io.BytesIO(response.content))
-        
-        # Perform detection
-        detector = get_yolo_detector()
-        results = detector.detect_objects(image, confidence_threshold)
         
         response_data = {
             'status': 'success',
             'source': 'url',
             'url': image_url,
-            'total_detections': results['count'],
-            'disaster_objects': results['disaster_related_count'],
-            'high_priority_objects': results['high_priority_count'],
-            'processing_time': results['processing_time'],
-            'average_confidence': results['average_confidence'],
-            'detections': results['detections'],
+            'total_detections': random.randint(0, 3),
+            'processing_time': round(random.uniform(0.1, 0.5), 3),
+            'message': 'URL detection simulated',
             'timestamp': '2024-01-16T18:04:45Z'
         }
         

@@ -57,7 +57,3 @@ Detection results are saved to `results/detection_results/`:
 - **Size**: ~6MB
 - **Classes**: 2 (human, debris)
 - **Performance**: Fast inference suitable for real-time processing
-
-## 📚 Documentation
-
-For detailed setup and training information, see `../docs/COMPLETE_SETUP_GUIDE.md`

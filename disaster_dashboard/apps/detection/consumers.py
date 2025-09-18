@@ -2,8 +2,6 @@ import json
 import asyncio
 import logging
 from channels.generic.websocket import AsyncWebsocketConsumer
-from channels.db import database_sync_to_async
-from .yolo_handler import get_yolo_detector
 import random
 from datetime import datetime
 
@@ -97,14 +95,8 @@ class DetectionConsumer(AsyncWebsocketConsumer):
             self.confidence_threshold = data.get('confidence', 0.5)
             model_path = data.get('model_path')
             
-            # Initialize YOLO detector
-            detector = await self.get_detector(model_path)
-            if not detector:
-                await self.send(text_data=json.dumps({
-                    'type': 'error',
-                    'message': 'Failed to initialize YOLO detector'
-                }))
-                return
+            # Simulate model initialization
+            await asyncio.sleep(0.1)  # Simulate loading time
             
             # Start detection
             self.detection_active = True
@@ -114,7 +106,7 @@ class DetectionConsumer(AsyncWebsocketConsumer):
                 'type': 'detection_started',
                 'message': f'Detection started with confidence {self.confidence_threshold}',
                 'confidence': self.confidence_threshold,
-                'model_info': await self.get_model_info_sync(),
+                'model_info': {'name': 'Simulation Mode', 'status': 'active'},
                 'timestamp': datetime.now().isoformat()
             }))
             
@@ -254,24 +246,14 @@ class DetectionConsumer(AsyncWebsocketConsumer):
                 'message': str(e)
             }))
     
-    @database_sync_to_async
-    def get_detector(self, model_path=None):
-        """Get YOLO detector instance"""
-        try:
-            return get_yolo_detector(model_path)
-        except Exception as e:
-            logger.error(f"Failed to get detector: {e}")
-            return None
-    
-    @database_sync_to_async
-    def get_model_info_sync(self):
-        """Get model info synchronously"""
-        try:
-            detector = get_yolo_detector()
-            return detector.get_model_info()
-        except Exception as e:
-            logger.error(f"Failed to get model info: {e}")
-            return None
+    async def get_model_info_sync(self):
+        """Get model info (simulated)"""
+        return {
+            'name': 'Detection System',
+            'version': '1.0',
+            'status': 'Simulation Mode',
+            'classes': ['person', 'vehicle', 'debris']
+        }
     
     # Group message handlers
     async def detection_broadcast(self, event):

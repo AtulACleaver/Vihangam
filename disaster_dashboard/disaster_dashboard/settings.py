@@ -155,9 +155,9 @@ LOGGING = {
         'level': 'INFO',
     },
     'loggers': {
-        'apps.detection': {
+        'django': {
             'handlers': ['console'],
-            'level': 'DEBUG',
+            'level': 'INFO',
             'propagate': False,
         },
     },

@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}Object Detection - Vihangam AI Vision{% endblock %}
+{% block title %}Object Detection - Vihangam{% endblock %}
 
 {% block content %}
 <div class="container-fluid py-4">
@@ -9,7 +9,7 @@
         <div class="col-12">
             <div class="d-flex justify-content-between align-items-center">
                 <h1 class="display-6 fw-bold text-primary">
-                    <i class="fas fa-eye me-2"></i>AI Object Detection System
+                    <i class="fas fa-eye me-2"></i>Object Detection System
                 </h1>
                 <div class="d-flex gap-2">
                     <button class="btn btn-success" id="start-detection-btn">
@@ -31,8 +31,8 @@
                     <div class="d-flex justify-content-between">
                         <div>
                             <h6 class="card-title">Objects Detected</h6>
-                            <h2 class="fw-bold" id="objects-count">247</h2>
-                            <small><i class="fas fa-clock me-1"></i>Last hour</small>
+                            <h2 class="fw-bold" id="objects-count">0</h2>
+                            <small><i class="fas fa-clock me-1"></i>Real-time</small>
                         </div>
                         <div class="align-self-center">
                             <i class="fas fa-search fa-2x"></i>
@@ -48,8 +48,8 @@
                     <div class="d-flex justify-content-between">
                         <div>
                             <h6 class="card-title">High Priority</h6>
-                            <h2 class="fw-bold" id="priority-count">12</h2>
-                            <small><i class="fas fa-exclamation-triangle me-1"></i>Require attention</small>
+                            <h2 class="fw-bold" id="priority-count">0</h2>
+                            <small><i class="fas fa-exclamation-triangle me-1"></i>Alerts</small>
                         </div>
                         <div class="align-self-center">
                             <i class="fas fa-exclamation-circle fa-2x"></i>
@@ -64,9 +64,9 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between">
                         <div>
-                            <h6 class="card-title">Detection Accuracy</h6>
-                            <h2 class="fw-bold">94.2%</h2>
-                            <small><i class="fas fa-arrow-up me-1"></i>+2.1% today</small>
+                            <h6 class="card-title">System Status</h6>
+                            <h2 class="fw-bold">Ready</h2>
+                            <small><i class="fas fa-check-circle me-1"></i>Online</small>
                         </div>
                         <div class="align-self-center">
                             <i class="fas fa-bullseye fa-2x"></i>
@@ -82,7 +82,7 @@
                     <div class="d-flex justify-content-between">
                         <div>
                             <h6 class="card-title">Processing Speed</h6>
-                            <h2 class="fw-bold">28 FPS</h2>
+                            <h2 class="fw-bold" id="fps-count">30 FPS</h2>
                             <small><i class="fas fa-tachometer-alt me-1"></i>Real-time</small>
                         </div>
                         <div class="align-self-center">
@@ -96,251 +96,66 @@
 
     <!-- Main Detection Content -->
     <div class="row">
-        <!-- Live Detection Feed -->
+        <!-- Detection Feed -->
         <div class="col-lg-8 mb-4">
             <div class="card h-100">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="card-title mb-0">
-                        <i class="fas fa-video me-2"></i>Live Detection Feed
+                        <i class="fas fa-video me-2"></i>Detection Interface
                     </h5>
-                    <div class="d-flex gap-2 align-items-center">
-                        <span class="badge bg-success" id="detection-status">ACTIVE</span>
-                        <div class="btn-group btn-group-sm">
-                            <button class="btn btn-outline-primary">Drone Alpha</button>
-                            <button class="btn btn-outline-primary">Drone Beta</button>
-                            <button class="btn btn-outline-primary">Drone Gamma</button>
-                        </div>
-                    </div>
+                    <span class="badge bg-success" id="status-badge">READY</span>
                 </div>
                 <div class="card-body">
-                    <div class="detection-container bg-dark d-flex align-items-center justify-content-center position-relative" style="height: 450px;">
-                        <div class="text-center text-light" id="default-message">
-                            <i class="fas fa-eye fa-3x mb-3"></i>
-                            <p>AI Detection processing will appear here</p>
-                            <small>YOLO model analyzing live feed...</small>
-                        </div>
-                        
-                        <!-- Image Upload Area -->
-                        <div class="text-center text-light d-none" id="upload-area">
-                            <i class="fas fa-cloud-upload-alt fa-3x mb-3"></i>
-                            <p>Upload an image for YOLO detection</p>
-                            <input type="file" class="d-none" id="image-upload" accept="image/*">
-                            <button class="btn btn-primary" onclick="document.getElementById('image-upload').click()">
-                                <i class="fas fa-upload me-2"></i>Choose Image
-                            </button>
-                        </div>
-                        
-                        <!-- Detection Results Display -->
-                        <canvas id="detection-canvas" class="w-100 h-100 d-none"></canvas>
-                        
-                        <!-- Detection Overlay for bounding boxes -->
-                        <div class="detection-overlay position-absolute top-0 start-0 w-100 h-100" id="detection-overlay">
-                            <!-- Bounding boxes will be dynamically added here -->
-                        </div>
-                        
-                        <!-- Processing indicator -->
-                        <div class="processing-indicator position-absolute top-50 start-50 translate-middle d-none" id="processing-indicator">
-                            <div class="spinner-border text-light" role="status">
-                                <span class="visually-hidden">Processing...</span>
-                            </div>
-                            <p class="text-light mt-2">Processing with YOLO...</p>
-                        </div>
-                    </div>
-                    
-                    <!-- Detection Controls -->
-                    <div class="mt-3">
-                        <div class="row align-items-center">
-                            <div class="col-md-6">
-                                <div class="d-flex align-items-center">
-                                    <label class="form-label me-2 mb-0">Confidence Threshold:</label>
-                                    <input type="range" class="form-range flex-grow-1 me-2" id="confidence-slider" min="0" max="100" value="25">
-                                    <span class="badge bg-secondary" id="confidence-value">25%</span>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="btn-group btn-group-sm w-100">
-                                    <button class="btn btn-outline-primary" id="upload-mode-btn">
-                                        <i class="fas fa-upload"></i> Upload
-                                    </button>
-                                    <button class="btn btn-outline-secondary" id="live-mode-btn">
-                                        <i class="fas fa-video"></i> Live
-                                    </button>
-                                    <button class="btn btn-outline-success" id="process-btn" disabled>
-                                        <i class="fas fa-play"></i> Process
-                                    </button>
-                                    <button class="btn btn-outline-secondary">
-                                        <i class="fas fa-download"></i> Export
-                                    </button>
-                                </div>
-                            </div>
+                    <div class="detection-area bg-light d-flex align-items-center justify-content-center" style="height: 400px;">
+                        <div class="text-center" id="detection-display">
+                            <i class="fas fa-eye fa-4x text-muted mb-3"></i>
+                            <h5 class="text-muted">Detection System Ready</h5>
+                            <p class="text-muted">Click "Start Detection" to begin simulation</p>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Detection Settings & Results -->
+        <!-- Detection Settings & Recent Activity -->
         <div class="col-lg-4 mb-4">
             <div class="card h-100">
                 <div class="card-header">
                     <h5 class="card-title mb-0">
-                        <i class="fas fa-cogs me-2"></i>Detection Settings
+                        <i class="fas fa-cogs me-2"></i>System Control
                     </h5>
                 </div>
                 <div class="card-body">
-                    <!-- Model Selection -->
+                    <!-- Connection Status -->
                     <div class="mb-4">
-                        <h6 class="fw-bold">AI Model <span class="badge bg-success ms-2">5.9 MB</span></h6>
-                        <select class="form-select" id="model-select">
-                            <option value="runs/detect/disaster_demo_20250918_201832/weights/best.pt" selected>
-                                🚁 Vihangam Custom Model (Recommended)
-                            </option>
-                            <option value="yolov8n.pt">YOLOv8n - Nano (General Purpose)</option>
-                            <option value="yolov8s.pt">YOLOv8s - Small (General Purpose)</option>
-                            <option value="yolov8m.pt">YOLOv8m - Medium (General Purpose)</option>
-                        </select>
-                        <div class="mt-2">
-                            <small class="text-muted">
-                                ✅ <strong>Active:</strong> Custom disaster detection model<br>
-                                📅 <strong>Trained:</strong> 2025-09-18 | 🎨 <strong>Classes:</strong> Human, Debris
-                            </small>
+                        <h6 class="fw-bold">Connection Status</h6>
+                        <div class="d-flex align-items-center">
+                            <div class="spinner-grow spinner-grow-sm text-success me-2" role="status" id="connection-indicator">
+                                <span class="visually-hidden">Connected</span>
+                            </div>
+                            <span id="connection-status">Connected to system</span>
                         </div>
                     </div>
 
-                    <!-- Detection Classes (Vihangam Custom Model) -->
+                    <!-- Settings -->
                     <div class="mb-4">
-                        <h6 class="fw-bold">Detection Classes <small class="text-muted">(Vihangam Model)</small></h6>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="human" checked>
-                            <label class="form-check-label" for="human">
-                                🔴 <strong>Human</strong> <span class="badge bg-danger ms-1">CRITICAL</span>
-                            </label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="debris" checked>
-                            <label class="form-check-label" for="debris">
-                                🟡 <strong>Debris</strong> <span class="badge bg-warning ms-1">WARNING</span>
-                            </label>
-                        </div>
-                        <div class="mt-2">
-                            <small class="text-muted">
-                                🎯 Custom trained model for disaster management<br>
-                                ✅ Optimized for search & rescue operations
-                            </small>
+                        <h6 class="fw-bold">Detection Settings</h6>
+                        <div class="mb-3">
+                            <label class="form-label">Confidence Threshold</label>
+                            <input type="range" class="form-range" id="confidence-slider" min="10" max="90" value="25">
+                            <div class="d-flex justify-content-between">
+                                <small>10%</small>
+                                <small id="confidence-display">25%</small>
+                                <small>90%</small>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Alert Settings -->
-                    <div class="mb-4">
-                        <h6 class="fw-bold">Alert Settings</h6>
-                        <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" id="auto-alerts" checked>
-                            <label class="form-check-label" for="auto-alerts">Auto Alerts</label>
-                        </div>
-                        <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" id="priority-only">
-                            <label class="form-check-label" for="priority-only">High Priority Only</label>
-                        </div>
-                    </div>
-
-                    <!-- Current Detections -->
+                    <!-- Recent Activity -->
                     <div>
-                        <h6 class="fw-bold">Recent Detections</h6>
-                        <div class="detection-list" style="max-height: 200px; overflow-y: auto;">
-                            <div class="d-flex justify-content-between align-items-center mb-2 p-2 bg-light rounded">
-                                <div>
-                                    <small class="fw-bold text-warning">Person</small><br>
-                                    <small class="text-muted">Conf: 89%</small>
-                                </div>
-                                <small class="text-muted">18:04:12</small>
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center mb-2 p-2 bg-light rounded">
-                                <div>
-                                    <small class="fw-bold text-info">Vehicle</small><br>
-                                    <small class="text-muted">Conf: 92%</small>
-                                </div>
-                                <small class="text-muted">18:03:45</small>
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center mb-2 p-2 bg-light rounded">
-                                <div>
-                                    <small class="fw-bold text-danger">Debris</small><br>
-                                    <small class="text-muted">Conf: 76%</small>
-                                </div>
-                                <small class="text-muted">18:02:33</small>
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center mb-2 p-2 bg-light rounded">
-                                <div>
-                                    <small class="fw-bold text-warning">Person</small><br>
-                                    <small class="text-muted">Conf: 94%</small>
-                                </div>
-                                <small class="text-muted">18:01:21</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Detection Analytics -->
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="card-title mb-0">
-                        <i class="fas fa-chart-line me-2"></i>Detection Analytics
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-8">
-                            <!-- Chart placeholder -->
-                            <div class="bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
-                                <div class="text-center text-muted">
-                                    <i class="fas fa-chart-line fa-3x mb-3"></i>
-                                    <p>Detection frequency chart would appear here</p>
-                                    <small>Real-time analytics visualization</small>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <h6 class="fw-bold">Object Summary</h6>
-                            <div class="mb-3">
-                                <div class="d-flex justify-content-between">
-                                    <span>Persons</span>
-                                    <span class="fw-bold text-warning">87</span>
-                                </div>
-                                <div class="progress" style="height: 8px;">
-                                    <div class="progress-bar bg-warning" style="width: 60%"></div>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <div class="d-flex justify-content-between">
-                                    <span>Vehicles</span>
-                                    <span class="fw-bold text-info">43</span>
-                                </div>
-                                <div class="progress" style="height: 8px;">
-                                    <div class="progress-bar bg-info" style="width: 30%"></div>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <div class="d-flex justify-content-between">
-                                    <span>Debris</span>
-                                    <span class="fw-bold text-danger">23</span>
-                                </div>
-                                <div class="progress" style="height: 8px;">
-                                    <div class="progress-bar bg-danger" style="width: 16%"></div>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <div class="d-flex justify-content-between">
-                                    <span>Buildings</span>
-                                    <span class="fw-bold text-success">12</span>
-                                </div>
-                                <div class="progress" style="height: 8px;">
-                                    <div class="progress-bar bg-success" style="width: 8%"></div>
-                                </div>
-                            </div>
+                        <h6 class="fw-bold">Recent Activity</h6>
+                        <div class="activity-list" id="activity-list">
+                            <p class="text-muted"><small>No recent activity</small></p>
                         </div>
                     </div>
                 </div>
@@ -349,73 +164,37 @@
     </div>
 </div>
 
-<!-- Toast Notification Container -->
+<!-- Toast Container -->
 <div class="toast-container position-fixed top-0 end-0 p-3" id="toast-container"></div>
 
 <script>
-// Enhanced YOLO Detection JavaScript for Vihangam System
 class VihangamDetection {
     constructor() {
         this.websocket = null;
-        this.isLiveDetection = false;
-        this.currentMode = 'live'; // 'live' or 'upload'
-        this.confidenceThreshold = 0.25; // Matching your backend default
-        this.connectionStatus = 'disconnected';
-        this.detectionStats = {
-            totalObjects: 0,
-            humanCount: 0,
-            debrisCount: 0,
-            averageConfidence: 0
-        };
+        this.isActive = false;
+        this.confidenceThreshold = 0.25;
+        
         this.init();
     }
     
     init() {
         this.setupEventListeners();
         this.connectWebSocket();
+        this.updateConnectionStatus('connecting');
     }
     
     setupEventListeners() {
-        // Main control buttons
         document.getElementById('start-detection-btn').addEventListener('click', () => {
-            if (this.currentMode === 'live') {
-                this.startLiveDetection();
-            } else {
-                this.processUploadedImage();
-            }
+            this.startDetection();
         });
         
         document.getElementById('stop-detection-btn').addEventListener('click', () => {
-            this.stopLiveDetection();
+            this.stopDetection();
         });
         
-        // Mode switching
-        document.getElementById('upload-mode-btn').addEventListener('click', () => {
-            this.switchToUploadMode();
-        });
-        
-        document.getElementById('live-mode-btn').addEventListener('click', () => {
-            this.switchToLiveMode();
-        });
-        
-        // Image upload
-        document.getElementById('image-upload').addEventListener('change', (e) => {
-            this.handleImageUpload(e.target.files[0]);
-        });
-        
-        document.getElementById('process-btn').addEventListener('click', () => {
-            this.processUploadedImage();
-        });
-        
-        // Confidence threshold
         document.getElementById('confidence-slider').addEventListener('input', (e) => {
             this.confidenceThreshold = e.target.value / 100;
-            document.getElementById('confidence-value').textContent = e.target.value + '%';
-        });
-        
-        // Model selection
-        document.getElementById('model-select').addEventListener('change', (e) => {
-            this.switchModel(e.target.value);
+            document.getElementById('confidence-display').textContent = e.target.value + '%';
         });
     }
     
@@ -423,581 +202,202 @@ class VihangamDetection {
         const wsScheme = window.location.protocol === "https:" ? "wss" : "ws";
         const wsPath = `${wsScheme}://${window.location.host}/ws/detection/`;
         
-        console.log('🚁 Connecting to Vihangam Detection WebSocket:', wsPath);
         this.websocket = new WebSocket(wsPath);
         
         this.websocket.onopen = () => {
-            console.log('✅ WebSocket connected to Vihangam Detection System');
-            this.connectionStatus = 'connected';
+            console.log('WebSocket connected');
             this.updateConnectionStatus('connected');
-            
-            // Request model information
-            this.sendCommand('get_model_info');
+            this.addActivity('System connected successfully');
         };
         
         this.websocket.onmessage = (event) => {
-            try {
-                const data = JSON.parse(event.data);
-                console.log('📨 Received:', data.type, data);
-                this.handleWebSocketMessage(data);
-            } catch (error) {
-                console.error('❌ WebSocket message parse error:', error);
-            }
+            const data = JSON.parse(event.data);
+            this.handleMessage(data);
         };
         
-        this.websocket.onclose = (event) => {
-            console.log('📴 WebSocket connection closed:', event.code, event.reason);
-            this.connectionStatus = 'disconnected';
+        this.websocket.onclose = () => {
+            console.log('WebSocket disconnected');
             this.updateConnectionStatus('disconnected');
+            this.addActivity('Connection lost - attempting to reconnect');
             
-            // Stop detection if it was active
-            if (this.isLiveDetection) {
-                this.onDetectionStopped({ message: 'Connection lost' });
-            }
-            
-            // Attempt to reconnect after 3 seconds
+            // Reconnect after 3 seconds
             setTimeout(() => {
-                if (this.connectionStatus === 'disconnected') {
-                    console.log('🔄 Attempting to reconnect...');
-                    this.connectWebSocket();
-                }
+                this.connectWebSocket();
             }, 3000);
         };
         
         this.websocket.onerror = (error) => {
-            console.error('❌ WebSocket error:', error);
-            this.showError('WebSocket connection error');
+            console.error('WebSocket error:', error);
+            this.updateConnectionStatus('error');
+            this.fallbackToSimulation();
         };
     }
     
-    handleWebSocketMessage(data) {
+    handleMessage(data) {
         switch (data.type) {
             case 'connection_status':
-                console.log('🔗 Connection status:', data.status, data.message);
-                this.showSuccess(data.message);
+                this.addActivity(data.message);
                 break;
             case 'detection_started':
-                console.log('🎥 Detection started');
-                this.onDetectionStarted(data);
+                this.onDetectionStarted();
+                this.addActivity('Detection started');
                 break;
             case 'detection_stopped':
-                console.log('⏹️ Detection stopped');
-                this.onDetectionStopped(data);
+                this.onDetectionStopped();
+                this.addActivity('Detection stopped');
                 break;
             case 'detection_update':
-                console.log('🎯 Detection update:', data.data);
                 this.updateDetectionResults(data.data);
                 break;
-            case 'model_info':
-                console.log('🤖 Model info received:', data.model_info);
-                this.displayModelInfo(data.model_info);
-                break;
-            case 'settings_updated':
-                console.log('⚙️ Settings updated:', data.settings);
-                this.showSuccess(data.message);
-                break;
-            case 'warning':
-                console.warn('⚠️ Warning:', data.message);
-                this.showWarning(data.message);
-                break;
             case 'error':
-                console.error('❌ Error:', data.message);
                 this.showError(data.message);
                 break;
-            case 'pong':
-                console.log('🏓 Pong received');
-                break;
-            default:
-                console.log('📬 Unknown message type:', data.type, data);
-                break;
         }
     }
     
-    switchToUploadMode() {
-        this.currentMode = 'upload';
-        document.getElementById('default-message').classList.add('d-none');
-        document.getElementById('upload-area').classList.remove('d-none');
-        document.getElementById('upload-mode-btn').classList.replace('btn-outline-primary', 'btn-primary');
-        document.getElementById('live-mode-btn').classList.replace('btn-primary', 'btn-outline-secondary');
-        document.getElementById('start-detection-btn').textContent = 'Process Image';
-    }
-    
-    switchToLiveMode() {
-        this.currentMode = 'live';
-        document.getElementById('upload-area').classList.add('d-none');
-        document.getElementById('default-message').classList.remove('d-none');
-        document.getElementById('live-mode-btn').classList.replace('btn-outline-secondary', 'btn-primary');
-        document.getElementById('upload-mode-btn').classList.replace('btn-primary', 'btn-outline-primary');
-        document.getElementById('start-detection-btn').innerHTML = '<i class="fas fa-play me-1"></i>Start Detection';
-    }
-    
-    handleImageUpload(file) {
-        if (!file) return;
-        
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const canvas = document.getElementById('detection-canvas');
-            const ctx = canvas.getContext('2d');
-            const img = new Image();
-            
-            img.onload = () => {
-                canvas.width = img.width;
-                canvas.height = img.height;
-                ctx.drawImage(img, 0, 0);
-                
-                document.getElementById('upload-area').classList.add('d-none');
-                document.getElementById('detection-canvas').classList.remove('d-none');
-                document.getElementById('process-btn').disabled = false;
-                
-                // Store image data for processing
-                this.currentImageData = e.target.result;
-            };
-            
-            img.src = e.target.result;
-        };
-        
-        reader.readAsDataURL(file);
-    }
-    
-    async processUploadedImage() {
-        if (!this.currentImageData) return;
-        
-        this.showProcessing(true);
-        
-        try {
-            const response = await fetch('/detection/api/process-image/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': this.getCSRFToken()
-                },
-                body: JSON.stringify({
-                    image: this.currentImageData,
-                    confidence: this.confidenceThreshold
-                })
-            });
-            
-            const result = await response.json();
-            
-            if (result.status === 'success') {
-                this.displayDetectionResults(result);
-                this.drawBoundingBoxes(result.detections);
-            } else {
-                this.showError(result.message || 'Detection failed');
-            }
-        } catch (error) {
-            console.error('Detection error:', error);
-            this.showError('Network error occurred');
-        } finally {
-            this.showProcessing(false);
-        }
-    }
-    
-    sendCommand(command, data = {}) {
+    startDetection() {
         if (this.websocket && this.websocket.readyState === WebSocket.OPEN) {
-            const message = {
-                command: command,
-                ...data
-            };
-            console.log('📤 Sending command:', command, message);
-            this.websocket.send(JSON.stringify(message));
+            this.websocket.send(JSON.stringify({
+                command: 'start_detection',
+                confidence: this.confidenceThreshold
+            }));
         } else {
-            console.error('❌ WebSocket not connected, cannot send command:', command);
-            this.showError('Not connected to detection server');
+            // Fallback to local simulation
+            this.onDetectionStarted();
+            this.addActivity('Started detection simulation');
+            this.simulateDetection();
         }
     }
     
-    startLiveDetection() {
-        this.sendCommand('start_detection', {
-            confidence: this.confidenceThreshold
-        });
+    stopDetection() {
+        if (this.websocket && this.websocket.readyState === WebSocket.OPEN) {
+            this.websocket.send(JSON.stringify({
+                command: 'stop_detection'
+            }));
+        } else {
+            // Fallback to local simulation
+            this.onDetectionStopped();
+            this.addActivity('Stopped detection simulation');
+        }
     }
     
-    stopLiveDetection() {
-        this.sendCommand('stop_detection');
-    }
-    
-    onDetectionStarted(data) {
+    onDetectionStarted() {
+        this.isActive = true;
         document.getElementById('start-detection-btn').disabled = true;
         document.getElementById('stop-detection-btn').disabled = false;
-        document.getElementById('detection-status').textContent = 'ACTIVE';
-        document.getElementById('detection-status').className = 'badge bg-success';
-        this.isLiveDetection = true;
+        document.getElementById('status-badge').textContent = 'ACTIVE';
+        document.getElementById('status-badge').className = 'badge bg-success';
+        
+        document.getElementById('detection-display').innerHTML = `
+            <i class="fas fa-cog fa-spin fa-4x text-primary mb-3"></i>
+            <h5 class="text-primary">Detection Active</h5>
+            <p class="text-muted">Monitoring for objects...</p>
+        `;
     }
     
-    onDetectionStopped(data) {
+    onDetectionStopped() {
+        this.isActive = false;
         document.getElementById('start-detection-btn').disabled = false;
         document.getElementById('stop-detection-btn').disabled = true;
-        document.getElementById('detection-status').textContent = 'STOPPED';
-        document.getElementById('detection-status').className = 'badge bg-secondary';
-        this.isLiveDetection = false;
+        document.getElementById('status-badge').textContent = 'READY';
+        document.getElementById('status-badge').className = 'badge bg-secondary';
+        
+        document.getElementById('detection-display').innerHTML = `
+            <i class="fas fa-eye fa-4x text-muted mb-3"></i>
+            <h5 class="text-muted">Detection Stopped</h5>
+            <p class="text-muted">Click "Start Detection" to resume</p>
+        `;
     }
     
     updateDetectionResults(data) {
-        console.log('📈 Updating detection results:', data);
+        // Update statistics
+        document.getElementById('objects-count').textContent = data.total_count || 0;
+        document.getElementById('priority-count').textContent = data.high_priority_count || 0;
+        document.getElementById('fps-count').textContent = (data.fps || 30) + ' FPS';
         
-        // Update statistics with Vihangam data structure
-        this.detectionStats = {
-            totalObjects: data.total_count || data.disaster_count || 0,
-            humanCount: data.detections ? data.detections.filter(d => d.class_name === 'human').length : 0,
-            debrisCount: data.detections ? data.detections.filter(d => d.class_name === 'debris').length : 0,
-            averageConfidence: data.average_confidence || 0
-        };
-        
-        // Update UI elements
-        document.getElementById('objects-count').textContent = this.detectionStats.totalObjects;
-        document.getElementById('priority-count').textContent = data.high_priority_count || this.detectionStats.humanCount;
-        
-        // Update processing speed if available
-        if (data.fps) {
-            const speedElement = document.querySelector('.card-body h2');
-            if (speedElement && speedElement.textContent.includes('FPS')) {
-                speedElement.textContent = `${data.fps} FPS`;
-            }
-        }
-        
-        // Update recent detections list
-        if (data.detections && data.detections.length > 0) {
-            this.updateDetectionsList(data.detections);
-            this.drawBoundingBoxes(data.detections);
-        }
-        
-        // Update timestamp
-        this.lastUpdateTime = new Date();
-    }
-    
-    updateDetectionsList(detections) {
-        const listContainer = document.querySelector('.detection-list');
-        if (!listContainer) return;
-        
-        listContainer.innerHTML = '';
-        
-        // Show latest detections (max 4)
-        const recentDetections = detections.slice(0, 4);
-        
-        recentDetections.forEach(detection => {
-            const item = document.createElement('div');
-            item.className = 'd-flex justify-content-between align-items-center mb-2 p-2 bg-light rounded detection-item';
-            
-            // Determine priority styling based on Vihangam classes
-            let priorityClass, priorityIcon;
-            if (detection.class_name === 'human') {
-                priorityClass = 'text-danger';
-                priorityIcon = '🔴';
-            } else if (detection.class_name === 'debris') {
-                priorityClass = 'text-warning';
-                priorityIcon = '🟡';
-            } else {
-                priorityClass = 'text-info';
-                priorityIcon = '🔵';
-            }
-            
-            const confidencePercent = Math.round(detection.confidence * 100);
-            const priority = detection.priority || (detection.class_name === 'human' ? 'CRITICAL' : 'WARNING');
-            
-            item.innerHTML = `
-                <div>
-                    <small class="fw-bold ${priorityClass}">${priorityIcon} ${detection.class_name.toUpperCase()}</small><br>
-                    <small class="text-muted">Conf: ${confidencePercent}% | ${priority}</small>
-                </div>
-                <small class="text-muted">${new Date().toLocaleTimeString()}</small>
-            `;
-            
-            // Add click event for highlighting detection on canvas
-            item.addEventListener('click', () => {
-                this.highlightDetection(detection);
-            });
-            
-            listContainer.appendChild(item);
-        });
-        
-        // If no detections, show placeholder
-        if (recentDetections.length === 0) {
-            const placeholder = document.createElement('div');
-            placeholder.className = 'text-center text-muted p-3';
-            placeholder.innerHTML = '<small>No recent detections</small>';
-            listContainer.appendChild(placeholder);
+        // Add detection to activity
+        if (data.total_count > 0) {
+            this.addActivity(`Detected ${data.total_count} objects`);
         }
     }
     
-    drawBoundingBoxes(detections) {
-        const overlay = document.getElementById('detection-overlay');
-        if (!overlay) return;
+    updateConnectionStatus(status) {
+        const indicator = document.getElementById('connection-indicator');
+        const statusText = document.getElementById('connection-status');
         
-        overlay.innerHTML = '';
-        
-        const container = document.querySelector('.detection-container');
-        if (!container) return;
-        
-        const containerRect = container.getBoundingClientRect();
-        
-        detections.forEach((detection, index) => {
-            const box = document.createElement('div');
-            box.className = 'position-absolute border detection-box';
-            box.setAttribute('data-detection-id', detection.id || index);
-            
-            // Determine color based on Vihangam classes
-            let borderColor, labelBg;
-            if (detection.class_name === 'human') {
-                borderColor = '#dc3545'; // Red for humans (critical)
-                labelBg = 'bg-danger';
-            } else if (detection.class_name === 'debris') {
-                borderColor = '#fd7e14'; // Orange for debris (warning)
-                labelBg = 'bg-warning';
-            } else {
-                borderColor = '#0d6efd'; // Blue for other
-                labelBg = 'bg-primary';
-            }
-            
-            const bbox = detection.bbox;
-            box.style.cssText = `
-                left: ${bbox[0]}px;
-                top: ${bbox[1]}px;
-                width: ${bbox[2] - bbox[0]}px;
-                height: ${bbox[3] - bbox[1]}px;
-                border-color: ${borderColor} !important;
-                border-width: 3px;
-                border-style: solid;
-                pointer-events: auto;
-                cursor: pointer;
-                transition: all 0.2s ease;
-            `;
-            
-            // Add hover effect
-            box.addEventListener('mouseenter', () => {
-                box.style.boxShadow = `0 0 10px ${borderColor}`;
-                box.style.borderWidth = '4px';
-            });
-            
-            box.addEventListener('mouseleave', () => {
-                box.style.boxShadow = 'none';
-                box.style.borderWidth = '3px';
-            });
-            
-            // Add label
-            const label = document.createElement('div');
-            label.className = `position-absolute ${labelBg} text-white px-2 py-1 small fw-bold`;
-            label.style.cssText = `
-                top: -30px;
-                left: 0;
-                white-space: nowrap;
-                border-radius: 4px;
-                z-index: 10;
-            `;
-            
-            const confidencePercent = Math.round(detection.confidence * 100);
-            const priority = detection.priority || (detection.class_name === 'human' ? 'CRITICAL' : 'WARNING');
-            label.textContent = `${detection.class_name.toUpperCase()}: ${confidencePercent}% (${priority})`;
-            
-            // Add click handler for details
-            box.addEventListener('click', () => {
-                this.showDetectionDetails(detection);
-            });
-            
-            box.appendChild(label);
-            overlay.appendChild(box);
-        });
-        
-        console.log(`📊 Drew ${detections.length} bounding boxes`);
-    }
-    
-    displayDetectionResults(result) {
-        // Update statistics cards
-        document.getElementById('objects-count').textContent = result.total_detections;
-        document.getElementById('priority-count').textContent = result.high_priority_objects;
-        
-        // Show success message
-        const message = `Detected ${result.total_detections} objects in ${result.processing_time}s`;
-        this.showSuccess(message);
-    }
-    
-    async switchModel(modelPath) {
-        try {
-            const response = await fetch('/detection/api/switch-model/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': this.getCSRFToken()
-                },
-                body: JSON.stringify({ model_path: modelPath })
-            });
-            
-            const result = await response.json();
-            
-            if (result.status === 'success') {
-                this.showSuccess(`Switched to model: ${modelPath}`);
-            } else {
-                this.showError(result.message || 'Failed to switch model');
-            }
-        } catch (error) {
-            console.error('Model switch error:', error);
-            this.showError('Failed to switch model');
+        switch (status) {
+            case 'connected':
+                indicator.className = 'spinner-grow spinner-grow-sm text-success me-2';
+                statusText.textContent = 'Connected to system';
+                break;
+            case 'connecting':
+                indicator.className = 'spinner-grow spinner-grow-sm text-warning me-2';
+                statusText.textContent = 'Connecting...';
+                break;
+            case 'disconnected':
+                indicator.className = 'spinner-grow spinner-grow-sm text-secondary me-2';
+                statusText.textContent = 'Disconnected';
+                break;
+            case 'error':
+                indicator.className = 'spinner-grow spinner-grow-sm text-danger me-2';
+                statusText.textContent = 'Connection error';
+                break;
         }
     }
     
-    showProcessing(show) {
-        const indicator = document.getElementById('processing-indicator');
-        if (show) {
-            indicator.classList.remove('d-none');
-        } else {
-            indicator.classList.add('d-none');
+    addActivity(message) {
+        const activityList = document.getElementById('activity-list');
+        const time = new Date().toLocaleTimeString();
+        
+        const activity = document.createElement('div');
+        activity.className = 'mb-2 p-2 bg-light rounded';
+        activity.innerHTML = `
+            <small class="fw-bold">${message}</small><br>
+            <small class="text-muted">${time}</small>
+        `;
+        
+        activityList.prepend(activity);
+        
+        // Keep only last 5 activities
+        while (activityList.children.length > 5) {
+            activityList.removeChild(activityList.lastChild);
         }
     }
     
     showError(message) {
-        console.error('❌ Error:', message);
-        this.createToast(message, 'error', 8000); // Show errors longer
+        console.error('Error:', message);
+        this.addActivity(`Error: ${message}`);
     }
     
-    updateConnectionStatus(status) {
-        const statusBadge = document.getElementById('detection-status');
-        if (!statusBadge) return;
+    fallbackToSimulation() {
+        console.log('WebSocket not available, using simulation mode');
+        this.updateConnectionStatus('disconnected');
+        this.addActivity('WebSocket unavailable - using simulation mode');
         
-        switch (status) {
-            case 'connected':
-                statusBadge.textContent = 'CONNECTED';
-                statusBadge.className = 'badge bg-success';
-                break;
-            case 'disconnected':
-                statusBadge.textContent = 'DISCONNECTED';
-                statusBadge.className = 'badge bg-secondary';
-                break;
-            case 'connecting':
-                statusBadge.textContent = 'CONNECTING...';
-                statusBadge.className = 'badge bg-warning';
-                break;
-            case 'error':
-                statusBadge.textContent = 'ERROR';
-                statusBadge.className = 'badge bg-danger';
-                break;
-        }
+        // Override WebSocket methods to use local simulation
+        this.websocketAvailable = false;
     }
     
-    displayModelInfo(modelInfo) {
-        if (!modelInfo) return;
-        
-        console.log('🤖 Model Info:', modelInfo);
-        
-        // Update model selection dropdown if needed
-        const modelSelect = document.getElementById('model-select');
-        if (modelSelect && modelInfo.model_path) {
-            // Could update to show current model
-        }
-        
-        // You could display model info in a modal or status area
-        this.showSuccess(`Model loaded: ${modelInfo.classes ? modelInfo.classes.join(', ') : 'Custom model'}`);
-    }
-    
-    highlightDetection(detection) {
-        // Remove previous highlights
-        document.querySelectorAll('.detection-box').forEach(box => {
-            box.style.transform = 'none';
-            box.style.zIndex = '1';
-        });
-        
-        // Highlight selected detection
-        const targetBox = document.querySelector(`[data-detection-id="${detection.id}"]`);
-        if (targetBox) {
-            targetBox.style.transform = 'scale(1.05)';
-            targetBox.style.zIndex = '10';
+    simulateDetection() {
+        if (this.isActive) {
+            // Simulate detection results
+            const mockData = {
+                total_count: Math.floor(Math.random() * 5),
+                high_priority_count: Math.floor(Math.random() * 2),
+                fps: 28 + Math.floor(Math.random() * 5)
+            };
             
-            // Auto-remove highlight after 2 seconds
-            setTimeout(() => {
-                targetBox.style.transform = 'none';
-                targetBox.style.zIndex = '1';
-            }, 2000);
-        }
-    }
-    
-    showDetectionDetails(detection) {
-        const details = `
-            Object: ${detection.class_name.toUpperCase()}
-            Confidence: ${Math.round(detection.confidence * 100)}%
-            Priority: ${detection.priority || 'NORMAL'}
-            Area: ${detection.area || 'N/A'} pixels
-            Position: [${detection.bbox.join(', ')}]
-        `;
-        
-        // For now, use alert - in production you'd use a proper modal
-        alert(details);
-    }
-    
-    createToast(message, type = 'info', duration = 5000) {
-        const toastContainer = document.getElementById('toast-container');
-        if (!toastContainer) return;
-        
-        const toastId = 'toast-' + Date.now();
-        const icons = {
-            success: '✅',
-            error: '❌',
-            warning: '⚠️',
-            info: 'ℹ️'
-        };
-        
-        const colors = {
-            success: 'text-bg-success',
-            error: 'text-bg-danger', 
-            warning: 'text-bg-warning',
-            info: 'text-bg-primary'
-        };
-        
-        const toastHtml = `
-            <div class="toast ${colors[type]}" role="alert" id="${toastId}" data-bs-autohide="true" data-bs-delay="${duration}">
-                <div class="toast-header ${colors[type]}">
-                    <span class="me-2">${icons[type]}</span>
-                    <strong class="me-auto">Vihangam Detection</strong>
-                    <small>${new Date().toLocaleTimeString()}</small>
-                    <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
-                </div>
-                <div class="toast-body">
-                    ${message}
-                </div>
-            </div>
-        `;
-        
-        toastContainer.insertAdjacentHTML('beforeend', toastHtml);
-        
-        // Initialize Bootstrap toast
-        const toastElement = document.getElementById(toastId);
-        if (typeof bootstrap !== 'undefined' && bootstrap.Toast) {
-            const toast = new bootstrap.Toast(toastElement);
-            toast.show();
+            this.updateDetectionResults(mockData);
             
-            // Clean up after toast is hidden
-            toastElement.addEventListener('hidden.bs.toast', () => {
-                toastElement.remove();
-            });
-        } else {
-            // Fallback if Bootstrap is not available
-            setTimeout(() => {
-                toastElement.remove();
-            }, duration);
+            // Continue simulation
+            setTimeout(() => this.simulateDetection(), 2000);
         }
-    }
-    
-    showSuccess(message) {
-        console.log('✅ Success:', message);
-        this.createToast(message, 'success');
-    }
-    
-    showWarning(message) {
-        console.warn('⚠️ Warning:', message);
-        this.createToast(message, 'warning');
-    }
-    
-    showInfo(message) {
-        console.info('ℹ️ Info:', message);
-        this.createToast(message, 'info');
-    }
-    
-    getCSRFToken() {
-        return document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
     }
 }
 
-// Initialize the detection system when the page loads
+// Initialize when page loads
 document.addEventListener('DOMContentLoaded', function() {
-    window.vihangamDetection = new VihangamDetection();
+    new VihangamDetection();
 });
 </script>
 {% endblock %}
