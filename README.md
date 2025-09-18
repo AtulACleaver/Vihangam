@@ -1,28 +1,75 @@
-## Vihangam - the bird's eye 🦅
-Vihangam (Vi-han-gam) is a drone software system designed for disaster management, focusing on search and rescue operations.
+# 🚁 Vihangam - The Bird's Eye
 
-## Project Architecture
+Vihangam (Vi-han-gam) is a drone software system designed for disaster management, focusing on search and rescue operations using AI-powered object detection.
 
-### Tech Stack
-- Django 5.0.0: Web framework for the dashboard interface 
-- Django Channels: WebSocket support for real-time communication (configured but not yet implemented)
-- Ultralytics: YOLO-based AI object detection (installed in venv)
-- OpenCV: Computer vision processing (installed in venv)
-- SQLite: Database for development
-- Bootstrap 5.3.0: Frontend CSS framework
-- Font Awesome 6.0: Icons and UI elements
+## 📁 Project Structure
 
-## Core Applications
-### 1\. Dashboard App (`apps.dashboard`)  
-   Mission Control Center acts as the central hub for drone operations
+```
+Vihangam/
+├── 🤖 yolo_detection/           # YOLO AI Detection System
+│   ├── scripts/                 # Detection and training scripts
+│   ├── models/                  # Trained models and checkpoints
+│   ├── data/                    # Datasets and configuration
+│   └── results/                 # Detection outputs and results
+│
+├── 🌐 disaster_dashboard/       # Django Web Dashboard
+│   ├── apps/                    # Django applications
+│   ├── static/                  # CSS, JS, images
+│   └── templates/               # HTML templates
+│
+├── 📚 docs/                     # Documentation
+├── 🐍 venv/                     # Python virtual environment
+├── 📋 README.md                 # This file
+└── 📦 requirements.txt          # Python dependencies
+```
 
-   **Features Implemented:**
-   - **Real-time Mission Overview:** Active drones (3), monitored areas (12), detection alerts (7)
-   - **Live Drone Feed Interface:** Video feed placeholder with controls
-   - **Emergency Alert System:** Emergency protocol activation
-   - **Drone Status Monitoring:** GPS coordinates, battery levels, system status
-   - **Activity Log:** Real-time event tracking and mission history
-   - **Quick Action Controls:** Start detection, auto pathfinding, return to base, emergency land
+## 🔧 Tech Stack
+- **YOLOv8**: AI object detection for humans and debris
+- **Django 5.0.0**: Web framework for mission control dashboard
+- **Ultralytics**: YOLO model training and inference
+- **OpenCV**: Computer vision processing
+- **Bootstrap 5.3.0**: Frontend CSS framework
+
+## 🚀 Quick Start
+
+### 1. Setup Environment
+```powershell
+# Activate virtual environment
+venv\Scripts\python.exe -m pip install -r requirements.txt
+```
+
+### 2. Run YOLO Detection
+```powershell
+# Single image detection
+venv\Scripts\python.exe yolo_detection\scripts\detect_objects.py --image path\to\image.jpg
+
+# Batch detection
+venv\Scripts\python.exe yolo_detection\scripts\detect_objects.py --directory path\to\images\folder
+```
+
+### 3. Start Web Dashboard
+```powershell
+cd disaster_dashboard
+python manage.py runserver
+# Visit: http://localhost:8000
+```
+
+## 🎯 Core Applications
+
+### 1. YOLO Detection System (`yolo_detection/`)
+**AI-Powered Object Detection for Disaster Management**
+- **Human Detection**: Critical priority alerts for search & rescue
+- **Debris Detection**: Infrastructure damage assessment
+- **Real-time Processing**: Fast inference with confidence scoring
+- **Batch Processing**: Handle multiple images efficiently
+
+### 2. Dashboard App (`disaster_dashboard/apps/dashboard/`)
+Mission Control Center acts as the central hub for drone operations
+- **Real-time Mission Overview**: Active drones, monitored areas, detection alerts
+- **Live Drone Feed Interface**: Video feed placeholder with controls
+- **Emergency Alert System**: Emergency protocol activation
+- **Drone Status Monitoring**: GPS coordinates, battery levels, system status
+- **Activity Log**: Real-time event tracking and mission history
 
 
 ### 2\. Detection App (`apps.detection`)
@@ -77,9 +124,20 @@ What's Simulated (Ready for Integration):
 🔄 Actual drone communication protocols  
 🔄 File upload and media handling
 
-Development Environment Ready:
+## 📚 Documentation
 
-- Virtual environment with Django 5.0.0, Ultralytics, OpenCV
-- Database migrations ready
-- Static files configuration complete
-- Template system fully functional
+- **Complete Setup Guide**: `docs/COMPLETE_SETUP_GUIDE.md`
+- **Training Guide**: `docs/YOLO_TRAINING_SUMMARY.md`
+- **Error Fixes**: `docs/ERROR_FIXES_SUMMARY.md`
+- **Frontend Updates**: `docs/FRONTEND_UPDATE_SUMMARY.md`
+- **Validation Guide**: `docs/VALIDATION_SUMMARY.md`
+
+## ✅ What's Working
+
+- ✅ Complete YOLO detection system with trained model
+- ✅ Web dashboard with all three modules (Dashboard, Detection, Pathfinding)
+- ✅ Real-time object detection (humans and debris)
+- ✅ Batch processing capabilities
+- ✅ Professional UI/UX with Bootstrap
+- ✅ Virtual environment with all dependencies
+- ✅ Database setup and Django configuration

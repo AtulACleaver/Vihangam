@@ -1,0 +1,21 @@
+{
+  "model_path": "custom_models\\vihangam_disaster_detection.pt",
+  "model_name": "Vihangam Disaster Detection v1.0",
+  "classes": [
+    "human",
+    "debris"
+  ],
+  "training_date": [
+    "20250918",
+    "201832"
+  ],
+  "training_epochs": 5,
+  "image_size": 320,
+  "description": "Custom YOLOv8 model trained for disaster management scenarios",
+  "performance_metrics": {
+    "mAP50": 0.165,
+    "mAP50-95": 0.0777,
+    "precision": 0.00476,
+    "recall": 1.0
+  }
+}

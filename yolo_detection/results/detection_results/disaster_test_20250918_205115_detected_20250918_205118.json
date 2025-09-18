@@ -1,0 +1,18 @@
+{
+  "image_path": "disaster_test_20250918_205115.jpg",
+  "image_size": [
+    640,
+    480
+  ],
+  "timestamp": "2025-09-18T20:51:18.265239",
+  "inference_time_seconds": 0.033,
+  "confidence_threshold": 0.05,
+  "detections": [],
+  "summary": {
+    "total_objects": 0,
+    "human_count": 0,
+    "debris_count": 0,
+    "high_priority_alerts": 0,
+    "average_confidence": 0
+  }
+}

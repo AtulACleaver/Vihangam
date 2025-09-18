@@ -1,0 +1,40 @@
+{
+  "validation_timestamp": "2025-09-18T20:28:35.723050",
+  "model_path": "runs/detect/disaster_demo_20250918_201832/weights/best.pt",
+  "data_config": "data.yaml",
+  "overall_metrics": {
+    "precision": 0.004758238257070033,
+    "recall": 1.0,
+    "mAP50": 0.16526466484683047,
+    "mAP50_95": 0.07773998640438548,
+    "fitness": 0.07773998640438548
+  },
+  "class_metrics": {
+    "human": {
+      "precision": 0.006675567423230975,
+      "recall": 1.0,
+      "ap50": 0.3172626630269943,
+      "ap50_95": 0.14450041788452853
+    },
+    "debris": {
+      "precision": 0.002840909090909091,
+      "recall": 1.0,
+      "ap50": 0.013266666666666666,
+      "ap50_95": 0.010979554924242425
+    }
+  },
+  "model_info": {
+    "classes": [
+      "human",
+      "debris"
+    ],
+    "num_classes": 2,
+    "model_size_mb": 5.913125991821289
+  },
+  "speed_metrics": {
+    "preprocess": 0.24132000107783824,
+    "inference": 19.086100001004525,
+    "loss": 0.0005999987479299307,
+    "postprocess": 1.3780999986920506
+  }
+}

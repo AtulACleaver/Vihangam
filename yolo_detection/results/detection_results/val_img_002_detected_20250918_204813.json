@@ -1,0 +1,18 @@
+{
+  "image_path": "images\\val\\val_img_002.jpg",
+  "image_size": [
+    640,
+    480
+  ],
+  "timestamp": "2025-09-18T20:48:13.631896",
+  "inference_time_seconds": 0.132,
+  "confidence_threshold": 0.1,
+  "detections": [],
+  "summary": {
+    "total_objects": 0,
+    "human_count": 0,
+    "debris_count": 0,
+    "high_priority_alerts": 0,
+    "average_confidence": 0
+  }
+}
