@@ -116,71 +116,17 @@
                     </div>
                 </div>
                 <div class="card-body p-0">
-                    <div class="map-container bg-light position-relative" style="height: 500px;">
-                        <!-- Map placeholder with grid pattern -->
-                        <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" 
-                             style="background-image: repeating-linear-gradient(0deg, rgba(0,0,0,0.05) 0px, rgba(0,0,0,0.05) 1px, transparent 1px, transparent 20px), repeating-linear-gradient(90deg, rgba(0,0,0,0.05) 0px, rgba(0,0,0,0.05) 1px, transparent 1px, transparent 20px);">
-                            
-                            <!-- Start Point -->
-                            <div class="position-absolute" style="top: 20%; left: 20%;">
-                                <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center" 
-                                     style="width: 40px; height: 40px;">
-                                    <i class="fas fa-play"></i>
-                                </div>
-                                <small class="position-absolute text-success fw-bold" style="top: 45px; left: -15px;">START</small>
+                    <div class="map-container bg-light position-relative" style="height: 500px;" id="map-container">
+                        <!-- Dynamic path visualization will be rendered here -->
+                        <div id="path-visualization" class="position-absolute top-0 start-0 w-100 h-100"></div>
+                        
+                        <!-- Loading indicator -->
+                        <div id="path-loading" class="position-absolute top-50 start-50 translate-middle d-none">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Calculating path...</span>
                             </div>
-                            
-                            <!-- Waypoints -->
-                            <div class="position-absolute" style="top: 40%; left: 45%;">
-                                <div class="bg-warning text-white rounded-circle d-flex align-items-center justify-content-center" 
-                                     style="width: 30px; height: 30px;">
-                                    <i class="fas fa-circle"></i>
-                                </div>
-                            </div>
-                            
-                            <div class="position-absolute" style="top: 60%; left: 65%;">
-                                <div class="bg-warning text-white rounded-circle d-flex align-items-center justify-content-center" 
-                                     style="width: 30px; height: 30px;">
-                                    <i class="fas fa-circle"></i>
-                                </div>
-                            </div>
-                            
-                            <!-- End Point -->
-                            <div class="position-absolute" style="top: 80%; left: 80%;">
-                                <div class="bg-danger text-white rounded-circle d-flex align-items-center justify-content-center" 
-                                     style="width: 40px; height: 40px;">
-                                    <i class="fas fa-flag"></i>
-                                </div>
-                                <small class="position-absolute text-danger fw-bold" style="top: 45px; left: -10px;">DEST</small>
-                            </div>
-                            
-                            <!-- Current Drone Position -->
-                            <div class="position-absolute animate-drone" style="top: 25%; left: 30%;">
-                                <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" 
-                                     style="width: 35px; height: 35px;">
-                                    <i class="fas fa-helicopter"></i>
-                                </div>
-                            </div>
-                            
-                            <!-- Path Lines (simplified) -->
-                            <svg class="position-absolute top-0 start-0 w-100 h-100" style="pointer-events: none;">
-                                <!-- Planned path -->
-                                <path d="M 20% 20% Q 35% 25% 45% 40% T 65% 60% T 80% 80%" 
-                                      stroke="#007bff" stroke-width="3" fill="none" stroke-dasharray="10,5"/>
-                                <!-- Completed path -->
-                                <path d="M 20% 20% L 30% 25%" 
-                                      stroke="#28a745" stroke-width="4" fill="none"/>
-                            </svg>
-                            
-                            <!-- Obstacles -->
-                            <div class="position-absolute" style="top: 35%; left: 50%;">
-                                <div class="bg-dark text-white rounded" style="width: 20px; height: 20px;">
-                                </div>
-                            </div>
-                            
-                            <div class="position-absolute" style="top: 55%; left: 55%;">
-                                <div class="bg-dark text-white rounded" style="width: 15px; height: 15px;">
-                                </div>
+                            <div class="mt-2 text-center">
+                                <small class="text-muted">Calculating optimal path...</small>
                             </div>
                         </div>
                         
@@ -227,13 +173,24 @@
                     <div class="mb-4">
                         <h6 class="fw-bold">Waypoint Management</h6>
                         <div class="mb-2">
+                            <label class="form-label">Start Coordinates</label>
+                            <div class="row">
+                                <div class="col-6">
+                                    <input type="text" id="start-lat" class="form-control form-control-sm" placeholder="Start Latitude" value="28.6139">
+                                </div>
+                                <div class="col-6">
+                                    <input type="text" id="start-lng" class="form-control form-control-sm" placeholder="Start Longitude" value="77.2090">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-2">
                             <label class="form-label">Destination Coordinates</label>
                             <div class="row">
                                 <div class="col-6">
-                                    <input type="text" class="form-control form-control-sm" placeholder="Latitude" value="28.6143">
+                                    <input type="text" id="dest-lat" class="form-control form-control-sm" placeholder="Destination Latitude" value="28.6200">
                                 </div>
                                 <div class="col-6">
-                                    <input type="text" class="form-control form-control-sm" placeholder="Longitude" value="77.2095">
+                                    <input type="text" id="dest-lng" class="form-control form-control-sm" placeholder="Destination Longitude" value="77.2150">
                                 </div>
                             </div>
                         </div>
@@ -247,26 +204,40 @@
                         <h6 class="fw-bold">Algorithm Settings</h6>
                         <div class="mb-2">
                             <label class="form-label">Pathfinding Algorithm</label>
-                            <select class="form-select form-select-sm">
-                                <option selected>A* (A-Star)</option>
-                                <option>Dijkstra</option>
-                                <option>RRT (Rapidly-exploring Random Tree)</option>
-                                <option>Potential Field</option>
+                            <select id="algorithm-select" class="form-select form-select-sm">
+                                <option value="astar_grid" selected>A* Grid-Based</option>
+                                <option value="astar">A* GPS-Based</option>
+                                <option value="simple">Simple A*</option>
                             </select>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Movement Type</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="movement" id="movement-8dir" value="true" checked>
+                                <label class="form-check-label" for="movement-8dir">8-Directional (includes diagonals)</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="movement" id="movement-4dir" value="false">
+                                <label class="form-check-label" for="movement-4dir">4-Directional (N,S,E,W only)</label>
+                            </div>
                         </div>
                         <div class="mb-2">
                             <label class="form-label">Optimization Priority</label>
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="priority" id="shortest-path" checked>
+                                <input class="form-check-input" type="radio" name="priority" id="shortest-path" value="shortest" checked>
                                 <label class="form-check-label" for="shortest-path">Shortest Path</label>
                             </div>
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="priority" id="safest-path">
+                                <input class="form-check-input" type="radio" name="priority" id="safest-path" value="safest">
                                 <label class="form-check-label" for="safest-path">Safest Route</label>
                             </div>
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="priority" id="fuel-efficient">
-                                <label class="form-check-label" for="fuel-efficient">Fuel Efficient</label>
+                                <input class="form-check-input" type="radio" name="priority" id="fastest-path" value="fastest">
+                                <label class="form-check-label" for="fastest-path">Fastest Route</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="priority" id="battery-optimal" value="battery_optimal">
+                                <label class="form-check-label" for="battery-optimal">Battery Optimal</label>
                             </div>
                         </div>
                     </div>
@@ -310,22 +281,30 @@
                     <!-- Path Statistics -->
                     <div>
                         <h6 class="fw-bold">Path Statistics</h6>
-                        <div class="bg-light p-3 rounded">
+                        <div class="bg-light p-3 rounded" id="path-stats">
                             <div class="d-flex justify-content-between mb-2">
                                 <span>Total Distance:</span>
-                                <span class="fw-bold">2.4 km</span>
+                                <span class="fw-bold" id="stat-distance">--</span>
                             </div>
                             <div class="d-flex justify-content-between mb-2">
                                 <span>Flight Time:</span>
-                                <span class="fw-bold">12 min</span>
+                                <span class="fw-bold" id="stat-time">--</span>
                             </div>
                             <div class="d-flex justify-content-between mb-2">
                                 <span>Battery Usage:</span>
-                                <span class="fw-bold">23%</span>
+                                <span class="fw-bold" id="stat-battery">--</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Safety Score:</span>
+                                <span class="fw-bold" id="stat-safety">--</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Waypoints:</span>
+                                <span class="fw-bold" id="stat-waypoints">--</span>
                             </div>
                             <div class="d-flex justify-content-between">
-                                <span>Waypoints:</span>
-                                <span class="fw-bold">2</span>
+                                <span>Algorithm:</span>
+                                <span class="fw-bold" id="stat-algorithm">--</span>
                             </div>
                         </div>
                     </div>
@@ -393,8 +372,11 @@
     </div>
 </div>
 
+<!-- D3.js for path visualization -->
+<script src="https://d3js.org/d3.v7.min.js"></script>
+
 <script>
-    // Pathfinding specific JavaScript
+    // Pathfinding specific JavaScript with backend integration
     document.addEventListener('DOMContentLoaded', function() {
         const calculateBtn = document.getElementById('calculate-path-btn');
         const startNavBtn = document.getElementById('start-navigation-btn');
@@ -405,67 +387,383 @@
         const speedSlider = document.getElementById('speed-slider');
         const speedValue = document.getElementById('speed-value');
         
-        // Calculate path
+        // Path visualization variables
+        let currentPath = null;
+        let svg = null;
+        let currentStats = null;
+        
+        // Initialize D3 visualization
+        function initializeVisualization() {
+            const container = document.getElementById('path-visualization');
+            const containerRect = container.getBoundingClientRect();
+            
+            // Clear existing SVG
+            d3.select(container).selectAll('svg').remove();
+            
+            // Create SVG canvas
+            svg = d3.select(container)
+                .append('svg')
+                .attr('width', containerRect.width)
+                .attr('height', containerRect.height)
+                .style('position', 'absolute')
+                .style('top', '0')
+                .style('left', '0');
+                
+            // Add grid pattern background
+            const defs = svg.append('defs');
+            const pattern = defs.append('pattern')
+                .attr('id', 'grid')
+                .attr('width', 40)
+                .attr('height', 40)
+                .attr('patternUnits', 'userSpaceOnUse');
+                
+            pattern.append('path')
+                .attr('d', 'M 40 0 L 0 0 0 40')
+                .attr('fill', 'none')
+                .attr('stroke', 'rgba(0,0,0,0.1)')
+                .attr('stroke-width', 1);
+                
+            // Add grid background
+            svg.append('rect')
+                .attr('width', '100%')
+                .attr('height', '100%')
+                .attr('fill', 'url(#grid)');
+        }
+        
+        // Visualize path using D3.js
+        function visualizePath(pathData) {
+            if (!svg || !pathData) return;
+            
+            // Clear previous path elements
+            svg.selectAll('.path-element').remove();
+            
+            const containerRect = svg.node().getBoundingClientRect();
+            const width = containerRect.width;
+            const height = containerRect.height;
+            
+            let coordinates = [];
+            
+            // Handle different path data formats
+            if (pathData.grid_path) {
+                // Grid-based path - convert grid coordinates to screen coordinates
+                const gridSize = Math.sqrt(pathData.grid_path.length * 4); // Estimate grid size
+                coordinates = pathData.grid_path.map(([x, y]) => ({
+                    x: (x / Math.max(gridSize, 10)) * width * 0.8 + width * 0.1,
+                    y: (y / Math.max(gridSize, 10)) * height * 0.8 + height * 0.1,
+                    grid: [x, y]
+                }));
+            } else if (pathData.path || pathData.gps_path) {
+                // GPS-based path - use relative positioning
+                const pathCoords = pathData.path || pathData.gps_path;
+                coordinates = pathCoords.map((coord, i) => ({
+                    x: (i / Math.max(pathCoords.length - 1, 1)) * width * 0.8 + width * 0.1,
+                    y: height * 0.2 + (i % 3) * height * 0.2, // Staggered Y positions
+                    coord: coord
+                }));
+            }
+            
+            if (coordinates.length === 0) return;
+            
+            // Draw path line
+            const line = d3.line()
+                .x(d => d.x)
+                .y(d => d.y)
+                .curve(d3.curveCardinal);
+                
+            svg.append('path')
+                .datum(coordinates)
+                .attr('class', 'path-element path-line')
+                .attr('d', line)
+                .attr('stroke', '#007bff')
+                .attr('stroke-width', 3)
+                .attr('fill', 'none')
+                .attr('stroke-dasharray', '10,5')
+                .style('opacity', 0)
+                .transition()
+                .duration(1000)
+                .style('opacity', 1);
+            
+            // Draw waypoints
+            svg.selectAll('.waypoint')
+                .data(coordinates)
+                .enter()
+                .append('circle')
+                .attr('class', 'path-element waypoint')
+                .attr('cx', d => d.x)
+                .attr('cy', d => d.y)
+                .attr('r', (d, i) => {
+                    if (i === 0) return 20; // Start point
+                    if (i === coordinates.length - 1) return 20; // End point
+                    return 12; // Waypoints
+                })
+                .attr('fill', (d, i) => {
+                    if (i === 0) return '#28a745'; // Green for start
+                    if (i === coordinates.length - 1) return '#dc3545'; // Red for end
+                    return '#ffc107'; // Yellow for waypoints
+                })
+                .attr('stroke', '#fff')
+                .attr('stroke-width', 2)
+                .style('opacity', 0)
+                .transition()
+                .duration(1000)
+                .delay((d, i) => i * 100)
+                .style('opacity', 1);
+                
+            // Add labels
+            svg.selectAll('.waypoint-label')
+                .data(coordinates)
+                .enter()
+                .append('text')
+                .attr('class', 'path-element waypoint-label')
+                .attr('x', d => d.x)
+                .attr('y', d => d.y - 25)
+                .attr('text-anchor', 'middle')
+                .attr('font-size', '12px')
+                .attr('font-weight', 'bold')
+                .attr('fill', '#333')
+                .text((d, i) => {
+                    if (i === 0) return 'START';
+                    if (i === coordinates.length - 1) return 'DEST';
+                    return `W${i}`;
+                })
+                .style('opacity', 0)
+                .transition()
+                .duration(1000)
+                .delay((d, i) => i * 100 + 500)
+                .style('opacity', 1);
+                
+            // Add animated drone (if navigating)
+            if (statusBadge.textContent === 'READY' || statusBadge.textContent === 'NAVIGATING') {
+                svg.append('circle')
+                    .attr('class', 'path-element drone-position')
+                    .attr('cx', coordinates[0].x)
+                    .attr('cy', coordinates[0].y)
+                    .attr('r', 15)
+                    .attr('fill', '#007bff')
+                    .attr('stroke', '#fff')
+                    .attr('stroke-width', 3);
+                    
+                svg.append('text')
+                    .attr('class', 'path-element drone-icon')
+                    .attr('x', coordinates[0].x)
+                    .attr('y', coordinates[0].y + 5)
+                    .attr('text-anchor', 'middle')
+                    .attr('font-family', 'FontAwesome')
+                    .attr('font-size', '16px')
+                    .attr('fill', '#fff')
+                    .text('\uf533'); // Helicopter icon
+            }
+        }
+        
+        // Update path statistics
+        function updatePathStats(data) {
+            currentStats = data;
+            
+            // Update distance
+            const distance = data.distance || data.distance_km || data.total_distance || '--';
+            document.getElementById('stat-distance').textContent = 
+                typeof distance === 'number' ? distance.toFixed(2) + ' km' : distance;
+            
+            // Update time
+            const time = data.flight_time || data.flight_time_minutes || data.total_time || '--';
+            document.getElementById('stat-time').textContent = 
+                typeof time === 'number' ? time.toFixed(1) + ' min' : time;
+            
+            // Update battery
+            const battery = data.battery_usage || data.battery_usage_percent || '--';
+            document.getElementById('stat-battery').textContent = 
+                typeof battery === 'number' ? battery.toFixed(1) + '%' : battery;
+                
+            // Update safety score
+            const safety = data.safety_score || '--';
+            document.getElementById('stat-safety').textContent = 
+                typeof safety === 'number' ? safety.toFixed(1) + '/100' : safety;
+            
+            // Update waypoints
+            const waypoints = data.path_length || (data.path && data.path.length) || 
+                            (data.waypoints && data.waypoints.length) || '--';
+            document.getElementById('stat-waypoints').textContent = waypoints;
+            
+            // Update algorithm
+            const algorithm = data.algorithm || data.algorithm_used || '--';
+            document.getElementById('stat-algorithm').textContent = algorithm;
+        }
+        
+        // Get form data
+        function getFormData() {
+            return {
+                start_lat: parseFloat(document.getElementById('start-lat').value),
+                start_lng: parseFloat(document.getElementById('start-lng').value),
+                dest_lat: parseFloat(document.getElementById('dest-lat').value),
+                dest_lng: parseFloat(document.getElementById('dest-lng').value),
+                algorithm: document.getElementById('algorithm-select').value,
+                use_8_dir: document.querySelector('input[name="movement"]:checked').value === 'true',
+                priority: document.querySelector('input[name="priority"]:checked').value,
+                altitude: parseInt(document.getElementById('altitude-slider').value),
+                max_speed: parseInt(document.getElementById('speed-slider').value),
+                avoid_obstacles: document.getElementById('obstacle-avoidance').checked,
+                smooth_path: true,
+                grid_size: 10
+            };
+        }
+        
+        // Calculate path using backend API
         calculateBtn.addEventListener('click', function() {
             statusBadge.textContent = 'CALCULATING';
             statusBadge.className = 'badge bg-warning';
             calculateBtn.disabled = true;
             
-            // Simulate path calculation
-            setTimeout(() => {
-                statusBadge.textContent = 'READY';
-                statusBadge.className = 'badge bg-success';
+            // Show loading indicator
+            document.getElementById('path-loading').classList.remove('d-none');
+            
+            const formData = getFormData();
+            
+            // Choose the appropriate endpoint based on algorithm
+            let endpoint = '/pathfinding/calculate-path/';
+            if (formData.algorithm === 'simple') {
+                endpoint = '/pathfinding/calculate-path-simple/';
+            } else if (formData.algorithm === 'astar_grid') {
+                endpoint = '/pathfinding/calculate-path/';
+            }
+            
+            fetch(endpoint, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value || '{{ csrf_token }}'
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Hide loading indicator
+                document.getElementById('path-loading').classList.add('d-none');
+                
+                if (data.status === 'success') {
+                    statusBadge.textContent = 'READY';
+                    statusBadge.className = 'badge bg-success';
+                    calculateBtn.disabled = false;
+                    startNavBtn.disabled = false;
+                    
+                    // Store and visualize path
+                    currentPath = data;
+                    visualizePath(data);
+                    updatePathStats(data);
+                    
+                    // Log success
+                    console.log('Path calculated successfully:', data);
+                } else {
+                    statusBadge.textContent = 'ERROR';
+                    statusBadge.className = 'badge bg-danger';
+                    calculateBtn.disabled = false;
+                    
+                    alert('Error calculating path: ' + (data.message || 'Unknown error'));
+                    console.error('Path calculation error:', data);
+                }
+            })
+            .catch(error => {
+                // Hide loading indicator
+                document.getElementById('path-loading').classList.add('d-none');
+                
+                statusBadge.textContent = 'ERROR';
+                statusBadge.className = 'badge bg-danger';
                 calculateBtn.disabled = false;
-                startNavBtn.disabled = false;
-            }, 2000);
+                
+                alert('Network error: ' + error.message);
+                console.error('Network error:', error);
+            });
         });
         
         // Start navigation
         startNavBtn.addEventListener('click', function() {
+            if (!currentPath) {
+                alert('Please calculate a path first!');
+                return;
+            }
+            
             statusBadge.textContent = 'NAVIGATING';
             statusBadge.className = 'badge bg-primary';
             startNavBtn.disabled = true;
             calculateBtn.disabled = true;
+            
+            // Make API call to start navigation
+            fetch('/pathfinding/start-navigation/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value || '{{ csrf_token }}'
+                },
+                body: JSON.stringify({
+                    path_id: currentPath.path_id || 'current_path'
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    console.log('Navigation started:', data);
+                    // Could add drone animation here
+                } else {
+                    alert('Failed to start navigation: ' + data.message);
+                    statusBadge.textContent = 'READY';
+                    statusBadge.className = 'badge bg-success';
+                    startNavBtn.disabled = false;
+                    calculateBtn.disabled = false;
+                }
+            })
+            .catch(error => {
+                console.error('Navigation start error:', error);
+                statusBadge.textContent = 'READY';
+                statusBadge.className = 'badge bg-success';
+                startNavBtn.disabled = false;
+                calculateBtn.disabled = false;
+            });
         });
         
         // Emergency return
         emergencyBtn.addEventListener('click', function() {
-            statusBadge.textContent = 'RETURNING';
-            statusBadge.className = 'badge bg-danger';
-            startNavBtn.disabled = true;
-            calculateBtn.disabled = true;
-            
             if (confirm('Are you sure you want to initiate emergency return to base?')) {
-                // Emergency return logic would go here
+                statusBadge.textContent = 'RETURNING';
+                statusBadge.className = 'badge bg-danger';
+                startNavBtn.disabled = true;
+                calculateBtn.disabled = true;
+                
+                fetch('/pathfinding/emergency-return/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value || '{{ csrf_token }}'
+                    },
+                    body: JSON.stringify({})
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Emergency return activated:', data);
+                })
+                .catch(error => {
+                    console.error('Emergency return error:', error);
+                });
             }
         });
         
-        // Altitude slider
+        // Slider updates
         altitudeSlider.addEventListener('input', function() {
             altitudeValue.textContent = this.value + 'm';
         });
         
-        // Speed slider
         speedSlider.addEventListener('input', function() {
             speedValue.textContent = this.value + ' m/s';
         });
         
-        // Animate drone position
-        const drone = document.querySelector('.animate-drone');
-        if (drone) {
-            setInterval(() => {
-                if (statusBadge.textContent === 'NAVIGATING') {
-                    const currentLeft = parseFloat(drone.style.left) || 30;
-                    const currentTop = parseFloat(drone.style.top) || 25;
-                    
-                    // Simple animation towards destination
-                    if (currentLeft < 75 || currentTop < 75) {
-                        drone.style.left = (currentLeft + 0.5) + '%';
-                        drone.style.top = (currentTop + 0.5) + '%';
-                    }
-                }
-            }, 1000);
-        }
+        // Initialize visualization on page load
+        initializeVisualization();
+        
+        // Reinitialize on window resize
+        window.addEventListener('resize', function() {
+            setTimeout(initializeVisualization, 100);
+            if (currentPath) {
+                setTimeout(() => visualizePath(currentPath), 200);
+            }
+        });
     });
 </script>
 
