@@ -1,7 +1,7 @@
 # 🚁 Vihangam - Drone Disaster Management System
 
 <div align="center">
-  <img src="static/images/logo.png" alt="Vihangam Logo" width="200" height="200">
+  <img src="disaster_dashboard/static/images/logo.png" alt="Vihangam Logo" width="200" height="200">
   <h3>Advanced AI-Powered Disaster Response Platform</h3>
   <p><em>Low-altitude navigation, real-time detection, and intelligent pathfinding for emergency response operations</em></p>
 </div>
@@ -209,46 +209,3 @@ python manage.py runserver
 - **📱 Responsive Design**: Mobile-first approach
 - **🚀 Optimized Assets**: Minified CSS/JS and image optimization
 - **🧠 Efficient Algorithms**: Optimized A* pathfinding implementation
-
----
-
-## 🔐 Security Features
-
-- Django's built-in security middleware
-- CSRF protection
-- SQL injection prevention
-- XSS protection
-- Secure static file serving
-
----
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create feature branch: `git checkout -b feature/amazing-feature`
-3. Commit changes: `git commit -m 'Add amazing feature'`
-4. Push to branch: `git push origin feature/amazing-feature`
-5. Open Pull Request
-
----
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-## 👥 Team
-
-**Vihangam Development Team**
-- Emergency Response Technology Specialists
-- AI/ML Engineers
-- Full-Stack Developers
-- UX/UI Designers
-
----
-
-<div align="center">
-  <h3>🚁 Built for Emergency Response • Powered by AI • Designed for Impact</h3>
-  <p><em>© 2024 Vihangam - Drone Disaster Management System</em></p>
-</div>
