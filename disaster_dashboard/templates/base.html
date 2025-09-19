@@ -3,222 +3,260 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Page title, can be overridden by child templates -->
     <title>{% block title %}Vihangam - Drone Disaster Management{% endblock %}</title>
-    
+
     {% load static %}
-    
-    <!-- Bootstrap CSS -->
+
+    <!-- External CSS libraries for UI styling -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <!-- Custom CSS -->
+    <!-- Project-specific CSS files -->
     <link rel="stylesheet" type="text/css" href="{% static 'css/base.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'css/dashboard.css' %}">
-    
+
+    <!-- Placeholder for extra CSS from child templates -->
     {% block extra_css %}{% endblock %}
 </head>
 <body class="dark-theme">
-    <!-- Navigation Bar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark-glass">
-        <div class="container-fluid">
-            <a class="navbar-brand fw-bold" href="{% url 'dashboard:index' %}">
-                <!-- Logo will be here when available -->
-                <!-- <img src="{% static 'images/vihangam_logo.png' %}" alt="Vihangam" class="navbar-logo me-2"> -->
-                <i class="fas fa-helicopter me-2 text-accent"></i>Vihangam
-            </a>
-            
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.resolver_match.namespace == 'dashboard' %}active{% endif %}" 
-                           href="{% url 'dashboard:index' %}">
-                            <i class="fas fa-tachometer-alt me-1"></i>Dashboard
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.resolver_match.namespace == 'detection' %}active{% endif %}" 
-                           href="{% url 'detection:index' %}">
-                            <i class="fas fa-eye me-1"></i>Detection
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.resolver_match.namespace == 'pathfinding' %}active{% endif %}" 
-                           href="{% url 'pathfinding:index' %}">
-                            <i class="fas fa-route me-1"></i>Pathfinding
-                        </a>
-                    </li>
-                </ul>
-                
-                <!-- Mission Information Hub -->
-                <div class="navbar-nav mission-info-hub d-none d-lg-flex flex-row align-items-center">
-                    <!-- Rescue Mission Name -->
-                    <div class="nav-item mission-info-item me-4">
-                        <div class="mission-info-content">
-                            <i class="fas fa-flag me-2 text-accent"></i>
-                            <span class="mission-label">Mission:</span>
-                            <span class="mission-value" id="mission-name">Cyclone Relief</span>
-                        </div>
-                    </div>
-                    
-                    <!-- Drone Location -->
-                    <div class="nav-item mission-info-item me-4">
-                        <div class="mission-info-content">
-                            <i class="fas fa-map-marker-alt me-2 text-success"></i>
-                            <span class="mission-label">Location:</span>
-                            <span class="mission-value" id="drone-location">20.2961° N, 85.8245° E</span>
-                        </div>
-                    </div>
-                    
-                    <!-- Area Covered -->
-                    <div class="nav-item mission-info-item me-4">
-                        <div class="mission-info-content">
-                            <i class="fas fa-expand-arrows-alt me-2 text-info"></i>
-                            <span class="mission-label">Area Covered:</span>
-                            <span class="mission-value" id="area-covered">12.5 km² (75%)</span>
-                        </div>
-                    </div>
-                    
-                    <!-- Weather Forecast -->
-                    <div class="nav-item mission-info-item me-4">
-                        <div class="mission-info-content">
-                            <i class="fas fa-cloud-sun me-2 text-warning"></i>
-                            <span class="mission-value" id="weather-info">32°C Clear</span>
-                        </div>
-                    </div>
-                    
-                    <!-- Notifications -->
-                    <div class="nav-item mission-info-item me-3">
-                        <button class="btn btn-sm btn-outline-secondary position-relative notification-btn" id="notification-bell">
-                            <i class="fas fa-bell"></i>
-                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="notification-badge" style="display: none;">3</span>
-                        </button>
+<!-- Navigation Bar: main site navigation and mission info -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark-glass">
+    <div class="container-fluid">
+        <!-- Brand/logo, links to dashboard home -->
+        <a class="navbar-brand fw-bold" href="{% url 'dashboard:index' %}">
+            <img src="{% static 'images/logo.png' %}" alt="Vihangam" class="navbar-logo me-2" style="filter: brightness(0) invert(1);">
+        </a>
+
+        <!-- Hamburger menu for mobile view -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <!-- Main navigation links, highlight active section -->
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.namespace == 'dashboard' %}active{% endif %}"
+                       href="{% url 'dashboard:index' %}">
+                        <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.namespace == 'detection' %}active{% endif %}"
+                       href="{% url 'detection:index' %}">
+                        <i class="fas fa-eye me-1"></i>Detection
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.namespace == 'pathfinding' %}active{% endif %}"
+                       href="{% url 'pathfinding:index' %}">
+                        <i class="fas fa-route me-1"></i>Pathfinding
+                    </a>
+                </li>
+            </ul>
+
+            <!-- Mission Information Hub: displays live mission stats in navbar -->
+            <div class="navbar-nav mission-info-hub d-none d-lg-flex flex-row align-items-center">
+                <!-- Mission name -->
+                <div class="nav-item mission-info-item me-4">
+                    <div class="mission-info-content">
+                        <i class="fas fa-flag me-2 text-accent"></i>
+                        <span class="mission-label">Mission:</span>
+                        <span class="mission-value" id="mission-name">Earthquake</span>
                     </div>
                 </div>
-                
-                <!-- Status Indicators -->
-                <div class="navbar-nav ms-auto">
-                    <div class="nav-item d-flex align-items-center me-3">
-                        <span class="status-indicator online me-2"></span>
-                        <small>System Online</small>
+
+                <!-- Drone's current location -->
+                <div class="nav-item mission-info-item me-4">
+                    <div class="mission-info-content">
+                        <i class="fas fa-map-marker-alt me-2 text-success"></i>
+                        <span class="mission-label">Location:</span>
+                        <span class="mission-value" id="drone-location">20.2961° N, 85.8245° E</span>
                     </div>
-                    <div class="nav-item d-flex align-items-center">
-                        <i class="fas fa-clock me-1"></i>
-                        <small id="current-time"></small>
+                </div>
+
+                <!-- Area covered by the mission -->
+                <div class="nav-item mission-info-item me-4">
+                    <div class="mission-info-content">
+                        <i class="fas fa-expand-arrows-alt me-2 text-info"></i>
+                        <span class="mission-label">Area Covered:</span>
+                        <span class="mission-value" id="area-covered">12.5 km² (75%)</span>
                     </div>
+                </div>
+
+                <!-- Weather forecast for the mission area -->
+                <div class="nav-item mission-info-item me-4">
+                    <div class="mission-info-content">
+                        <i class="fas fa-cloud-sun me-2 text-warning"></i>
+                        <span class="mission-value" id="weather-info">32°C Clear</span>
+                    </div>
+                </div>
+
+                <!-- Notification bell with badge for alerts -->
+                <div class="nav-item mission-info-item me-3">
+                    <button class="btn btn-sm btn-outline-secondary position-relative notification-btn" id="notification-bell">
+                        <i class="fas fa-bell"></i>
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="notification-badge" style="display: none;">3</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- System status indicators (online, current time) -->
+            <div class="navbar-nav ms-auto">
+                <div class="nav-item d-flex align-items-center me-3">
+                    <span class="status-indicator online me-2"></span>
+                    <small>System Online</small>
+                </div>
+                <div class="nav-item d-flex align-items-center">
+                    <i class="fas fa-clock me-1"></i>
+                    <small id="current-time"></small>
                 </div>
             </div>
         </div>
-    </nav>
-
-    <!-- Main Content -->
-    <div class="container-fluid p-0">
-        {% block content %}{% endblock %}
     </div>
+</nav>
 
-    <!-- Footer -->
-    <footer class="bg-dark-glass text-light py-3 mt-5">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-6">
-                    <small>&copy; 2024 Vihangam - Drone Disaster Management System</small>
-                </div>
-                <div class="col-md-6 text-end">
-                    <small>Emergency Response Technology</small>
-                </div>
+<!-- Main content area, filled by child templates -->
+<div class="container-fluid p-0">
+    {% block content %}{% endblock %}
+</div>
+
+<!-- Footer: copyright and info -->
+<footer class="bg-dark-glass text-light py-3 mt-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
+                <small>&copy; 2024 Vihangam - Drone Disaster Management System</small>
+            </div>
+            <div class="col-md-6 text-end">
+                <small>Emergency Response Technology</small>
             </div>
         </div>
-    </footer>
+    </div>
+</footer>
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Leaflet JS -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <!-- Custom JS -->
-    <script src="{% static 'js/base.js' %}"></script>
-    
-    {% block extra_js %}{% endblock %}
-    
-    <script>
-        // Update current time
-        function updateTime() {
-            const now = new Date();
-            document.getElementById('current-time').textContent = now.toLocaleTimeString();
-        }
-        setInterval(updateTime, 1000);
-        updateTime();
-        
-        // Mission Information Hub Dynamic Updates
-        document.addEventListener('DOMContentLoaded', function() {
-            // Simulate dynamic mission data updates
-            const missionData = {
-                missions: [
-                    "Cyclone Relief",
-                    "Flood Response",
-                    "Search & Rescue",
-                    "Fire Surveillance",
-                    "Medical Supply Drop"
-                ],
-                locations: [
-                    "20.2961° N, 85.8245° E",
-                    "28.6139° N, 77.2090° E",
-                    "19.0760° N, 72.8777° E",
-                    "13.0827° N, 80.2707° E",
-                    "22.5726° N, 88.3639° E"
-                ],
-                areaCovered: [
-                    "12.5 km² (75%)",
-                    "8.3 km² (92%)",
-                    "15.7 km² (68%)",
-                    "6.2 km² (100%)",
-                    "11.1 km² (83%)"
-                ],
-                weather: [
-                    "32°C Clear",
-                    "28°C Partly Cloudy",
-                    "35°C Sunny",
-                    "26°C Overcast",
-                    "30°C Light Rain"
-                ]
-            };
-            
-            // Function to update mission data periodically
-            function updateMissionData() {
-                const missionNameEl = document.getElementById('mission-name');
-                const droneLocationEl = document.getElementById('drone-location');
-                const areaCoveredEl = document.getElementById('area-covered');
-                const weatherInfoEl = document.getElementById('weather-info');
-                
-                if (missionNameEl && droneLocationEl && areaCoveredEl && weatherInfoEl) {
-                    // Randomly update values every 30 seconds to simulate live data
-                    const randomIndex = Math.floor(Math.random() * missionData.missions.length);
-                    
-                    // Update with smooth transition
+<!-- External JS libraries for UI and maps -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<!-- Project-specific JS -->
+<script src="{% static 'js/base.js' %}"></script>
+
+<!-- Placeholder for extra JS from child templates -->
+{% block extra_js %}{% endblock %}
+
+<script>
+    // Show the current time in the navbar, updating every second
+    function updateTime() {
+        const now = new Date();
+        document.getElementById('current-time').textContent = now.toLocaleTimeString();
+    }
+    setInterval(updateTime, 1000);
+    updateTime();
+
+    // Mission Information Hub: simulate live updates for mission data
+    document.addEventListener('DOMContentLoaded', function() {
+        // Example mission data arrays for simulation
+        const missionData = {
+            missions: [
+                "Cyclone Relief",
+                "Flood Response",
+                "Search & Rescue",
+                "Fire Surveillance",
+                "Medical Supply Drop"
+            ],
+            locations: [
+                "20.2961° N, 85.8245° E",
+                "28.6139° N, 77.2090° E",
+                "19.0760° N, 72.8777° E",
+                "13.0827° N, 80.2707° E",
+                "22.5726° N, 88.3639° E"
+            ],
+            areaCovered: [
+                "12.5 km² (75%)",
+                "8.3 km² (92%)",
+                "15.7 km² (68%)",
+                "6.2 km² (100%)",
+                "11.1 km² (83%)"
+            ],
+            weather: [
+                "32°C Clear",
+                "28°C Partly Cloudy",
+                "35°C Sunny",
+                "26°C Overcast",
+                "30°C Light Rain"
+            ]
+        };
+
+        // Function to randomly update mission info every 30 seconds
+        function updateMissionData() {
+            const missionNameEl = document.getElementById('mission-name');
+            const droneLocationEl = document.getElementById('drone-location');
+            const areaCoveredEl = document.getElementById('area-covered');
+            const weatherInfoEl = document.getElementById('weather-info');
+
+            if (missionNameEl && droneLocationEl && areaCoveredEl && weatherInfoEl) {
+                // Pick a random index for demo purposes
+                const randomIndex = Math.floor(Math.random() * missionData.missions.length);
+
+                // Fade out for smooth transition
+                [missionNameEl, droneLocationEl, areaCoveredEl, weatherInfoEl].forEach(el => {
+                    el.style.opacity = '0.6';
+                });
+<!-- Mission Information Hub: displays live mission stats in navbar -->
+<div class="navbar-nav mission-info-hub d-none d-lg-flex flex-row align-items-center">
+    <div class="nav-item mission-info-item me-4">
+        <div class="mission-info-content">
+            <i class="fas fa-flag me-2 text-accent"></i>
+            <span class="mission-label">Mission:</span>
+            <span class="mission-value" id="mission-name"></span>
+        </div>
+    </div>
+    <div class="nav-item mission-info-item me-4">
+        <div class="mission-info-content">
+            <i class="fas fa-map-marker-alt me-2 text-success"></i>
+            <span class="mission-label">Location:</span>
+            <span class="mission-value" id="drone-location"></span>
+        </div>
+    </div>
+    <div class="nav-item mission-info-item me-4">
+        <div class="mission-info-content">
+            <i class="fas fa-expand-arrows-alt me-2 text-info"></i>
+            <span class="mission-label">Area Covered:</span>
+            <span class="mission-value" id="area-covered"></span>
+        </div>
+    </div>
+    <div class="nav-item mission-info-item me-4">
+        <div class="mission-info-content">
+            <i class="fas fa-cloud-sun me-2 text-warning"></i>
+            <span class="mission-value" id="weather-info"></span>
+        </div>
+    </div>
+    <div class="nav-item mission-info-item me-3">
+        <button class="btn btn-sm btn-outline-secondary position-relative notification-btn" id="notification-bell">
+            <i class="fas fa-bell"></i>
+            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="notification-badge" style="display: none;">3</span>
+        </button>
+    </div>
+</div>
+                setTimeout(() => {
+                    // Update text content with new data
+                    missionNameEl.textContent = missionData.missions[randomIndex];
+                    droneLocationEl.textContent = missionData.locations[randomIndex];
+                    areaCoveredEl.textContent = missionData.areaCovered[randomIndex];
+                    weatherInfoEl.textContent = missionData.weather[randomIndex];
+
+                    // Fade back in
                     [missionNameEl, droneLocationEl, areaCoveredEl, weatherInfoEl].forEach(el => {
-                        el.style.opacity = '0.6';
+                        el.style.opacity = '1';
                     });
-                    
-                    setTimeout(() => {
-                        missionNameEl.textContent = missionData.missions[randomIndex];
-                        droneLocationEl.textContent = missionData.locations[randomIndex];
-                        areaCoveredEl.textContent = missionData.areaCovered[randomIndex];
-                        weatherInfoEl.textContent = missionData.weather[randomIndex];
-                        
-                        [missionNameEl, droneLocationEl, areaCoveredEl, weatherInfoEl].forEach(el => {
-                            el.style.opacity = '1';
-                        });
-                    }, 300);
-                }
+                }, 300);
             }
-            
-            // Update mission data every 30 seconds
-            setInterval(updateMissionData, 30000);
-        });
-    </script>
+        }
+
+        // Schedule mission data updates every 30 seconds
+        setInterval(updateMissionData, 30000);
+    });
+</script>
 </body>
 </html>

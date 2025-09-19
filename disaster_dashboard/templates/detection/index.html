@@ -1,236 +1,10 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Object Detection - Vihangam AI Vision{% endblock %}
 
 {% block extra_css %}
-<style>
-/* Enhanced Detection Page Styles */
-.sparkline-container {
-    height: 40px;
-    width: 100px;
-}
-
-.stats-card-clickable {
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.stats-card-clickable:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 15px 45px rgba(0, 0, 0, 0.5);
-    border-color: rgba(255, 183, 0, 0.5) !important;
-}
-
-.stats-card-active {
-    border-color: rgba(255, 183, 0, 0.7) !important;
-    background: rgba(255, 183, 0, 0.1) !important;
-}
-
-/* Bounding Box Styles */
-.bounding-box {
-    position: absolute;
-    border: 2px solid;
-    border-radius: 4px;
-    background: rgba(255, 255, 255, 0.1);
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.bounding-box:hover {
-    background: rgba(255, 255, 255, 0.2);
-    transform: scale(1.02);
-}
-
-.confidence-high {
-    border-color: var(--success-color);
-    box-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
-}
-
-.confidence-medium {
-    border-color: var(--warning-color);
-    box-shadow: 0 0 10px rgba(255, 183, 0, 0.3);
-}
-
-.confidence-low {
-    border-color: var(--danger-color);
-    box-shadow: 0 0 10px rgba(255, 71, 87, 0.3);
-}
-
-/* Tooltip Styles */
-.detection-tooltip {
-    position: absolute;
-    background: rgba(0, 0, 0, 0.9);
-    color: white;
-    padding: 8px 12px;
-    border-radius: 6px;
-    font-size: 12px;
-    z-index: 1000;
-    pointer-events: none;
-    backdrop-filter: blur(10px);
-    border: 1px solid var(--glass-border);
-}
-
-/* Recording Controls */
-.recording-controls {
-    background: var(--glass-bg);
-    backdrop-filter: blur(10px);
-    border: 1px solid var(--glass-border);
-    border-radius: 12px;
-    padding: 8px 16px;
-    margin-top: 10px;
-}
-
-.record-btn {
-    background: var(--gradient-danger);
-    border: none;
-    color: white;
-    padding: 8px 16px;
-    border-radius: 8px;
-    transition: all 0.3s ease;
-}
-
-.record-btn.recording {
-    animation: pulseRecord 1.5s infinite;
-}
-
-@keyframes pulseRecord {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(255, 71, 87, 0.5); }
-    50% { box-shadow: 0 0 0 10px rgba(255, 71, 87, 0); }
-}
-
-/* Model Info Icon */
-.model-info-icon {
-    color: var(--primary-accent);
-    cursor: help;
-    font-size: 0.9rem;
-    margin-left: 8px;
-    transition: all 0.3s ease;
-}
-
-.model-info-icon:hover {
-    transform: scale(1.2);
-    color: var(--warning-color);
-}
-
-/* Preset Dropdown */
-.preset-dropdown {
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
-    border-radius: 8px;
-    margin-bottom: 16px;
-}
-
-/* Chart Container */
-.chart-container {
-    position: relative;
-    height: 300px;
-    background: var(--glass-bg);
-    border-radius: 12px;
-    padding: 20px;
-    backdrop-filter: blur(10px);
-}
-
-.time-range-buttons {
-    margin-bottom: 20px;
-}
-
-.time-range-btn {
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
-    color: var(--text-secondary);
-    padding: 6px 12px;
-    border-radius: 6px;
-    margin-right: 8px;
-    transition: all 0.3s ease;
-}
-
-.time-range-btn:hover,
-.time-range-btn.active {
-    background: rgba(0, 212, 255, 0.2);
-    border-color: var(--primary-accent);
-    color: var(--primary-accent);
-}
-
-/* Heatmap View */
-.heatmap-container {
-    height: 300px;
-    background: var(--glass-bg);
-    border-radius: 12px;
-    display: none;
-    position: relative;
-    overflow: hidden;
-}
-
-.heatmap-grid {
-    display: grid;
-    grid-template-columns: repeat(20, 1fr);
-    grid-template-rows: repeat(15, 1fr);
-    height: 100%;
-    gap: 1px;
-}
-
-.heatmap-cell {
-    background: var(--glass-bg);
-    transition: all 0.3s ease;
-}
-
-.heatmap-cell.intensity-1 { background: rgba(0, 212, 255, 0.2); }
-.heatmap-cell.intensity-2 { background: rgba(0, 212, 255, 0.4); }
-.heatmap-cell.intensity-3 { background: rgba(0, 212, 255, 0.6); }
-.heatmap-cell.intensity-4 { background: rgba(0, 212, 255, 0.8); }
-.heatmap-cell.intensity-5 { background: rgba(0, 212, 255, 1.0); }
-
-/* Export Button */
-.export-btn {
-    background: var(--gradient-success);
-    border: none;
-    color: white;
-    padding: 8px 16px;
-    border-radius: 8px;
-    transition: all 0.3s ease;
-}
-
-.heatmap-btn {
-    background: var(--gradient-info);
-    border: none;
-    color: white;
-    padding: 8px 16px;
-    border-radius: 8px;
-    margin-left: 8px;
-    transition: all 0.3s ease;
-}
-
-/* Detection List Filtering */
-.detection-item {
-    transition: all 0.3s ease;
-}
-
-.detection-item.filtered-out {
-    opacity: 0.3;
-    transform: scale(0.95);
-}
-
-.detection-item.high-priority {
-    border-left: 4px solid var(--warning-color) !important;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-    .sparkline-container {
-        height: 30px;
-        width: 80px;
-    }
-    
-    .recording-controls {
-        padding: 6px 12px;
-    }
-    
-    .chart-container {
-        height: 250px;
-        padding: 15px;
-    }
-}
-</style>
+<link rel="stylesheet" type="text/css" href="{% static 'css/detection.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -362,28 +136,28 @@
                             <p>AI Detection processing will appear here</p>
                             <small>YOLO model analyzing live feed...</small>
                         </div>
-                        
+
                         <!-- Detection Overlay with Interactive Bounding Boxes -->
                         <div class="detection-overlay position-absolute top-0 start-0 w-100 h-100" id="detection-overlay">
                             <!-- Sample Interactive Bounding Boxes -->
-                            <div class="bounding-box confidence-high" 
-                                 style="left: 15%; top: 20%; width: 120px; height: 80px;" 
-                                 data-class="Person" 
+                            <div class="bounding-box confidence-high"
+                                 style="left: 15%; top: 20%; width: 120px; height: 80px;"
+                                 data-class="Person"
                                  data-confidence="94"></div>
-                            <div class="bounding-box confidence-medium" 
-                                 style="left: 60%; top: 35%; width: 100px; height: 60px;" 
-                                 data-class="Vehicle" 
+                            <div class="bounding-box confidence-medium"
+                                 style="left: 60%; top: 35%; width: 100px; height: 60px;"
+                                 data-class="Vehicle"
                                  data-confidence="78"></div>
-                            <div class="bounding-box confidence-low" 
-                                 style="left: 25%; top: 65%; width: 80px; height: 50px;" 
-                                 data-class="Debris" 
+                            <div class="bounding-box confidence-low"
+                                 style="left: 25%; top: 65%; width: 80px; height: 50px;"
+                                 data-class="Debris"
                                  data-confidence="65"></div>
                         </div>
-                        
+
                         <!-- Detection Tooltip -->
                         <div class="detection-tooltip" id="detection-tooltip"></div>
                     </div>
-                    
+
                     <!-- Recording Controls -->
                     <div class="recording-controls d-flex justify-content-center align-items-center">
                         <button class="record-btn me-2" id="record-btn">
@@ -396,7 +170,7 @@
                             <i class="fas fa-play me-1"></i>Playback
                         </button>
                     </div>
-                    
+
                     <!-- Detection Controls -->
                     <div class="mt-3">
                         <div class="row align-items-center">
@@ -444,12 +218,12 @@
                             <option value="damage-assessment">Damage Assessment</option>
                         </select>
                     </div>
-                    
+
                     <!-- Model Selection -->
                     <div class="mb-4">
                         <div class="d-flex align-items-center">
                             <h6 class="fw-bold mb-0">AI Model</h6>
-                            <i class="fas fa-info-circle model-info-icon" id="model-info-icon" 
+                            <i class="fas fa-info-circle model-info-icon" id="model-info-icon"
                                title="Hover for model descriptions"></i>
                         </div>
                         <select class="form-select" id="model-select">
@@ -458,7 +232,7 @@
                             <option value="yolo-vehicle">YOLOv8 - Vehicle Detection</option>
                             <option value="custom-disaster">Custom - Disaster Objects</option>
                         </select>
-                        
+
                         <!-- Model Info Tooltip Content -->
                         <div id="model-tooltip" class="detection-tooltip" style="display: none;"></div>
                     </div>
@@ -501,35 +275,35 @@
                     <div>
                         <h6 class="fw-bold">Recent Detections</h6>
                         <div class="detection-list" style="max-height: 200px; overflow-y: auto;" id="detection-list">
-                            <div class="detection-item d-flex justify-content-between align-items-center mb-2 p-2 bg-light rounded high-priority" data-priority="high" data-class="Person">
+                            <div class="detection-item d-flex justify-content-between align-items-center mb-2 p-2 bg-black rounded high-priority" data-priority="high" data-class="Person">
                                 <div>
                                     <small class="fw-bold text-warning">Person</small><br>
                                     <small class="text-muted">Conf: 89%</small>
                                 </div>
                                 <small class="text-muted">18:04:12</small>
                             </div>
-                            <div class="detection-item d-flex justify-content-between align-items-center mb-2 p-2 bg-light rounded" data-priority="medium" data-class="Vehicle">
+                            <div class="detection-item d-flex justify-content-between align-items-center mb-2 p-2 bg-black rounded" data-priority="medium" data-class="Vehicle">
                                 <div>
                                     <small class="fw-bold text-info">Vehicle</small><br>
                                     <small class="text-muted">Conf: 92%</small>
                                 </div>
                                 <small class="text-muted">18:03:45</small>
                             </div>
-                            <div class="detection-item d-flex justify-content-between align-items-center mb-2 p-2 bg-light rounded high-priority" data-priority="high" data-class="Debris">
+                            <div class="detection-item d-flex justify-content-between align-items-center mb-2 p-2 bg-black rounded high-priority" data-priority="high" data-class="Debris">
                                 <div>
                                     <small class="fw-bold text-danger">Debris</small><br>
                                     <small class="text-muted">Conf: 76%</small>
                                 </div>
                                 <small class="text-muted">18:02:33</small>
                             </div>
-                            <div class="detection-item d-flex justify-content-between align-items-center mb-2 p-2 bg-light rounded high-priority" data-priority="high" data-class="Person">
+                            <div class="detection-item d-flex justify-content-between align-items-center mb-2 p-2 bg-black rounded high-priority" data-priority="high" data-class="Person">
                                 <div>
                                     <small class="fw-bold text-warning">Person</small><br>
                                     <small class="text-muted">Conf: 94%</small>
                                 </div>
                                 <small class="text-muted">18:01:21</small>
                             </div>
-                            <div class="detection-item d-flex justify-content-between align-items-center mb-2 p-2 bg-light rounded" data-priority="low" data-class="Building">
+                            <div class="detection-item d-flex justify-content-between align-items-center mb-2 p-2 bg-black rounded" data-priority="low" data-class="Building">
                                 <div>
                                     <small class="fw-bold text-success">Building</small><br>
                                     <small class="text-muted">Conf: 87%</small>
@@ -569,12 +343,12 @@
                                 <button class="time-range-btn" data-range="6h">6H</button>
                                 <button class="time-range-btn" data-range="24h">24H</button>
                             </div>
-                            
+
                             <!-- Interactive Chart Container -->
                             <div class="chart-container" id="chart-view">
                                 <canvas id="detection-analytics-chart"></canvas>
                             </div>
-                            
+
                             <!-- Heatmap Container -->
                             <div class="heatmap-container" id="heatmap-view">
                                 <div class="heatmap-grid" id="heatmap-grid">
@@ -642,7 +416,7 @@
         const statusBadge = document.getElementById('detection-status');
         const confidenceSlider = document.getElementById('confidence-slider');
         const confidenceValue = document.getElementById('confidence-value');
-        
+
         // New interactive elements
         const highPriorityCard = document.getElementById('high-priority-card');
         const detectionList = document.getElementById('detection-list');
@@ -660,14 +434,14 @@
         const chartView = document.getElementById('chart-view');
         const heatmapView = document.getElementById('heatmap-view');
         const timeRangeButtons = document.querySelectorAll('.time-range-btn');
-        
+
         // Global variables
         let detectionChart = null;
         let sparklineCharts = {};
         let isRecording = false;
         let isHighPriorityFiltered = false;
         let currentView = 'chart';
-        
+
         // Model information data
         const modelInfo = {
             'yolo-general': 'YOLOv8 General: Optimized for detecting common objects including people, vehicles, and everyday items with high accuracy.',
@@ -675,7 +449,7 @@
             'yolo-vehicle': 'YOLOv8 Vehicle: Trained specifically for vehicle detection including cars, trucks, emergency vehicles, and aircraft.',
             'custom-disaster': 'Custom Disaster: Specialized model trained on disaster-specific objects like debris, damaged structures, and emergency equipment.'
         };
-        
+
         // Preset configurations
         const presetConfigs = {
             'search-rescue': {
@@ -687,7 +461,7 @@
                 alerts: { 'auto-alerts': true, 'priority-only': false }
             }
         };
-        
+
         // Initialize Charts
         function initializeCharts() {
             // Main Analytics Chart
@@ -732,16 +506,16 @@
                     }
                 }
             });
-            
+
             // Initialize Sparklines
             initializeSparklines();
         }
-        
+
         // Initialize Sparkline Charts
         function initializeSparklines() {
             const sparklineIds = ['objects-sparkline', 'priority-sparkline', 'accuracy-sparkline', 'speed-sparkline'];
             const sparklineColors = ['rgba(0, 212, 255, 1)', 'rgba(255, 183, 0, 1)', 'rgba(0, 255, 136, 1)', 'rgba(0, 212, 255, 1)'];
-            
+
             sparklineIds.forEach((id, index) => {
                 const ctx = document.getElementById(id)?.getContext('2d');
                 if (ctx) {
@@ -773,21 +547,21 @@
                 }
             });
         }
-        
+
         // Generate sample data
         function generateSampleData(points) {
             return Array.from({length: points}, () => Math.floor(Math.random() * 50) + 10);
         }
-        
+
         function generateSparklineData() {
             return Array.from({length: 10}, () => Math.random() * 100);
         }
-        
+
         function generateTimeLabels(range) {
             const now = new Date();
             const labels = [];
             let interval, points;
-            
+
             switch(range) {
                 case '1h':
                     interval = 5; // 5 minutes
@@ -802,20 +576,20 @@
                     points = 12;
                     break;
             }
-            
+
             for (let i = points - 1; i >= 0; i--) {
                 const time = new Date(now - (i * interval * 60000));
                 labels.push(time.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }));
             }
-            
+
             return labels;
         }
-        
+
         // Initialize Heatmap
         function initializeHeatmap() {
             const heatmapGrid = document.getElementById('heatmap-grid');
             heatmapGrid.innerHTML = '';
-            
+
             // Create 300 cells (20x15 grid)
             for (let i = 0; i < 300; i++) {
                 const cell = document.createElement('div');
@@ -827,36 +601,36 @@
                 heatmapGrid.appendChild(cell);
             }
         }
-        
+
         // Start/Stop Detection
         startBtn.addEventListener('click', function() {
             startBtn.disabled = true;
             stopBtn.disabled = false;
             statusBadge.textContent = 'PROCESSING';
             statusBadge.className = 'badge bg-warning';
-            
+
             setTimeout(() => {
                 statusBadge.textContent = 'ACTIVE';
                 statusBadge.className = 'badge bg-success';
             }, 1000);
         });
-        
+
         stopBtn.addEventListener('click', function() {
             startBtn.disabled = false;
             stopBtn.disabled = true;
             statusBadge.textContent = 'STOPPED';
             statusBadge.className = 'badge bg-secondary';
         });
-        
+
         // Confidence Slider
         confidenceSlider.addEventListener('input', function() {
             confidenceValue.textContent = this.value + '%';
         });
-        
+
         // High Priority Card Click for Filtering
         highPriorityCard.addEventListener('click', function() {
             isHighPriorityFiltered = !isHighPriorityFiltered;
-            
+
             if (isHighPriorityFiltered) {
                 this.classList.add('stats-card-active');
                 // Filter detection list to show only high priority
@@ -877,7 +651,7 @@
                 });
             }
         });
-        
+
         // Bounding Box Hover Tooltips
         boundingBoxes.forEach(box => {
             box.addEventListener('mouseenter', function(e) {
@@ -888,17 +662,17 @@
                 detectionTooltip.style.left = e.pageX + 10 + 'px';
                 detectionTooltip.style.top = e.pageY - 30 + 'px';
             });
-            
+
             box.addEventListener('mousemove', function(e) {
                 detectionTooltip.style.left = e.pageX + 10 + 'px';
                 detectionTooltip.style.top = e.pageY - 30 + 'px';
             });
-            
+
             box.addEventListener('mouseleave', function() {
                 detectionTooltip.style.display = 'none';
             });
         });
-        
+
         // Recording Controls
         recordBtn.addEventListener('click', function() {
             if (!isRecording) {
@@ -909,7 +683,7 @@
                 playbackBtn.disabled = true;
             }
         });
-        
+
         stopRecordBtn.addEventListener('click', function() {
             isRecording = false;
             recordBtn.classList.remove('recording');
@@ -917,11 +691,11 @@
             this.disabled = true;
             playbackBtn.disabled = false;
         });
-        
+
         playbackBtn.addEventListener('click', function() {
             alert('Playback functionality would be implemented here');
         });
-        
+
         // Model Information Tooltips
         modelInfoIcon.addEventListener('mouseenter', function(e) {
             const selectedModel = modelSelect.value;
@@ -931,17 +705,17 @@
             modelTooltip.style.left = e.pageX + 10 + 'px';
             modelTooltip.style.top = e.pageY - 30 + 'px';
         });
-        
+
         modelInfoIcon.addEventListener('mouseleave', function() {
             modelTooltip.style.display = 'none';
         });
-        
+
         // Preset Configuration Loading
         presetSelect.addEventListener('change', function() {
             const selectedPreset = this.value;
             if (selectedPreset && presetConfigs[selectedPreset]) {
                 const config = presetConfigs[selectedPreset];
-                
+
                 // Set checkboxes
                 const allCheckboxes = ['person', 'vehicle', 'building', 'debris'];
                 allCheckboxes.forEach(checkbox => {
@@ -950,7 +724,7 @@
                         element.checked = config.checkboxes.includes(checkbox);
                     }
                 });
-                
+
                 // Set alert settings
                 Object.keys(config.alerts).forEach(alertId => {
                     const element = document.getElementById(alertId);
@@ -960,7 +734,7 @@
                 });
             }
         });
-        
+
         // Time Range Buttons
         timeRangeButtons.forEach(button => {
             button.addEventListener('click', function() {
@@ -968,7 +742,7 @@
                 timeRangeButtons.forEach(btn => btn.classList.remove('active'));
                 // Add active class to clicked button
                 this.classList.add('active');
-                
+
                 // Update chart data
                 const range = this.dataset.range;
                 detectionChart.data.labels = generateTimeLabels(range);
@@ -976,7 +750,7 @@
                 detectionChart.update();
             });
         });
-        
+
         // Export Data
         exportDataBtn.addEventListener('click', function() {
             // Simulate data export
@@ -989,7 +763,7 @@
                     processing_speed: 28
                 }
             };
-            
+
             const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -1000,7 +774,7 @@
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
         });
-        
+
         // Heatmap Toggle
         heatmapToggleBtn.addEventListener('click', function() {
             if (currentView === 'chart') {
@@ -1016,14 +790,14 @@
                 currentView = 'chart';
             }
         });
-        
+
         // Simulate real-time updates
         setInterval(() => {
             const objectsCount = document.getElementById('objects-count');
             const currentCount = parseInt(objectsCount.textContent);
             if (statusBadge.textContent === 'ACTIVE') {
                 objectsCount.textContent = currentCount + Math.floor(Math.random() * 3);
-                
+
                 // Update sparklines
                 Object.values(sparklineCharts).forEach(chart => {
                     if (chart) {
@@ -1034,7 +808,7 @@
                 });
             }
         }, 5000);
-        
+
         // Initialize everything
         setTimeout(() => {
             initializeCharts();

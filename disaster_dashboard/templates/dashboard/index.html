@@ -128,7 +128,7 @@
                 <div class="card-body">
                     <!-- Primary Video Feed -->
                     <div class="primary-video-container position-relative mb-3">
-                        <div class="video-feed bg-dark d-flex align-items-center justify-content-center" id="primary-video" data-drone="Alpha" style="height: 350px;">
+                        <div class="video-feed bg-dark-glass d-flex align-items-center justify-content-center" id="primary-video" data-drone="Alpha" style="height: 350px;">
                             <div class="text-center text-light">
                                 <i class="fas fa-video fa-3x mb-3"></i>
                                 <p>Live video feed - Drone Alpha</p>
@@ -162,7 +162,7 @@
                     <div class="secondary-feeds-container mb-3">
                         <div class="row g-2">
                             <div class="col-6">
-                                <div class="video-feed bg-dark d-flex align-items-center justify-content-center secondary-video" id="secondary-video-beta" data-drone="Beta" style="height: 120px; cursor: pointer;">
+                                <div class="video-feed bg-primary d-flex align-items-center justify-content-center secondary-video" id="secondary-video-beta" data-drone="Beta" style="height: 120px; cursor: pointer;">
                                     <div class="text-center text-light">
                                         <i class="fas fa-video mb-1"></i>
                                         <p class="small mb-0">Drone Beta</p>
@@ -170,7 +170,7 @@
                                 </div>
                             </div>
                             <div class="col-6">
-                                <div class="video-feed bg-dark d-flex align-items-center justify-content-center secondary-video" id="secondary-video-gamma" data-drone="Gamma" style="height: 120px; cursor: pointer;">
+                                <div class="video-feed bg-primary d-flex align-items-center justify-content-center secondary-video" id="secondary-video-gamma" data-drone="Gamma" style="height: 120px; cursor: pointer;">
                                     <div class="text-center text-light">
                                         <i class="fas fa-video mb-1"></i>
                                         <p class="small mb-0">Drone Gamma</p>
@@ -222,14 +222,14 @@
                         <h6 class="fw-bold">Current Status</h6>
                         <div class="row text-center">
                             <div class="col-6">
-                                <div class="bg-light p-2 rounded">
-                                    <small class="text-muted">Altitude</small>
+                                <div class="bg-black p-2 rounded">
+                                    <small class="text-white">Altitude</small>
                                     <div class="fw-bold text-primary">150m</div>
                                 </div>
                             </div>
                             <div class="col-6">
-                                <div class="bg-light p-2 rounded">
-                                    <small class="text-muted">Battery</small>
+                                <div class="bg-black p-2 rounded">
+                                    <small class="text-white">Battery</small>
                                     <div class="fw-bold text-success">87%</div>
                                 </div>
                             </div>
@@ -254,47 +254,6 @@
                             </button>
                         </div>
                     </div>
-
-                    <!-- Manual Flight Controls -->
-                    <div class="mb-4">
-                        <h6 class="fw-bold">Manual Flight Controls</h6>
-                        <div class="flight-controls-container glass-effect p-3 rounded">
-                            <div class="d-pad-container position-relative mx-auto" style="width: 120px; height: 120px;">
-                                <!-- D-Pad Center -->
-                                <div class="d-pad-center position-absolute top-50 start-50 translate-middle">
-                                    <button class="btn btn-sm btn-outline-primary rounded-circle" style="width: 40px; height: 40px;">
-                                        <i class="fas fa-circle"></i>
-                                    </button>
-                                </div>
-                                
-                                <!-- D-Pad Directions -->
-                                <button class="btn btn-sm btn-outline-secondary d-pad-btn position-absolute top-0 start-50 translate-middle-x" data-direction="up" style="width: 35px; height: 35px;">
-                                    <i class="fas fa-chevron-up"></i>
-                                </button>
-                                <button class="btn btn-sm btn-outline-secondary d-pad-btn position-absolute bottom-0 start-50 translate-middle-x" data-direction="down" style="width: 35px; height: 35px;">
-                                    <i class="fas fa-chevron-down"></i>
-                                </button>
-                                <button class="btn btn-sm btn-outline-secondary d-pad-btn position-absolute start-0 top-50 translate-middle-y" data-direction="left" style="width: 35px; height: 35px;">
-                                    <i class="fas fa-chevron-left"></i>
-                                </button>
-                                <button class="btn btn-sm btn-outline-secondary d-pad-btn position-absolute end-0 top-50 translate-middle-y" data-direction="right" style="width: 35px; height: 35px;">
-                                    <i class="fas fa-chevron-right"></i>
-                                </button>
-                            </div>
-                            
-                            <!-- Altitude Controls -->
-                            <div class="altitude-controls mt-3 text-center">
-                                <div class="btn-group-vertical" role="group">
-                                    <button class="btn btn-sm btn-outline-info" id="altitude-up" title="Altitude Up">
-                                        <i class="fas fa-plus me-1"></i>Alt
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-info" id="altitude-down" title="Altitude Down">
-                                        <i class="fas fa-minus me-1"></i>Alt
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                     
                     <!-- Camera Modes -->
                     <div class="mb-4">
@@ -310,21 +269,6 @@
                                 <button class="btn btn-outline-info" data-camera-mode="night-vision">
                                     <i class="fas fa-moon me-1"></i>Night Vision
                                 </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- GPS Coordinates -->
-                    <div>
-                        <h6 class="fw-bold">GPS Coordinates</h6>
-                        <div class="bg-light p-3 rounded glass-effect">
-                            <div class="small">
-                                <div><strong>Lat:</strong> 28.6139° N</div>
-                                <div><strong>Lng:</strong> 77.2090° E</div>
-                                <div><strong>Alt:</strong> 150m ASL</div>
-                                <div class="mt-2">
-                                    <span class="badge bg-success">GPS Lock: Strong</span>
-                                </div>
                             </div>
                         </div>
                     </div>
