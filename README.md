@@ -1,135 +1,254 @@
-# Vihangam 🦅 - Disaster Management Drone System
+# 🚁 Vihangam - Drone Disaster Management System
 
-Vihangam (Vi-han-gam) is a drone software system designed for disaster management, focusing on search and rescue operations.
+<div align="center">
+  <img src="static/images/logo.png" alt="Vihangam Logo" width="200" height="200">
+  <h3>Advanced AI-Powered Disaster Response Platform</h3>
+  <p><em>Low-altitude navigation, real-time detection, and intelligent pathfinding for emergency response operations</em></p>
+</div>
 
-## ✨Features
+---
 
-- 🧑‍🤝‍🧑 Object detection for humans and debris using custom YOLO models
-- 🖼️ Web interface for uploading and analyzing images
-- ⚡ Real-time processing with confidence scoring
-- 🛰️ Pathfinding algorithms for rescue coordination
-- 🖥️ Django-based dashboard for mission planning
+## 🌟 Features
 
-## 🏗️ Architecture
+- **🎯 Real-time AI Object Detection** - YOLO-based disaster detection with confidence scoring
+- **🧠 A* Pathfinding Algorithm** - Low-altitude navigation with dynamic obstacle avoidance
+- **📊 Interactive Dashboard** - Comprehensive mission control and analytics
+- **🗺️ Terrain-Aware Navigation** - Elevation mapping and clearance monitoring
+- **⚡ Real-time Updates** - WebSocket-powered live data streaming
+- **📱 Responsive Design** - Dark theme with glassmorphism UI
+
+---
+
+## 🛠️ Tech Stack
+
+### **Backend Framework**
+<div align="left">
+  <img src="https://img.shields.io/badge/Django-092E20?style=for-the-badge&logo=django&logoColor=green" alt="Django">
+  <img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python">
+</div>
+
+- **Django 5.2.6** - High-level Python web framework
+- **Django Channels** - WebSocket support for real-time communication
+- **Python 3.x** - Core programming language
+
+### **Frontend Technologies**
+<div align="left">
+  <img src="https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white" alt="HTML5">
+  <img src="https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white" alt="CSS3">
+  <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black" alt="JavaScript">
+  <img src="https://img.shields.io/badge/Bootstrap-563D7C?style=for-the-badge&logo=bootstrap&logoColor=white" alt="Bootstrap">
+</div>
+
+- **HTML5** - Semantic markup and structure
+- **CSS3** - Advanced styling with glassmorphism effects
+- **JavaScript ES6+** - Interactive functionality and A* algorithm implementation
+- **Bootstrap 5.3** - Responsive grid system and components
+
+### **UI/UX Libraries**
+<div align="left">
+  <img src="https://img.shields.io/badge/Font_Awesome-339AF0?style=for-the-badge&logo=fontawesome&logoColor=white" alt="Font Awesome">
+  <img src="https://img.shields.io/badge/Leaflet-199900?style=for-the-badge&logo=leaflet&logoColor=white" alt="Leaflet">
+  <img src="https://img.shields.io/badge/Chart.js-FF6384?style=for-the-badge&logo=chart.js&logoColor=white" alt="Chart.js">
+</div>
+
+- **Font Awesome 6.0** - Comprehensive icon library
+- **Leaflet 1.9.4** - Interactive mapping and geolocation
+- **Chart.js 4.4** - Data visualization and analytics charts
+
+### **AI & Computer Vision**
+<div align="left">
+  <img src="https://img.shields.io/badge/YOLO-00FFFF?style=for-the-badge&logo=yolo&logoColor=black" alt="YOLO">
+  <img src="https://img.shields.io/badge/OpenCV-27338e?style=for-the-badge&logo=OpenCV&logoColor=white" alt="OpenCV">
+  <img src="https://img.shields.io/badge/Pillow-306998?style=for-the-badge&logo=python&logoColor=white" alt="Pillow">
+</div>
+
+- **YOLOv8** - Real-time object detection for disaster identification
+- **Pillow (PIL)** - Image processing and manipulation
+- **Custom A* Implementation** - Pathfinding algorithm for low-altitude navigation
+
+### **Database & Storage**
+<div align="left">
+  <img src="https://img.shields.io/badge/SQLite-07405E?style=for-the-badge&logo=sqlite&logoColor=white" alt="SQLite">
+</div>
+
+- **SQLite** - Lightweight database for development
+- **Django ORM** - Object-relational mapping
+
+### **Development Tools**
+<div align="left">
+  <img src="https://img.shields.io/badge/Git-F05032?style=for-the-badge&logo=git&logoColor=white" alt="Git">
+  <img src="https://img.shields.io/badge/VS_Code-0078D4?style=for-the-badge&logo=visual%20studio%20code&logoColor=white" alt="VS Code">
+  <img src="https://img.shields.io/badge/pip-3776AB?style=for-the-badge&logo=pypi&logoColor=white" alt="pip">
+</div>
+
+- **Git** - Version control system
+- **pip** - Package management
+- **Virtual Environment** - Isolated Python environment
+
+---
+
+## 📁 Project Architecture
 
 ```
-Vihangam System
-├── YOLO Detection Engine
-├── Django Web Dashboard
-├── Pathfinding Module
-├── Analytics
-└── Alert System
+vihangam_disaster_dashboard/
+├── 🎮 apps/
+│   ├── 📊 dashboard/          # Mission control and analytics
+│   ├── 🎯 detection/          # AI object detection system
+│   └── 🧠 pathfinding/        # A* navigation algorithms
+├── 🎨 static/
+│   ├── css/                   # Custom stylesheets
+│   ├── js/                    # JavaScript modules
+│   └── images/                # Assets and logos
+├── 📄 templates/              # HTML templates
+├── 🌐 disaster_dashboard/     # Django project settings
+└── 🔧 manage.py              # Django management script
 ```
 
-## 📂 Project Structure
+---
 
-```
-Vihangam/
-├── disaster_dashboard/         # Django web app
-│   ├── apps/
-│   ├── templates/
-│   ├── static/
-│   └── manage.py
-│
-├── yolo_detection/            # YOLO training & detection
-│   ├── data/                  # Training datasets
-│   ├── models/                # Model configs
-│   └── results/               # Detection outputs
-│
-├── scripts/                   # Utilities
-│   ├── training/              # Model training
-│   ├── testing/               # Testing tools
-│   └── integration/           # System integration
-│
-├── docs/
-├── requirements.txt
-└── README.md
-```
+## 🚀 Quick Start Guide
 
-## ⚙️ Setup
+### Prerequisites
+- Python 3.8+
+- pip package manager
+- Virtual environment support
 
+### 1. **Environment Setup**
 ```bash
-# Clone and setup
+# Clone the repository
 git clone <repository-url>
-cd Vihangam
-python -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-
-# Setup database
 cd disaster_dashboard
-python manage.py migrate
-python manage.py createsuperuser
 
-# Start server
+# Activate virtual environment
+source venv/bin/activate  # macOS/Linux
+# or
+venv\Scripts\activate     # Windows
+```
+
+### 2. **Install Dependencies**
+```bash
+pip install -r requirements.txt
+```
+
+### 3. **Database Migration**
+```bash
+python manage.py migrate
+```
+
+### 4. **Collect Static Files**
+```bash
+python manage.py collectstatic --noinput
+```
+
+### 5. **Run Development Server**
+```bash
 python manage.py runserver
 ```
 
-🔗 Access the dashboard at `http://localhost:8000`
+### 6. **Access the Application**
+- **Main Dashboard**: http://127.0.0.1:8000/
+- **AI Detection**: http://127.0.0.1:8000/detection/
+- **A* Pathfinding**: http://127.0.0.1:8000/pathfinding/
+- **Admin Panel**: http://127.0.0.1:8000/admin/
+  - Username: `admin`
+  - Password: `admin123`
 
-## 🧠 Model Training
+---
 
-Put training images in `yolo_detection/data/images/train/` and labels in `yolo_detection/data/labels/train/`.
+## 🎮 Application Modules
 
-```bash
-# Train model
-cd scripts/training
-python train_yolo_model.py
+### 📊 **Dashboard Module**
+- **Real-time mission monitoring**
+- **Drone status tracking**
+- **Weather and environmental data**
+- **Mission statistics and analytics**
 
-# Test model
-cd scripts/testing
-python test_yolo_model.py image.jpg --model model.pt
-```
+### 🎯 **Detection Module**
+- **YOLO-based object detection**
+- **Confidence threshold adjustment**
+- **Real-time bounding box visualization**
+- **Detection history and analytics**
+- **Export functionality**
 
-## 🧪 Testing
+### 🧠 **Pathfinding Module**
+- **A* algorithm implementation**
+- **Low-altitude navigation (10-100m)**
+- **Dynamic obstacle avoidance**
+- **Terrain awareness system**
+- **Real-time path recalculation**
 
-```bash
-# Test single image
-python scripts/testing/test_yolo_model.py image.jpg --confidence 0.25
+---
 
-# Test directory
-python scripts/testing/test_yolo_model.py images/ --save
+## 🔧 Development
 
-# Validate model
-python scripts/testing/validate_yolo_model.py --model model.pt
-```
+### **Adding New Features**
+1. Create new Django app: `python manage.py startapp feature_name`
+2. Add to `INSTALLED_APPS` in `settings.py`
+3. Create templates in `templates/feature_name/`
+4. Add CSS in `static/css/feature_name.css`
+5. Run migrations: `python manage.py makemigrations && python manage.py migrate`
 
-## 🚀 Usage
+### **CSS Architecture**
+- `base.css` - Global styles and dark theme
+- `dashboard.css` - Dashboard-specific styling
+- `detection.css` - Detection module styling
+- `pathfinding.css` - A* pathfinding styling
 
-### 🌐 Web Interface
-1. Upload images through the dashboard
-2. View detection results
-3. Plan rescue operations based on findings
+### **JavaScript Modules**
+- A* pathfinding algorithm implementation
+- Real-time data updates
+- Interactive UI components
+- Chart.js integrations
 
-### 💻 Command Line
-```bash
-python scripts/testing/test_yolo_model.py disaster_scene.jpg --save
-python scripts/training/train_yolo_model.py --epochs 100
-```
+---
 
-## 📊 Performance
+## 📊 Performance Features
 
-- ⚡ Detection speed: 8-20 FPS
-- 👤 Human detection accuracy: 95%+
-- ⏱️ Response time: <2 seconds
+- **⚡ Real-time Updates**: WebSocket-powered live data
+- **🎨 Glassmorphism UI**: Modern dark theme with blur effects
+- **📱 Responsive Design**: Mobile-first approach
+- **🚀 Optimized Assets**: Minified CSS/JS and image optimization
+- **🧠 Efficient Algorithms**: Optimized A* pathfinding implementation
 
-## 👩‍💻 Development
+---
 
-Create feature branches and add tests in `scripts/testing/` for new functionality.
+## 🔐 Security Features
 
-## 🚦 Current Development State
+- Django's built-in security middleware
+- CSRF protection
+- SQL injection prevention
+- XSS protection
+- Secure static file serving
 
-### ✅ What’s Working
+---
 
-- Django dashboard with mission planning
-- Image upload and detection pipeline
-- Responsive UI with Bootstrap + Font Awesome
-- Database setup and migrations ready
-- Training and testing utilities functional
+## 🤝 Contributing
 
-### 🔄 What’s Simulated (Pending Integration)
-- Real-time YOLO detection from live drone feed
-- Live GPS/telemetry data (mock data in use)
-- WebSocket real-time updates
-- Drone communication protocols
-- Advanced analytics and alerts
+1. Fork the repository
+2. Create feature branch: `git checkout -b feature/amazing-feature`
+3. Commit changes: `git commit -m 'Add amazing feature'`
+4. Push to branch: `git push origin feature/amazing-feature`
+5. Open Pull Request
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+## 👥 Team
+
+**Vihangam Development Team**
+- Emergency Response Technology Specialists
+- AI/ML Engineers
+- Full-Stack Developers
+- UX/UI Designers
+
+---
+
+<div align="center">
+  <h3>🚁 Built for Emergency Response • Powered by AI • Designed for Impact</h3>
+  <p><em>© 2024 Vihangam - Drone Disaster Management System</em></p>
+</div>
