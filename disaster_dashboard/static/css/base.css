@@ -1,196 +1,280 @@
-/* Base CSS for Vihangam Drone Disaster Management System */
+:root {
+    --accent: #00bcd4;         /* Cyan accent */
+    --success: #4caf50;        /* Green for success */
+    --warning: #ffc107;        /* Amber for warning */
+    --danger: #f44336;         /* Red for danger */
+    --info: #2196f3;           /* Blue for info */
 
-/* Custom Status Indicators */
-.status-indicator {
-    display: inline-block;
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    animation: pulse 2s infinite;
+    --bg-main: #181a20;        /* Main dark background */
+    --bg-secondary: #23262f;   /* Slightly lighter for cards/nav */
+    --text-main: #ffffff;      /* Main text color */
+    --text-muted: #a0a3b1;     /* Muted/secondary text */
+    --border: #23262f;         /* Subtle border */
+    --glass: rgba(255,255,255,0.04); /* Glass effect for overlays */
 }
 
-.status-indicator.online {
-    background-color: #28a745;
+/* ====== Base Styles ====== */
+body, .dark-theme {
+    background: var(--bg-main);
+    color: var(--text-main);
+    min-height: 100vh;
+    font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+    margin: 0;
+    padding: 0;
 }
 
-.status-indicator.offline {
-    background-color: #dc3545;
+/* ====== Navigation Bar ====== */
+.navbar, .bg-dark-glass {
+    background: var(--bg-secondary) !important;
+    border-bottom: 1px solid var(--border);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    padding: 0.5rem 1rem;
 }
 
-.status-indicator.warning {
-    background-color: #ffc107;
-}
-
-/* Pulse Animation */
-@keyframes pulse {
-    0% { opacity: 1; }
-    50% { opacity: 0.5; }
-    100% { opacity: 1; }
-}
-
-/* Custom Navigation Styling */
 .navbar-brand {
-    font-size: 1.5rem;
+    font-size: 1.3rem;
+    color: var(--accent) !important;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
-.navbar-nav .nav-link.active {
-    font-weight: bold;
-    background-color: rgba(255, 255, 255, 0.1);
-    border-radius: 0.375rem;
+.navbar-logo {
+    height: 28px;
+    width: auto;
+    filter: brightness(0.9) invert(1);
 }
 
-/* Card Enhancements */
+.navbar-nav .nav-link {
+    color: var(--text-muted) !important;
+    font-weight: 500;
+    border-radius: 6px;
+    padding: 8px 14px !important;
+    margin: 0 2px;
+    transition: background 0.2s, color 0.2s;
+}
+
+.navbar-nav .nav-link.active,
+.navbar-nav .nav-link:hover {
+    color: var(--accent) !important;
+    background: rgba(0,188,212,0.08);
+}
+
+/* ====== Mission Info Hub (Compact) ====== */
+.mission-info-hub {
+    background: var(--glass);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 4px 10px;
+    margin: 0 8px;
+    display: flex;
+    gap: 1.2rem;
+}
+
+.mission-info-content {
+    display: flex;
+    align-items: center;
+    font-size: 0.92rem;
+    gap: 0.3rem;
+}
+
+.mission-label {
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.mission-value {
+    color: var(--text-main);
+    font-weight: 600;
+}
+
+/* ====== Status Indicators ====== */
+.status-indicator {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 5px;
+    background: var(--success);
+    box-shadow: 0 0 6px var(--success);
+}
+
+/* ====== Card Styles ====== */
 .card {
+    background: var(--bg-secondary) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 12px !important;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.18);
+    color: var(--text-main);
+    margin-bottom: 1.2rem;
+    padding: 1.2rem;
+}
+
+.card-header {
+    background: transparent !important;
+    border-bottom: 1px solid var(--border) !important;
+    color: var(--text-main);
+    font-weight: 600;
+    padding: 0.8rem 0 0.6rem 0;
+}
+
+.card-body {
+    padding: 0.8rem 0 0 0;
+}
+
+/* ====== Buttons ====== */
+.btn {
+    border-radius: 8px;
+    font-weight: 600;
+    padding: 8px 18px;
     border: none;
-    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-    transition: box-shadow 0.15s ease-in-out;
+    transition: background 0.2s, color 0.2s;
 }
 
-.card:hover {
-    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+.btn-primary {
+    background: var(--accent);
+    color: #fff !important;
 }
 
-/* Emergency Styling */
-.alert-danger {
-    border-left: 5px solid #dc3545;
-    background-color: #fff5f5;
+.btn-primary:hover {
+    background: #0097a7;
 }
 
-/* Custom Badge Styling */
+.btn-success {
+    background: var(--success);
+    color: #fff !important;
+}
+
+.btn-warning {
+    background: var(--warning);
+    color: #222 !important;
+}
+
+.btn-danger {
+    background: var(--danger);
+    color: #fff !important;
+}
+
+.btn-outline-primary {
+    background: transparent;
+    border: 1px solid var(--text-main);
+    color: var(--text-main) !important;
+}
+
+.btn-outline-primary:hover {
+    background: #0d6efd;
+    color: #fff !important;
+}
+
+
+/* ====== Badge & Notification ====== */
 .badge {
     font-size: 0.75em;
-    padding: 0.35em 0.65em;
+    padding: 0.4em 0.7em;
+    border-radius: 6px;
+    font-weight: 600;
+    background: var(--accent);
+    color: #fff;
 }
 
-/* Button Enhancements */
-.btn {
-    transition: all 0.2s ease-in-out;
+.notification-btn {
+    background: transparent !important;
+    border: 1px solid var(--border) !important;
+    color: var(--text-muted) !important;
+    padding: 5px 9px;
+    border-radius: 7px;
+    transition: background 0.2s, color 0.2s;
 }
 
-.btn:hover {
-    transform: translateY(-1px);
+.notification-btn:hover {
+    background: rgba(0,188,212,0.12) !important;
+    color: var(--accent) !important;
 }
 
-/* Table Styling */
-.table-hover tbody tr:hover {
-    background-color: rgba(0, 123, 255, 0.05);
+/* ====== Table Styles: Dark Background ====== */
+.table {
+    background: var(--bg-secondary) !important;   /* Set dark background */
+    color: var(--text-main) !important;
+    border-color: var(--border) !important;
 }
 
-/* Custom Progress Bars */
-.progress {
-    border-radius: 0.5rem;
+.table th,
+.table td {
+    background: transparent !important;           /* Inherit from .table */
+    color: var(--text-main) !important;
+    border-color: var(--border) !important;
 }
+
+.table thead th {
+    color: var(--text-muted) !important;
+    border-bottom: 1px solid var(--border) !important;
+}
+
+.table tbody tr {
+    background: transparent !important;
+}
+
+.table tbody tr:hover {
+    background: rgba(0,188,212,0.08) !important;  /* Subtle accent on hover */
+}
+
 
 .progress-bar {
-    transition: width 0.6s ease;
+    background: var(--accent);
+    border-radius: 8px;
+    transition: width 0.5s;
 }
 
-/* Responsive Text */
+/* ====== Form Elements ====== */
+.form-control, .form-select {
+    background: var(--bg-secondary) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 8px;
+    color: var(--text-main) !important;
+    padding: 10px 14px;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--accent) !important;
+    box-shadow: 0 0 0 0.15rem rgba(0,188,212,0.18) !important;
+}
+
+.form-control::placeholder {
+    color: var(--text-muted) !important;
+}
+
+/* ====== Footer ====== */
+footer.bg-dark-glass {
+    background: var(--bg-secondary) !important;
+    border-top: 1px solid var(--border);
+    color: var(--text-muted);
+    padding: 0.7rem 0;
+    margin-top: 2rem;
+}
+
+/* ====== Utility & Responsive ====== */
+.text-accent { color: var(--accent) !important; }
+.text-success { color: var(--success) !important; }
+.text-warning { color: var(--warning) !important; }
+.text-danger { color: var(--danger) !important; }
+.text-info { color: var(--info) !important; }
+.text-muted { color: var(--text-muted) !important; }
+
 @media (max-width: 768px) {
-    .display-6 {
-        font-size: 2rem;
-    }
-    
-    .navbar-brand {
-        font-size: 1.25rem;
-    }
+    .navbar-brand { font-size: 1.1rem; }
+    .mission-info-hub { gap: 0.7rem; padding: 3px 5px; }
+    .card { padding: 0.7rem; }
 }
 
-/* Loading Animation */
-.fa-spin {
-    animation: fa-spin 1s infinite linear;
-}
-
-@keyframes fa-spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-/* Custom Form Styling */
-.form-range::-webkit-slider-track {
-    background: #dee2e6;
-    border-radius: 1rem;
-    height: 0.5rem;
-}
-
-.form-range::-webkit-slider-thumb {
-    background: #007bff;
-    border: 2px solid #ffffff;
-    border-radius: 1rem;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
-    height: 1.5rem;
-    width: 1.5rem;
-}
-
-.form-range::-moz-range-track {
-    background: #dee2e6;
-    border-radius: 1rem;
-    height: 0.5rem;
-}
-
-.form-range::-moz-range-thumb {
-    background: #007bff;
-    border: 2px solid #ffffff;
-    border-radius: 1rem;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
-    height: 1.5rem;
-    width: 1.5rem;
-}
-
-/* Footer Styling */
-footer {
-    margin-top: auto;
-    border-top: 1px solid #dee2e6;
-}
-
-/* Video Container Styling */
-.video-container {
-    border-radius: 0.375rem;
-    overflow: hidden;
-}
-
-/* Map Container Styling */
-.map-container {
-    border-radius: 0.375rem;
-    overflow: hidden;
-}
-
-/* Custom Scrollbar */
+/* ====== Custom Scrollbar for Dark Theme ====== */
 ::-webkit-scrollbar {
-    width: 8px;
+    width: 7px;
 }
-
-::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 4px;
-}
-
 ::-webkit-scrollbar-thumb {
-    background: #888;
+    background: var(--border);
     border-radius: 4px;
 }
-
-::-webkit-scrollbar-thumb:hover {
-    background: #555;
-}
-
-/* Utility Classes */
-.text-shadow {
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
-}
-
-.border-left-primary {
-    border-left: 4px solid #007bff;
-}
-
-.border-left-success {
-    border-left: 4px solid #28a745;
-}
-
-.border-left-warning {
-    border-left: 4px solid #ffc107;
-}
-
-.border-left-danger {
-    border-left: 4px solid #dc3545;
+::-webkit-scrollbar-track {
+    background: var(--bg-main);
 }

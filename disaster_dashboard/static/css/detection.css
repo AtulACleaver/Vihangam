@@ -1,0 +1,226 @@
+/* Enhanced Detection Page Styles */
+.sparkline-container {
+    height: 40px;
+    width: 100px;
+}
+
+.stats-card-clickable {
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.stats-card-clickable:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 45px rgba(0, 0, 0, 0.5);
+    border-color: rgba(255, 183, 0, 0.5) !important;
+}
+
+.stats-card-active {
+    border-color: rgba(255, 183, 0, 0.7) !important;
+    background: rgba(255, 183, 0, 0.1) !important;
+}
+
+/* Bounding Box Styles */
+.bounding-box {
+    position: absolute;
+    border: 2px solid;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.bounding-box:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.02);
+}
+
+.confidence-high {
+    border-color: var(--success-color);
+    box-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
+}
+
+.confidence-medium {
+    border-color: var(--warning-color);
+    box-shadow: 0 0 10px rgba(255, 183, 0, 0.3);
+}
+
+.confidence-low {
+    border-color: var(--danger-color);
+    box-shadow: 0 0 10px rgba(255, 71, 87, 0.3);
+}
+
+/* Tooltip Styles */
+.detection-tooltip {
+    position: absolute;
+    background: rgba(0, 0, 0, 0.9);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    z-index: 1000;
+    pointer-events: none;
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+}
+
+/* Recording Controls */
+.recording-controls {
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 8px 16px;
+    margin-top: 10px;
+}
+
+.record-btn {
+    background: var(--gradient-danger);
+    border: none;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.record-btn.recording {
+    animation: pulseRecord 1.5s infinite;
+}
+
+@keyframes pulseRecord {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(255, 71, 87, 0.5); }
+    50% { box-shadow: 0 0 0 10px rgba(255, 71, 87, 0); }
+}
+
+/* Model Info Icon */
+.model-info-icon {
+    color: var(--primary-accent);
+    cursor: help;
+    font-size: 0.9rem;
+    margin-left: 8px;
+    transition: all 0.3s ease;
+}
+
+.model-info-icon:hover {
+    transform: scale(1.2);
+    color: var(--warning-color);
+}
+
+/* Preset Dropdown */
+.preset-dropdown {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    margin-bottom: 16px;
+}
+
+/* Chart Container */
+.chart-container {
+    position: relative;
+    height: 300px;
+    background: var(--glass-bg);
+    border-radius: 12px;
+    padding: 20px;
+    backdrop-filter: blur(10px);
+}
+
+.time-range-buttons {
+    margin-bottom: 20px;
+}
+
+.time-range-btn {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    color: var(--text-secondary);
+    padding: 6px 12px;
+    border-radius: 6px;
+    margin-right: 8px;
+    transition: all 0.3s ease;
+}
+
+.time-range-btn:hover,
+.time-range-btn.active {
+    background: rgba(0, 212, 255, 0.2);
+    border-color: var(--primary-accent);
+    color: var(--primary-accent);
+}
+
+/* Heatmap View */
+.heatmap-container {
+    height: 300px;
+    background: var(--glass-bg);
+    border-radius: 12px;
+    display: none;
+    position: relative;
+    overflow: hidden;
+}
+
+.heatmap-grid {
+    display: grid;
+    grid-template-columns: repeat(20, 1fr);
+    grid-template-rows: repeat(15, 1fr);
+    height: 100%;
+    gap: 1px;
+}
+
+.heatmap-cell {
+    background: var(--glass-bg);
+    transition: all 0.3s ease;
+}
+
+.heatmap-cell.intensity-1 { background: rgba(0, 212, 255, 0.2); }
+.heatmap-cell.intensity-2 { background: rgba(0, 212, 255, 0.4); }
+.heatmap-cell.intensity-3 { background: rgba(0, 212, 255, 0.6); }
+.heatmap-cell.intensity-4 { background: rgba(0, 212, 255, 0.8); }
+.heatmap-cell.intensity-5 { background: rgba(0, 212, 255, 1.0); }
+
+/* Export Button */
+.export-btn {
+    background: var(--gradient-success);
+    border: none;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.heatmap-btn {
+    background: var(--gradient-info);
+    border: none;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 8px;
+    margin-left: 8px;
+    transition: all 0.3s ease;
+}
+
+/* Detection List Filtering */
+.detection-item {
+    transition: all 0.3s ease;
+}
+
+.detection-item.filtered-out {
+    opacity: 0.3;
+    transform: scale(0.95);
+}
+
+.detection-item.high-priority {
+    border-left: 4px solid var(--warning-color) !important;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .sparkline-container {
+        height: 30px;
+        width: 80px;
+    }
+
+    .recording-controls {
+        padding: 6px 12px;
+    }
+
+    .chart-container {
+        height: 250px;
+        padding: 15px;
+    }
+}

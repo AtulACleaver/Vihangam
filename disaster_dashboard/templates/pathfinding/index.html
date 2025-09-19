@@ -1,6 +1,11 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}Pathfinding - Vihangam Navigation System{% endblock %}
+{% block title %}Low-Altitude Pathfinding - Vihangam A* Navigation{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/pathfinding.css' %}">
+{% endblock %}
 
 {% block content %}
 <div class="container-fluid py-4">
@@ -8,14 +13,14 @@
     <div class="row mb-4">
         <div class="col-12">
             <div class="d-flex justify-content-between align-items-center">
-                <h1 class="display-6 fw-bold text-primary">
-                    <i class="fas fa-route me-2"></i>Autonomous Navigation System
+                <h1 class="display-6 fw-bold text-accent">
+                    <i class="fas fa-route me-2 text-accent"></i>Low-Altitude A* Navigation
                 </h1>
                 <div class="d-flex gap-2">
                     <button class="btn btn-success" id="calculate-path-btn">
-                        <i class="fas fa-calculator me-1"></i>Calculate Path
+                        <i class="fas fa-calculator me-1"></i>Calculate A* Path
                     </button>
-                    <button class="btn btn-primary" id="start-navigation-btn">
+                    <button class="btn btn-primary" id="start-navigation-btn" disabled>
                         <i class="fas fa-play me-1"></i>Start Navigation
                     </button>
                     <button class="btn btn-danger" id="emergency-return-btn">
@@ -26,19 +31,44 @@
         </div>
     </div>
 
-    <!-- Navigation Stats Cards -->
+    <!-- Altitude Mode Selector -->
     <div class="row mb-4">
+        <div class="col-12">
+            <div class="altitude-mode-selector">
+                <h6 class="fw-bold mb-3">
+                    <i class="fas fa-layer-group me-2"></i>Navigation Mode
+                </h6>
+                <div class="altitude-toggle">
+                    <button class="altitude-toggle-btn active" id="low-altitude-btn">
+                        <i class="fas fa-compress-arrows-alt me-2"></i>Low Altitude (A* Algorithm)
+                    </button>
+                    <button class="altitude-toggle-btn" id="high-altitude-btn">
+                        <i class="fas fa-expand-arrows-alt me-2"></i>High Altitude (Direct Navigation)
+                    </button>
+                </div>
+                <div class="mt-2">
+                    <small class="text-muted">
+                        <strong>Low Altitude:</strong> Uses A* pathfinding for complex terrain navigation with obstacle avoidance (10-100m) • 
+                        <strong>High Altitude:</strong> Simple point-to-point navigation above obstacles (100m+)
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Low-Altitude Navigation Stats Cards -->
+    <div class="row mb-4" id="navigation-stats">
         <div class="col-xl-3 col-md-6 mb-3">
-            <div class="card bg-primary text-white h-100">
+            <div class="card status-card bg-primary h-100">
                 <div class="card-body">
                     <div class="d-flex justify-content-between">
                         <div>
-                            <h6 class="card-title">Current Distance</h6>
-                            <h2 class="fw-bold">2.4 km</h2>
-                            <small><i class="fas fa-map-marker-alt me-1"></i>To destination</small>
+                            <h6 class="card-title">Terrain Clearance</h6>
+                            <h2 class="fw-bold" id="terrain-clearance">15.2m</h2>
+                            <small><i class="fas fa-mountain me-1"></i>Above ground</small>
                         </div>
                         <div class="align-self-center">
-                            <i class="fas fa-ruler fa-2x"></i>
+                            <i class="fas fa-layer-group fa-2x text-accent"></i>
                         </div>
                     </div>
                 </div>
@@ -46,16 +76,16 @@
         </div>
 
         <div class="col-xl-3 col-md-6 mb-3">
-            <div class="card bg-info text-white h-100">
+            <div class="card status-card bg-info h-100">
                 <div class="card-body">
                     <div class="d-flex justify-content-between">
                         <div>
-                            <h6 class="card-title">ETA</h6>
-                            <h2 class="fw-bold">12 min</h2>
-                            <small><i class="fas fa-clock me-1"></i>At current speed</small>
+                            <h6 class="card-title">A* Computation</h6>
+                            <h2 class="fw-bold" id="astar-time">0.24s</h2>
+                            <small><i class="fas fa-microchip me-1"></i>Last calculation</small>
                         </div>
                         <div class="align-self-center">
-                            <i class="fas fa-hourglass-half fa-2x"></i>
+                            <i class="fas fa-brain fa-2x text-info"></i>
                         </div>
                     </div>
                 </div>
@@ -63,16 +93,16 @@
         </div>
 
         <div class="col-xl-3 col-md-6 mb-3">
-            <div class="card bg-warning text-white h-100">
+            <div class="card status-card bg-warning h-100 obstacle-card" style="cursor: pointer;" id="obstacle-card">
                 <div class="card-body">
                     <div class="d-flex justify-content-between">
                         <div>
-                            <h6 class="card-title">Obstacles</h6>
-                            <h2 class="fw-bold">3</h2>
-                            <small><i class="fas fa-exclamation-triangle me-1"></i>Detected ahead</small>
+                            <h6 class="card-title">Dynamic Obstacles</h6>
+                            <h2 class="fw-bold" id="obstacle-count">7</h2>
+                            <small><i class="fas fa-exclamation-triangle me-1"></i>Active avoidance</small>
                         </div>
                         <div class="align-self-center">
-                            <i class="fas fa-exclamation-circle fa-2x"></i>
+                            <i class="fas fa-exclamation-circle fa-2x text-warning"></i>
                         </div>
                     </div>
                 </div>
@@ -80,16 +110,16 @@
         </div>
 
         <div class="col-xl-3 col-md-6 mb-3">
-            <div class="card bg-success text-white h-100">
+            <div class="card status-card bg-success h-100">
                 <div class="card-body">
                     <div class="d-flex justify-content-between">
                         <div>
-                            <h6 class="card-title">Path Efficiency</h6>
-                            <h2 class="fw-bold">92%</h2>
-                            <small><i class="fas fa-check me-1"></i>Optimal route</small>
+                            <h6 class="card-title">Path Nodes</h6>
+                            <h2 class="fw-bold" id="path-nodes">184</h2>
+                            <small><i class="fas fa-check me-1"></i>Explored cells</small>
                         </div>
                         <div class="align-self-center">
-                            <i class="fas fa-chart-line fa-2x"></i>
+                            <i class="fas fa-project-diagram fa-2x text-success"></i>
                         </div>
                     </div>
                 </div>
@@ -104,111 +134,33 @@
             <div class="card h-100">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="card-title mb-0">
-                        <i class="fas fa-map me-2"></i>Flight Path Visualization
+                        <i class="fas fa-map me-2"></i>Low-Altitude Terrain Navigation
                     </h5>
                     <div class="d-flex gap-2 align-items-center">
-                        <span class="badge bg-info" id="navigation-status">PLANNING</span>
+                        <span class="nav-mode-indicator low-altitude">LOW-ALT A*</span>
+                        <span class="badge bg-info" id="navigation-status">READY FOR CALCULATION</span>
                         <div class="btn-group btn-group-sm">
-                            <button class="btn btn-outline-primary" id="satellite-view">Satellite</button>
                             <button class="btn btn-outline-primary active" id="terrain-view">Terrain</button>
-                            <button class="btn btn-outline-primary" id="hybrid-view">Hybrid</button>
+                            <button class="btn btn-outline-primary" id="obstacles-view">Obstacles</button>
+                            <button class="btn btn-outline-primary" id="elevation-view">Elevation</button>
                         </div>
                     </div>
                 </div>
-                <div class="card-body p-0">
-                    <div class="map-container bg-light position-relative" style="height: 500px;">
-                        <!-- Map placeholder with grid pattern -->
-                        <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" 
-                             style="background-image: repeating-linear-gradient(0deg, rgba(0,0,0,0.05) 0px, rgba(0,0,0,0.05) 1px, transparent 1px, transparent 20px), repeating-linear-gradient(90deg, rgba(0,0,0,0.05) 0px, rgba(0,0,0,0.05) 1px, transparent 1px, transparent 20px);">
-                            
-                            <!-- Start Point -->
-                            <div class="position-absolute" style="top: 20%; left: 20%;">
-                                <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center" 
-                                     style="width: 40px; height: 40px;">
-                                    <i class="fas fa-play"></i>
-                                </div>
-                                <small class="position-absolute text-success fw-bold" style="top: 45px; left: -15px;">START</small>
-                            </div>
-                            
-                            <!-- Waypoints -->
-                            <div class="position-absolute" style="top: 40%; left: 45%;">
-                                <div class="bg-warning text-white rounded-circle d-flex align-items-center justify-content-center" 
-                                     style="width: 30px; height: 30px;">
-                                    <i class="fas fa-circle"></i>
-                                </div>
-                            </div>
-                            
-                            <div class="position-absolute" style="top: 60%; left: 65%;">
-                                <div class="bg-warning text-white rounded-circle d-flex align-items-center justify-content-center" 
-                                     style="width: 30px; height: 30px;">
-                                    <i class="fas fa-circle"></i>
-                                </div>
-                            </div>
-                            
-                            <!-- End Point -->
-                            <div class="position-absolute" style="top: 80%; left: 80%;">
-                                <div class="bg-danger text-white rounded-circle d-flex align-items-center justify-content-center" 
-                                     style="width: 40px; height: 40px;">
-                                    <i class="fas fa-flag"></i>
-                                </div>
-                                <small class="position-absolute text-danger fw-bold" style="top: 45px; left: -10px;">DEST</small>
-                            </div>
-                            
-                            <!-- Current Drone Position -->
-                            <div class="position-absolute animate-drone" style="top: 25%; left: 30%;">
-                                <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" 
-                                     style="width: 35px; height: 35px;">
-                                    <i class="fas fa-helicopter"></i>
-                                </div>
-                            </div>
-                            
-                            <!-- Path Lines (simplified) -->
-                            <svg class="position-absolute top-0 start-0 w-100 h-100" style="pointer-events: none;">
-                                <!-- Planned path -->
-                                <path d="M 20% 20% Q 35% 25% 45% 40% T 65% 60% T 80% 80%" 
-                                      stroke="#007bff" stroke-width="3" fill="none" stroke-dasharray="10,5"/>
-                                <!-- Completed path -->
-                                <path d="M 20% 20% L 30% 25%" 
-                                      stroke="#28a745" stroke-width="4" fill="none"/>
-                            </svg>
-                            
-                            <!-- Obstacles -->
-                            <div class="position-absolute" style="top: 35%; left: 50%;">
-                                <div class="bg-dark text-white rounded" style="width: 20px; height: 20px;">
-                                </div>
-                            </div>
-                            
-                            <div class="position-absolute" style="top: 55%; left: 55%;">
-                                <div class="bg-dark text-white rounded" style="width: 15px; height: 15px;">
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Map Legend -->
-                        <div class="position-absolute bottom-0 start-0 m-3">
-                            <div class="bg-white p-2 rounded shadow-sm">
-                                <div class="d-flex align-items-center mb-1">
-                                    <div class="bg-success rounded-circle me-2" style="width: 12px; height: 12px;"></div>
-                                    <small>Start Point</small>
-                                </div>
-                                <div class="d-flex align-items-center mb-1">
-                                    <div class="bg-danger rounded-circle me-2" style="width: 12px; height: 12px;"></div>
-                                    <small>Destination</small>
-                                </div>
-                                <div class="d-flex align-items-center mb-1">
-                                    <div class="bg-primary rounded-circle me-2" style="width: 12px; height: 12px;"></div>
-                                    <small>Current Position</small>
-                                </div>
-                                <div class="d-flex align-items-center mb-1">
-                                    <div class="bg-warning rounded-circle me-2" style="width: 12px; height: 12px;"></div>
-                                    <small>Waypoints</small>
-                                </div>
-                                <div class="d-flex align-items-center">
-                                    <div class="bg-dark rounded me-2" style="width: 12px; height: 12px;"></div>
-                                    <small>Obstacles</small>
-                                </div>
-                            </div>
-                        </div>
+                <div class="card-body p-0 position-relative">
+                    <!-- Interactive Leaflet Map -->
+                    <div id="flight-map" style="height: 500px; width: 100%;"></div>
+                    
+                    <!-- Map Overlay Controls -->
+                    <div class="map-overlay-controls">
+                        <button class="map-control-btn active" id="show-grid">
+                            <i class="fas fa-th me-1"></i>A* Grid
+                        </button>
+                        <button class="map-control-btn" id="show-obstacles">
+                            <i class="fas fa-exclamation-triangle me-1"></i>Obstacles
+                        </button>
+                        <button class="map-control-btn" id="show-elevation">
+                            <i class="fas fa-mountain me-1"></i>Elevation
+                        </button>
                     </div>
                 </div>
             </div>
@@ -219,10 +171,50 @@
             <div class="card h-100">
                 <div class="card-header">
                     <h5 class="card-title mb-0">
-                        <i class="fas fa-cogs me-2"></i>Navigation Control
+                        <i class="fas fa-brain me-2"></i>A* Algorithm Control
                     </h5>
                 </div>
                 <div class="card-body">
+                    <!-- A* Algorithm Visualization -->
+                    <div class="algorithm-visualization mb-4">
+                        <h6 class="fw-bold mb-3">
+                            <i class="fas fa-route me-2"></i>A* Pathfinding Grid
+                        </h6>
+                        <div class="pathfinding-grid" id="pathfinding-grid">
+                            <!-- Grid cells will be generated by JavaScript -->
+                        </div>
+                        <div class="terrain-info mt-2">
+                            <div class="terrain-legend">
+                                <div class="terrain-color" style="background: var(--success-color);"></div>
+                                <small>Start</small>
+                            </div>
+                            <div class="terrain-legend">
+                                <div class="terrain-color" style="background: var(--warning-color);"></div>
+                                <small>Goal</small>
+                            </div>
+                            <div class="terrain-legend">
+                                <div class="terrain-color" style="background: var(--danger-color);"></div>
+                                <small>Obstacles</small>
+                            </div>
+                            <div class="terrain-legend">
+                                <div class="terrain-color" style="background: var(--primary-accent);"></div>
+                                <small>Optimal Path</small>
+                            </div>
+                        </div>
+                        
+                        <!-- A* Statistics -->
+                        <div class="algorithm-stats">
+                            <div class="stat-item">
+                                <span class="stat-value" id="nodes-explored">184</span>
+                                <div class="stat-label">Nodes Explored</div>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-value" id="path-length">23</span>
+                                <div class="stat-label">Path Length</div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Waypoint Management -->
                     <div class="mb-4">
                         <h6 class="fw-bold">Waypoint Management</h6>
@@ -230,76 +222,178 @@
                             <label class="form-label">Destination Coordinates</label>
                             <div class="row">
                                 <div class="col-6">
-                                    <input type="text" class="form-control form-control-sm" placeholder="Latitude" value="28.6143">
+                                    <input type="text" class="form-control form-control-sm" placeholder="Latitude" value="28.6143" id="dest-lat">
                                 </div>
                                 <div class="col-6">
-                                    <input type="text" class="form-control form-control-sm" placeholder="Longitude" value="77.2095">
+                                    <input type="text" class="form-control form-control-sm" placeholder="Longitude" value="77.2095" id="dest-lng">
                                 </div>
                             </div>
                         </div>
-                        <button class="btn btn-outline-primary btn-sm w-100">
-                            <i class="fas fa-plus me-1"></i>Add Waypoint
-                        </button>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-outline-primary btn-sm flex-grow-1" id="add-waypoint-btn">
+                                <i class="fas fa-plus me-1"></i>Add Waypoint
+                            </button>
+                            <button class="btn btn-outline-success btn-sm" id="save-plan-btn">
+                                <i class="fas fa-save me-1"></i>Save Plan
+                            </button>
+                        </div>
                     </div>
 
-                    <!-- Algorithm Settings -->
-                    <div class="mb-4">
-                        <h6 class="fw-bold">Algorithm Settings</h6>
-                        <div class="mb-2">
-                            <label class="form-label">Pathfinding Algorithm</label>
-                            <select class="form-select form-select-sm">
-                                <option selected>A* (A-Star)</option>
-                                <option>Dijkstra</option>
-                                <option>RRT (Rapidly-exploring Random Tree)</option>
-                                <option>Potential Field</option>
+                    <!-- A* Algorithm Settings -->
+                    <div class="mb-4 altitude-section">
+                        <h6 class="fw-bold">
+                            <i class="fas fa-microchip me-2"></i>A* Algorithm Configuration
+                        </h6>
+                        <div class="mb-3">
+                            <label class="form-label">Heuristic Function</label>
+                            <select class="form-select form-select-sm" id="heuristic-select">
+                                <option value="manhattan" selected>Manhattan Distance</option>
+                                <option value="euclidean">Euclidean Distance</option>
+                                <option value="diagonal">Diagonal Distance</option>
                             </select>
+                            <small class="text-muted">Manhattan works best for grid-based low-altitude navigation</small>
                         </div>
-                        <div class="mb-2">
-                            <label class="form-label">Optimization Priority</label>
+                        <div class="mb-3">
+                            <label class="form-label">Path Optimization</label>
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="priority" id="shortest-path" checked>
-                                <label class="form-check-label" for="shortest-path">Shortest Path</label>
+                                <input class="form-check-input" type="radio" name="optimization" id="shortest-distance" checked>
+                                <label class="form-check-label" for="shortest-distance">Shortest Distance</label>
                             </div>
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="priority" id="safest-path">
-                                <label class="form-check-label" for="safest-path">Safest Route</label>
+                                <input class="form-check-input" type="radio" name="optimization" id="safest-route">
+                                <label class="form-check-label" for="safest-route">Maximum Clearance</label>
                             </div>
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="priority" id="fuel-efficient">
-                                <label class="form-check-label" for="fuel-efficient">Fuel Efficient</label>
+                                <input class="form-check-input" type="radio" name="optimization" id="energy-efficient">
+                                <label class="form-check-label" for="energy-efficient">Energy Efficient</label>
+                            </div>
+                        </div>
+                        
+                        <!-- A* Calculation Progress -->
+                        <div class="path-calculation-progress" id="calculation-progress">
+                            <h6 class="fw-bold mb-2">A* Path Calculation</h6>
+                            <div class="calculation-steps">
+                                <div class="calculation-step">
+                                    <span>Initialize grid and obstacles</span>
+                                    <div class="step-status complete"></div>
+                                </div>
+                                <div class="calculation-step">
+                                    <span>Calculate heuristic values</span>
+                                    <div class="step-status active"></div>
+                                </div>
+                                <div class="calculation-step">
+                                    <span>Explore neighboring nodes</span>
+                                    <div class="step-status"></div>
+                                </div>
+                                <div class="calculation-step">
+                                    <span>Reconstruct optimal path</span>
+                                    <div class="step-status"></div>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Flight Parameters -->
-                    <div class="mb-4">
-                        <h6 class="fw-bold">Flight Parameters</h6>
-                        <div class="mb-2">
-                            <label class="form-label">Cruise Altitude</label>
+                    <!-- Low-Altitude Flight Parameters -->
+                    <div class="mb-4 altitude-section">
+                        <h6 class="fw-bold">
+                            <i class="fas fa-layer-group me-2"></i>Low-Altitude Parameters
+                        </h6>
+                        <div class="mb-3">
+                            <label class="form-label">Operating Altitude (Low-Alt Mode)</label>
                             <div class="d-flex align-items-center">
-                                <input type="range" class="form-range flex-grow-1 me-2" id="altitude-slider" min="50" max="500" value="150">
-                                <span class="badge bg-secondary" id="altitude-value">150m</span>
+                                <input type="range" class="form-range flex-grow-1 me-2" id="altitude-slider" min="10" max="100" value="35">
+                                <span class="badge bg-accent" id="altitude-value">35m</span>
+                            </div>
+                            <small class="text-muted">Low altitude: 10-100m (requires A* pathfinding)</small>
+                        </div>
+                        
+                        <!-- Terrain Following -->
+                        <div class="terrain-following mb-3">
+                            <h6>Terrain Following</h6>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="terrain-following" checked>
+                                <label class="form-check-label" for="terrain-following">Enable Terrain Following</label>
+                            </div>
+                            <div class="terrain-clearance-display mt-2">
+                                <small>Min Ground Clearance:</small>
+                                <div class="clearance-indicator">
+                                    <div class="clearance-bar" id="clearance-bar" style="width: 75%;"></div>
+                                </div>
+                                <span class="badge bg-success" id="clearance-value">15.2m</span>
                             </div>
                         </div>
+                        
                         <div class="mb-2">
-                            <label class="form-label">Max Speed</label>
+                            <label class="form-label">Navigation Speed</label>
                             <div class="d-flex align-items-center">
-                                <input type="range" class="form-range flex-grow-1 me-2" id="speed-slider" min="5" max="25" value="12">
-                                <span class="badge bg-secondary" id="speed-value">12 m/s</span>
+                                <input type="range" class="form-range flex-grow-1 me-2" id="speed-slider" min="2" max="12" value="6">
+                                <span class="badge bg-secondary" id="speed-value">6 m/s</span>
+                            </div>
+                            <small class="text-muted">Reduced speed for obstacle avoidance</small>
+                        </div>
+                        
+                        <!-- Altitude Warning -->
+                        <div class="altitude-warning" id="altitude-warning" style="display: none;">
+                            <i class="fas fa-exclamation-triangle altitude-warning-icon"></i>
+                            <div>
+                                <strong>Low Altitude Alert:</strong> Complex terrain detected. A* algorithm required for safe navigation.
                             </div>
                         </div>
                     </div>
 
-                    <!-- Safety Settings -->
+                    <!-- Obstacle Detection & Avoidance -->
+                    <div class="obstacle-panel mb-4">
+                        <h6 class="fw-bold">
+                            <i class="fas fa-exclamation-triangle me-2"></i>Real-time Obstacles
+                        </h6>
+                        <div class="obstacle-list">
+                            <div class="obstacle-item critical">
+                                <div>
+                                    <strong>Building</strong>
+                                    <div class="small text-muted">Height: 45m</div>
+                                </div>
+                                <div class="obstacle-distance">12m</div>
+                            </div>
+                            <div class="obstacle-item">
+                                <div>
+                                    <strong>Tree Line</strong>
+                                    <div class="small text-muted">Height: 18m</div>
+                                </div>
+                                <div class="obstacle-distance">28m</div>
+                            </div>
+                            <div class="obstacle-item">
+                                <div>
+                                    <strong>Power Lines</strong>
+                                    <div class="small text-muted">Height: 12m</div>
+                                </div>
+                                <div class="obstacle-distance">45m</div>
+                            </div>
+                            <div class="obstacle-item">
+                                <div>
+                                    <strong>Radio Tower</strong>
+                                    <div class="small text-muted">Height: 85m</div>
+                                </div>
+                                <div class="obstacle-distance">120m</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Low-Altitude Safety Settings -->
                     <div class="mb-4">
-                        <h6 class="fw-bold">Safety Settings</h6>
+                        <h6 class="fw-bold">
+                            <i class="fas fa-shield-alt me-2"></i>Safety Configuration
+                        </h6>
                         <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" id="obstacle-avoidance" checked>
-                            <label class="form-check-label" for="obstacle-avoidance">Dynamic Obstacle Avoidance</label>
+                            <input class="form-check-input" type="checkbox" id="dynamic-avoidance" checked>
+                            <label class="form-check-label" for="dynamic-avoidance">Dynamic A* Recalculation</label>
                         </div>
                         <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" id="weather-routing" checked>
-                            <label class="form-check-label" for="weather-routing">Weather-Based Routing</label>
+                            <input class="form-check-input" type="checkbox" id="terrain-awareness" checked>
+                            <label class="form-check-label" for="terrain-awareness">Terrain Awareness</label>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="emergency-ascent" checked>
+                            <label class="form-check-label" for="emergency-ascent">Emergency Ascent Mode</label>
                         </div>
                         <div class="form-check form-switch">
                             <input class="form-check-input" type="checkbox" id="no-fly-zones" checked>
@@ -313,19 +407,19 @@
                         <div class="bg-light p-3 rounded">
                             <div class="d-flex justify-content-between mb-2">
                                 <span>Total Distance:</span>
-                                <span class="fw-bold">2.4 km</span>
+                                <span class="fw-bold" id="stat-distance">2.4 km</span>
                             </div>
                             <div class="d-flex justify-content-between mb-2">
                                 <span>Flight Time:</span>
-                                <span class="fw-bold">12 min</span>
+                                <span class="fw-bold" id="stat-time">12 min</span>
                             </div>
                             <div class="d-flex justify-content-between mb-2">
                                 <span>Battery Usage:</span>
-                                <span class="fw-bold">23%</span>
+                                <span class="fw-bold" id="stat-battery">23%</span>
                             </div>
                             <div class="d-flex justify-content-between">
                                 <span>Waypoints:</span>
-                                <span class="fw-bold">2</span>
+                                <span class="fw-bold" id="stat-waypoints">2</span>
                             </div>
                         </div>
                     </div>
@@ -344,8 +438,35 @@
                     </h5>
                 </div>
                 <div class="card-body">
+                    <!-- Log Controls -->
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                <input type="text" class="form-control" placeholder="Search logs..." id="log-search">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-select form-select-sm" id="event-filter">
+                                <option value="">All Events</option>
+                                <option value="Course Correction">Course Correction</option>
+                                <option value="Waypoint Reached">Waypoint Reached</option>
+                                <option value="Path Recalculation">Path Recalculation</option>
+                                <option value="Navigation Started">Navigation Started</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <button class="btn btn-outline-primary btn-sm w-100" id="export-log-btn">
+                                <i class="fas fa-download me-1"></i>Export
+                            </button>
+                        </div>
+                        <div class="col-md-3 text-end">
+                            <small class="text-muted">Click any row to view location on map</small>
+                        </div>
+                    </div>
+                    
                     <div class="table-responsive">
-                        <table class="table table-hover">
+                        <table class="table table-hover" id="navigation-log-table">
                             <thead>
                                 <tr>
                                     <th>Time</th>
@@ -356,33 +477,47 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
+                                <tr class="log-row" data-lat="28.6140" data-lng="77.2091">
                                     <td>18:04:15</td>
                                     <td>Path Recalculation</td>
                                     <td>28.6140°N, 77.2091°E</td>
                                     <td><span class="badge bg-warning">Processing</span></td>
                                     <td>Obstacle detected, recalculating route</td>
                                 </tr>
-                                <tr>
+                                <tr class="log-row" data-lat="28.6141" data-lng="77.2092">
                                     <td>18:03:42</td>
                                     <td>Waypoint Reached</td>
                                     <td>28.6141°N, 77.2092°E</td>
                                     <td><span class="badge bg-success">Complete</span></td>
                                     <td>Waypoint #1 reached successfully</td>
                                 </tr>
-                                <tr>
+                                <tr class="log-row" data-lat="28.6139" data-lng="77.2090">
                                     <td>18:02:18</td>
                                     <td>Course Correction</td>
                                     <td>28.6139°N, 77.2090°E</td>
                                     <td><span class="badge bg-info">Complete</span></td>
                                     <td>Wind compensation applied</td>
                                 </tr>
-                                <tr>
+                                <tr class="log-row" data-lat="28.6139" data-lng="77.2090">
                                     <td>18:00:00</td>
                                     <td>Navigation Started</td>
                                     <td>28.6139°N, 77.2090°E</td>
                                     <td><span class="badge bg-success">Complete</span></td>
                                     <td>A* pathfinding algorithm initiated</td>
+                                </tr>
+                                <tr class="log-row" data-lat="28.6142" data-lng="77.2093">
+                                    <td>17:58:33</td>
+                                    <td>Weather Update</td>
+                                    <td>28.6142°N, 77.2093°E</td>
+                                    <td><span class="badge bg-info">Complete</span></td>
+                                    <td>Meteorological data updated, no route changes needed</td>
+                                </tr>
+                                <tr class="log-row" data-lat="28.6138" data-lng="77.2089">
+                                    <td>17:56:12</td>
+                                    <td>No-Fly Zone Alert</td>
+                                    <td>28.6138°N, 77.2089°E</td>
+                                    <td><span class="badge bg-danger">Alert</span></td>
+                                    <td>Temporary no-fly zone detected, route adjusted</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -394,8 +529,227 @@
 </div>
 
 <script>
-    // Pathfinding specific JavaScript
+    // A* Pathfinding Algorithm Implementation
+    class AStarPathfinder {
+        constructor(gridWidth = 20, gridHeight = 15) {
+            this.gridWidth = gridWidth;
+            this.gridHeight = gridHeight;
+            this.grid = [];
+            this.obstacles = [];
+            this.start = { x: 2, y: 2 };
+            this.goal = { x: 17, y: 12 };
+            this.path = [];
+            this.exploredNodes = 0;
+            this.initializeGrid();
+        }
+        
+        initializeGrid() {
+            this.grid = [];
+            for (let y = 0; y < this.gridHeight; y++) {
+                this.grid[y] = [];
+                for (let x = 0; x < this.gridWidth; x++) {
+                    this.grid[y][x] = {
+                        x: x,
+                        y: y,
+                        f: 0, // f = g + h
+                        g: 0, // distance from start
+                        h: 0, // heuristic (distance to goal)
+                        parent: null,
+                        isObstacle: false,
+                        isExplored: false,
+                        isPath: false
+                    };
+                }
+            }
+            this.generateObstacles();
+        }
+        
+        generateObstacles() {
+            // Generate random obstacles (buildings, trees, etc.)
+            const numObstacles = 45;
+            this.obstacles = [];
+            
+            for (let i = 0; i < numObstacles; i++) {
+                const x = Math.floor(Math.random() * this.gridWidth);
+                const y = Math.floor(Math.random() * this.gridHeight);
+                
+                // Don't place obstacles on start or goal
+                if ((x === this.start.x && y === this.start.y) || 
+                    (x === this.goal.x && y === this.goal.y)) {
+                    continue;
+                }
+                
+                this.grid[y][x].isObstacle = true;
+                this.obstacles.push({ x, y });
+            }
+        }
+        
+        heuristic(node, goal) {
+            const heuristicType = document.getElementById('heuristic-select')?.value || 'manhattan';
+            
+            switch (heuristicType) {
+                case 'euclidean':
+                    return Math.sqrt(Math.pow(node.x - goal.x, 2) + Math.pow(node.y - goal.y, 2));
+                case 'diagonal':
+                    const dx = Math.abs(node.x - goal.x);
+                    const dy = Math.abs(node.y - goal.y);
+                    return Math.max(dx, dy);
+                default: // manhattan
+                    return Math.abs(node.x - goal.x) + Math.abs(node.y - goal.y);
+            }
+        }
+        
+        getNeighbors(node) {
+            const neighbors = [];
+            const directions = [
+                { x: -1, y: 0 }, { x: 1, y: 0 }, { x: 0, y: -1 }, { x: 0, y: 1 },
+                { x: -1, y: -1 }, { x: 1, y: -1 }, { x: -1, y: 1 }, { x: 1, y: 1 }
+            ];
+            
+            for (const dir of directions) {
+                const newX = node.x + dir.x;
+                const newY = node.y + dir.y;
+                
+                if (newX >= 0 && newX < this.gridWidth && newY >= 0 && newY < this.gridHeight) {
+                    const neighbor = this.grid[newY][newX];
+                    if (!neighbor.isObstacle) {
+                        neighbors.push(neighbor);
+                    }
+                }
+            }
+            
+            return neighbors;
+        }
+        
+        async findPath() {
+            this.exploredNodes = 0;
+            const openSet = [];
+            const closedSet = new Set();
+            
+            const startNode = this.grid[this.start.y][this.start.x];
+            const goalNode = this.grid[this.goal.y][this.goal.x];
+            
+            startNode.g = 0;
+            startNode.h = this.heuristic(startNode, goalNode);
+            startNode.f = startNode.h;
+            
+            openSet.push(startNode);
+            
+            while (openSet.length > 0) {
+                // Find node with lowest f score
+                let currentIndex = 0;
+                for (let i = 1; i < openSet.length; i++) {
+                    if (openSet[i].f < openSet[currentIndex].f) {
+                        currentIndex = i;
+                    }
+                }
+                
+                const current = openSet[currentIndex];
+                
+                // Remove current from open set
+                openSet.splice(currentIndex, 1);
+                closedSet.add(current);
+                
+                // Mark as explored for visualization
+                if (current !== startNode && current !== goalNode) {
+                    current.isExplored = true;
+                    this.exploredNodes++;
+                    this.updateGridVisualization();
+                    await this.sleep(50); // Animation delay
+                }
+                
+                // Check if we reached the goal
+                if (current === goalNode) {
+                    this.reconstructPath(goalNode);
+                    return true;
+                }
+                
+                // Check all neighbors
+                const neighbors = this.getNeighbors(current);
+                
+                for (const neighbor of neighbors) {
+                    if (closedSet.has(neighbor)) continue;
+                    
+                    const tentativeG = current.g + 1; // Assume cost of 1 for each move
+                    
+                    if (!openSet.includes(neighbor)) {
+                        openSet.push(neighbor);
+                    } else if (tentativeG >= neighbor.g) {
+                        continue;
+                    }
+                    
+                    neighbor.parent = current;
+                    neighbor.g = tentativeG;
+                    neighbor.h = this.heuristic(neighbor, goalNode);
+                    neighbor.f = neighbor.g + neighbor.h;
+                }
+            }
+            
+            return false; // No path found
+        }
+        
+        reconstructPath(goalNode) {
+            this.path = [];
+            let current = goalNode;
+            
+            while (current !== null) {
+                this.path.unshift(current);
+                current = current.parent;
+            }
+            
+            // Mark path nodes
+            for (const node of this.path) {
+                if (node !== this.grid[this.start.y][this.start.x] && 
+                    node !== this.grid[this.goal.y][this.goal.x]) {
+                    node.isPath = true;
+                }
+            }
+            
+            this.updateGridVisualization();
+        }
+        
+        updateGridVisualization() {
+            const gridContainer = document.getElementById('pathfinding-grid');
+            if (!gridContainer) return;
+            
+            gridContainer.innerHTML = '';
+            
+            for (let y = 0; y < this.gridHeight; y++) {
+                for (let x = 0; x < this.gridWidth; x++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'grid-cell';
+                    
+                    const node = this.grid[y][x];
+                    
+                    if (x === this.start.x && y === this.start.y) {
+                        cell.classList.add('start');
+                    } else if (x === this.goal.x && y === this.goal.y) {
+                        cell.classList.add('goal');
+                    } else if (node.isObstacle) {
+                        cell.classList.add('obstacle');
+                    } else if (node.isPath) {
+                        cell.classList.add('path');
+                    } else if (node.isExplored) {
+                        cell.classList.add('explored');
+                    } else {
+                        cell.classList.add('empty');
+                    }
+                    
+                    gridContainer.appendChild(cell);
+                }
+            }
+        }
+        
+        sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+    }
+    
+    // Main application logic
     document.addEventListener('DOMContentLoaded', function() {
+        const pathfinder = new AStarPathfinder();
+        
+        // UI Elements
         const calculateBtn = document.getElementById('calculate-path-btn');
         const startNavBtn = document.getElementById('start-navigation-btn');
         const emergencyBtn = document.getElementById('emergency-return-btn');
@@ -404,25 +758,107 @@
         const altitudeValue = document.getElementById('altitude-value');
         const speedSlider = document.getElementById('speed-slider');
         const speedValue = document.getElementById('speed-value');
+        const lowAltBtn = document.getElementById('low-altitude-btn');
+        const highAltBtn = document.getElementById('high-altitude-btn');
+        const calculationProgress = document.getElementById('calculation-progress');
         
-        // Calculate path
-        calculateBtn.addEventListener('click', function() {
-            statusBadge.textContent = 'CALCULATING';
+        // Initialize grid visualization
+        pathfinder.updateGridVisualization();
+        
+        // Altitude mode toggle
+        function switchAltitudeMode(isLowAltitude) {
+            const body = document.body;
+            if (isLowAltitude) {
+                body.classList.remove('high-altitude-mode');
+                body.classList.add('low-altitude-mode');
+                lowAltBtn.classList.add('active');
+                highAltBtn.classList.remove('active');
+                document.querySelector('.nav-mode-indicator').textContent = 'LOW-ALT A*';
+                document.querySelector('.nav-mode-indicator').className = 'nav-mode-indicator low-altitude';
+                altitudeSlider.min = '10';
+                altitudeSlider.max = '100';
+                altitudeSlider.value = '35';
+                altitudeValue.textContent = '35m';
+            } else {
+                body.classList.remove('low-altitude-mode');
+                body.classList.add('high-altitude-mode');
+                highAltBtn.classList.add('active');
+                lowAltBtn.classList.remove('active');
+                document.querySelector('.nav-mode-indicator').textContent = 'HIGH-ALT DIRECT';
+                document.querySelector('.nav-mode-indicator').className = 'nav-mode-indicator high-altitude';
+                altitudeSlider.min = '100';
+                altitudeSlider.max = '500';
+                altitudeSlider.value = '250';
+                altitudeValue.textContent = '250m';
+            }
+        }
+        
+        lowAltBtn.addEventListener('click', () => switchAltitudeMode(true));
+        highAltBtn.addEventListener('click', () => switchAltitudeMode(false));
+        
+        // Initialize in low altitude mode
+        switchAltitudeMode(true);
+        
+        // Calculate A* path
+        calculateBtn.addEventListener('click', async function() {
+            statusBadge.textContent = 'CALCULATING A* PATH';
             statusBadge.className = 'badge bg-warning';
             calculateBtn.disabled = true;
+            calculationProgress.classList.add('active');
             
-            // Simulate path calculation
-            setTimeout(() => {
-                statusBadge.textContent = 'READY';
+            // Reset pathfinder
+            pathfinder.initializeGrid();
+            pathfinder.updateGridVisualization();
+            
+            // Update calculation steps
+            const steps = calculationProgress.querySelectorAll('.step-status');
+            steps.forEach(step => step.className = 'step-status');
+            
+            // Step 1: Initialize
+            steps[0].classList.add('complete');
+            await pathfinder.sleep(500);
+            
+            // Step 2: Calculate heuristics
+            steps[1].classList.add('active');
+            await pathfinder.sleep(800);
+            steps[1].classList.remove('active');
+            steps[1].classList.add('complete');
+            
+            // Step 3: Find path
+            steps[2].classList.add('active');
+            const pathFound = await pathfinder.findPath();
+            steps[2].classList.remove('active');
+            steps[2].classList.add('complete');
+            
+            // Step 4: Reconstruct path
+            if (pathFound) {
+                steps[3].classList.add('active');
+                await pathfinder.sleep(500);
+                steps[3].classList.remove('active');
+                steps[3].classList.add('complete');
+                
+                statusBadge.textContent = 'PATH CALCULATED';
                 statusBadge.className = 'badge bg-success';
-                calculateBtn.disabled = false;
                 startNavBtn.disabled = false;
-            }, 2000);
+                
+                // Update stats
+                document.getElementById('nodes-explored').textContent = pathfinder.exploredNodes;
+                document.getElementById('path-length').textContent = pathfinder.path.length;
+                document.getElementById('path-nodes').textContent = pathfinder.exploredNodes;
+                document.getElementById('astar-time').textContent = '0.' + Math.floor(Math.random() * 50 + 10) + 's';
+                
+            } else {
+                statusBadge.textContent = 'NO PATH FOUND';
+                statusBadge.className = 'badge bg-danger';
+            }
+            
+            calculateBtn.disabled = false;
+            calculationProgress.classList.remove('active');
         });
         
         // Start navigation
         startNavBtn.addEventListener('click', function() {
-            statusBadge.textContent = 'NAVIGATING';
+            statusBadge.textContent = 'NAVIGATING A* PATH';
             statusBadge.className = 'badge bg-primary';
             startNavBtn.disabled = true;
             calculateBtn.disabled = true;
@@ -430,19 +866,46 @@
         
         // Emergency return
         emergencyBtn.addEventListener('click', function() {
-            statusBadge.textContent = 'RETURNING';
-            statusBadge.className = 'badge bg-danger';
-            startNavBtn.disabled = true;
-            calculateBtn.disabled = true;
-            
             if (confirm('Are you sure you want to initiate emergency return to base?')) {
-                // Emergency return logic would go here
+                statusBadge.textContent = 'EMERGENCY RETURN';
+                statusBadge.className = 'badge bg-danger';
+                startNavBtn.disabled = true;
+                calculateBtn.disabled = true;
             }
         });
         
         // Altitude slider
         altitudeSlider.addEventListener('input', function() {
             altitudeValue.textContent = this.value + 'm';
+            
+            // Show altitude warning for low altitudes
+            const warning = document.getElementById('altitude-warning');
+            if (parseInt(this.value) < 25) {
+                warning.style.display = 'flex';
+                warning.classList.add('critical');
+            } else if (parseInt(this.value) < 50) {
+                warning.style.display = 'flex';
+                warning.classList.remove('critical');
+            } else {
+                warning.style.display = 'none';
+            }
+            
+            // Update terrain clearance
+            const clearance = Math.max(5, parseInt(this.value) - 20);
+            document.getElementById('clearance-value').textContent = clearance + 'm';
+            document.getElementById('terrain-clearance').textContent = clearance + 'm';
+            
+            const clearanceBar = document.getElementById('clearance-bar');
+            const percentage = Math.min(100, (clearance / 30) * 100);
+            clearanceBar.style.width = percentage + '%';
+            
+            if (clearance < 10) {
+                clearanceBar.className = 'clearance-bar danger';
+            } else if (clearance < 20) {
+                clearanceBar.className = 'clearance-bar warning';
+            } else {
+                clearanceBar.className = 'clearance-bar';
+            }
         });
         
         // Speed slider
@@ -450,41 +913,19 @@
             speedValue.textContent = this.value + ' m/s';
         });
         
-        // Animate drone position
-        const drone = document.querySelector('.animate-drone');
-        if (drone) {
-            setInterval(() => {
-                if (statusBadge.textContent === 'NAVIGATING') {
-                    const currentLeft = parseFloat(drone.style.left) || 30;
-                    const currentTop = parseFloat(drone.style.top) || 25;
-                    
-                    // Simple animation towards destination
-                    if (currentLeft < 75 || currentTop < 75) {
-                        drone.style.left = (currentLeft + 0.5) + '%';
-                        drone.style.top = (currentTop + 0.5) + '%';
-                    }
-                }
-            }, 1000);
-        }
+        // Simulate real-time obstacle updates
+        setInterval(() => {
+            const obstacleCount = document.getElementById('obstacle-count');
+            if (statusBadge.textContent.includes('NAVIGATING')) {
+                const currentCount = parseInt(obstacleCount.textContent);
+                const variation = Math.floor(Math.random() * 3) - 1; // -1, 0, or 1
+                const newCount = Math.max(0, currentCount + variation);
+                obstacleCount.textContent = newCount;
+            }
+        }, 3000);
+        
+        // Initialize altitude slider
+        altitudeSlider.dispatchEvent(new Event('input'));
     });
 </script>
-
-<style>
-    .animate-drone {
-        transition: all 1s ease-in-out;
-    }
-    
-    .map-container {
-        background-color: #f8f9fa;
-    }
-    
-    .form-range::-webkit-slider-thumb {
-        background: #007bff;
-    }
-    
-    .form-range::-moz-range-thumb {
-        background: #007bff;
-        border: none;
-    }
-</style>
 {% endblock %}

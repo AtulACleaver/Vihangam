@@ -1,6 +1,11 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}Object Detection - Vihangam{% endblock %}
+{% block title %}Object Detection - Vihangam AI Vision{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/detection.css' %}">
+{% endblock %}
 
 {% block content %}
 <div class="container-fluid py-4">
@@ -8,8 +13,8 @@
     <div class="row mb-4">
         <div class="col-12">
             <div class="d-flex justify-content-between align-items-center">
-                <h1 class="display-6 fw-bold text-primary">
-                    <i class="fas fa-eye me-2"></i>Object Detection System
+                <h1 class="display-6 fw-bold text-accent">
+                    <i class="fas fa-eye me-2 text-accent"></i>AI Object Detection System
                 </h1>
                 <div class="d-flex gap-2">
                     <button class="btn btn-success" id="start-detection-btn">
@@ -26,68 +31,80 @@
     <!-- Detection Stats Cards -->
     <div class="row mb-4">
         <div class="col-xl-3 col-md-6 mb-3">
-            <div class="card bg-info text-white h-100">
+            <div class="card status-card bg-info h-100">
                 <div class="card-body">
                     <div class="d-flex justify-content-between">
                         <div>
                             <h6 class="card-title">Objects Detected</h6>
-                            <h2 class="fw-bold" id="objects-count">0</h2>
-                            <small><i class="fas fa-clock me-1"></i>Real-time</small>
+                            <h2 class="fw-bold" id="objects-count">247</h2>
+                            <small><i class="fas fa-clock me-1"></i>Last hour</small>
                         </div>
                         <div class="align-self-center">
-                            <i class="fas fa-search fa-2x"></i>
+                            <i class="fas fa-search fa-2x text-accent"></i>
                         </div>
+                    </div>
+                    <div class="mt-2">
+                        <canvas class="sparkline-container" id="objects-sparkline"></canvas>
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="col-xl-3 col-md-6 mb-3">
-            <div class="card bg-warning text-white h-100">
+            <div class="card status-card bg-warning h-100 stats-card-clickable" id="high-priority-card">
                 <div class="card-body">
                     <div class="d-flex justify-content-between">
                         <div>
                             <h6 class="card-title">High Priority</h6>
-                            <h2 class="fw-bold" id="priority-count">0</h2>
-                            <small><i class="fas fa-exclamation-triangle me-1"></i>Alerts</small>
+                            <h2 class="fw-bold" id="priority-count">12</h2>
+                            <small><i class="fas fa-exclamation-triangle me-1"></i>Require attention</small>
                         </div>
                         <div class="align-self-center">
-                            <i class="fas fa-exclamation-circle fa-2x"></i>
+                            <i class="fas fa-exclamation-circle fa-2x text-warning"></i>
                         </div>
+                    </div>
+                    <div class="mt-2">
+                        <canvas class="sparkline-container" id="priority-sparkline"></canvas>
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="col-xl-3 col-md-6 mb-3">
-            <div class="card bg-success text-white h-100">
+            <div class="card status-card bg-success h-100">
                 <div class="card-body">
                     <div class="d-flex justify-content-between">
                         <div>
-                            <h6 class="card-title">System Status</h6>
-                            <h2 class="fw-bold">Ready</h2>
-                            <small><i class="fas fa-check-circle me-1"></i>Online</small>
+                            <h6 class="card-title">Detection Accuracy</h6>
+                            <h2 class="fw-bold">94.2%</h2>
+                            <small><i class="fas fa-arrow-up me-1"></i>+2.1% today</small>
                         </div>
                         <div class="align-self-center">
-                            <i class="fas fa-bullseye fa-2x"></i>
+                            <i class="fas fa-bullseye fa-2x text-success"></i>
                         </div>
+                    </div>
+                    <div class="mt-2">
+                        <canvas class="sparkline-container" id="accuracy-sparkline"></canvas>
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="col-xl-3 col-md-6 mb-3">
-            <div class="card bg-primary text-white h-100">
+            <div class="card status-card bg-primary h-100">
                 <div class="card-body">
                     <div class="d-flex justify-content-between">
                         <div>
                             <h6 class="card-title">Processing Speed</h6>
-                            <h2 class="fw-bold" id="fps-count">30 FPS</h2>
+                            <h2 class="fw-bold">28 FPS</h2>
                             <small><i class="fas fa-tachometer-alt me-1"></i>Real-time</small>
                         </div>
                         <div class="align-self-center">
-                            <i class="fas fa-bolt fa-2x"></i>
+                            <i class="fas fa-bolt fa-2x text-accent"></i>
                         </div>
+                    </div>
+                    <div class="mt-2">
+                        <canvas class="sparkline-container" id="speed-sparkline"></canvas>
                     </div>
                 </div>
             </div>
@@ -96,66 +113,287 @@
 
     <!-- Main Detection Content -->
     <div class="row">
-        <!-- Detection Feed -->
+        <!-- Live Detection Feed -->
         <div class="col-lg-8 mb-4">
             <div class="card h-100">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="card-title mb-0">
-                        <i class="fas fa-video me-2"></i>Detection Interface
+                        <i class="fas fa-video me-2"></i>Live Detection Feed
                     </h5>
-                    <span class="badge bg-success" id="status-badge">READY</span>
+                    <div class="d-flex gap-2 align-items-center">
+                        <span class="badge bg-success" id="detection-status">ACTIVE</span>
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-outline-primary">Drone Alpha</button>
+                            <button class="btn btn-outline-primary">Drone Beta</button>
+                            <button class="btn btn-outline-primary">Drone Gamma</button>
+                        </div>
+                    </div>
                 </div>
                 <div class="card-body">
-                    <div class="detection-area bg-light d-flex align-items-center justify-content-center" style="height: 400px;">
-                        <div class="text-center" id="detection-display">
-                            <i class="fas fa-eye fa-4x text-muted mb-3"></i>
-                            <h5 class="text-muted">Detection System Ready</h5>
-                            <p class="text-muted">Click "Start Detection" to begin simulation</p>
+                    <div class="detection-container bg-dark d-flex align-items-center justify-content-center position-relative" style="height: 450px;">
+                        <div class="text-center text-light">
+                            <i class="fas fa-eye fa-3x mb-3"></i>
+                            <p>AI Detection processing will appear here</p>
+                            <small>YOLO model analyzing live feed...</small>
+                        </div>
+
+                        <!-- Detection Overlay with Interactive Bounding Boxes -->
+                        <div class="detection-overlay position-absolute top-0 start-0 w-100 h-100" id="detection-overlay">
+                            <!-- Sample Interactive Bounding Boxes -->
+                            <div class="bounding-box confidence-high"
+                                 style="left: 15%; top: 20%; width: 120px; height: 80px;"
+                                 data-class="Person"
+                                 data-confidence="94"></div>
+                            <div class="bounding-box confidence-medium"
+                                 style="left: 60%; top: 35%; width: 100px; height: 60px;"
+                                 data-class="Vehicle"
+                                 data-confidence="78"></div>
+                            <div class="bounding-box confidence-low"
+                                 style="left: 25%; top: 65%; width: 80px; height: 50px;"
+                                 data-class="Debris"
+                                 data-confidence="65"></div>
+                        </div>
+
+                        <!-- Detection Tooltip -->
+                        <div class="detection-tooltip" id="detection-tooltip"></div>
+                    </div>
+
+                    <!-- Recording Controls -->
+                    <div class="recording-controls d-flex justify-content-center align-items-center">
+                        <button class="record-btn me-2" id="record-btn">
+                            <i class="fas fa-circle me-1"></i>Record
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm me-2" id="stop-record-btn" disabled>
+                            <i class="fas fa-stop me-1"></i>Stop
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm" id="playback-btn">
+                            <i class="fas fa-play me-1"></i>Playback
+                        </button>
+                    </div>
+
+                    <!-- Detection Controls -->
+                    <div class="mt-3">
+                        <div class="row align-items-center">
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-center">
+                                    <label class="form-label me-2 mb-0">Confidence Threshold:</label>
+                                    <input type="range" class="form-range flex-grow-1 me-2" id="confidence-slider" min="0" max="100" value="75">
+                                    <span class="badge bg-secondary" id="confidence-value">75%</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="btn-group btn-group-sm w-100">
+                                    <button class="btn btn-outline-secondary">
+                                        <i class="fas fa-expand"></i> Fullscreen
+                                    </button>
+                                    <button class="btn btn-outline-secondary">
+                                        <i class="fas fa-camera"></i> Capture
+                                    </button>
+                                    <button class="btn btn-outline-secondary">
+                                        <i class="fas fa-download"></i> Export
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Detection Settings & Recent Activity -->
+        <!-- Detection Settings & Results -->
         <div class="col-lg-4 mb-4">
             <div class="card h-100">
                 <div class="card-header">
                     <h5 class="card-title mb-0">
-                        <i class="fas fa-cogs me-2"></i>System Control
+                        <i class="fas fa-cogs me-2"></i>Detection Settings
                     </h5>
                 </div>
                 <div class="card-body">
-                    <!-- Connection Status -->
+                    <!-- Preset Configurations -->
                     <div class="mb-4">
-                        <h6 class="fw-bold">Connection Status</h6>
+                        <h6 class="fw-bold">Load Preset</h6>
+                        <select class="form-select preset-dropdown" id="preset-select">
+                            <option value="" selected>Select Preset Configuration...</option>
+                            <option value="search-rescue">Search & Rescue</option>
+                            <option value="damage-assessment">Damage Assessment</option>
+                        </select>
+                    </div>
+
+                    <!-- Model Selection -->
+                    <div class="mb-4">
                         <div class="d-flex align-items-center">
-                            <div class="spinner-grow spinner-grow-sm text-success me-2" role="status" id="connection-indicator">
-                                <span class="visually-hidden">Connected</span>
-                            </div>
-                            <span id="connection-status">Connected to system</span>
+                            <h6 class="fw-bold mb-0">AI Model</h6>
+                            <i class="fas fa-info-circle model-info-icon" id="model-info-icon"
+                               title="Hover for model descriptions"></i>
                         </div>
+                        <select class="form-select" id="model-select">
+                            <option value="yolo-general" selected>YOLOv8 - General Objects</option>
+                            <option value="yolo-people">YOLOv8 - People Detection</option>
+                            <option value="yolo-vehicle">YOLOv8 - Vehicle Detection</option>
+                            <option value="custom-disaster">Custom - Disaster Objects</option>
+                        </select>
+
+                        <!-- Model Info Tooltip Content -->
+                        <div id="model-tooltip" class="detection-tooltip" style="display: none;"></div>
                     </div>
 
-                    <!-- Settings -->
+                    <!-- Detection Classes -->
                     <div class="mb-4">
-                        <h6 class="fw-bold">Detection Settings</h6>
-                        <div class="mb-3">
-                            <label class="form-label">Confidence Threshold</label>
-                            <input type="range" class="form-range" id="confidence-slider" min="10" max="90" value="25">
-                            <div class="d-flex justify-content-between">
-                                <small>10%</small>
-                                <small id="confidence-display">25%</small>
-                                <small>90%</small>
-                            </div>
+                        <h6 class="fw-bold">Object Classes</h6>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="person" checked>
+                            <label class="form-check-label" for="person">Person</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="vehicle" checked>
+                            <label class="form-check-label" for="vehicle">Vehicle</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="building">
+                            <label class="form-check-label" for="building">Building</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="debris" checked>
+                            <label class="form-check-label" for="debris">Debris</label>
                         </div>
                     </div>
 
-                    <!-- Recent Activity -->
+                    <!-- Alert Settings -->
+                    <div class="mb-4">
+                        <h6 class="fw-bold">Alert Settings</h6>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="auto-alerts" checked>
+                            <label class="form-check-label" for="auto-alerts">Auto Alerts</label>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="priority-only">
+                            <label class="form-check-label" for="priority-only">High Priority Only</label>
+                        </div>
+                    </div>
+
+                    <!-- Current Detections -->
                     <div>
-                        <h6 class="fw-bold">Recent Activity</h6>
-                        <div class="activity-list" id="activity-list">
-                            <p class="text-muted"><small>No recent activity</small></p>
+                        <h6 class="fw-bold">Recent Detections</h6>
+                        <div class="detection-list" style="max-height: 200px; overflow-y: auto;" id="detection-list">
+                            <div class="detection-item d-flex justify-content-between align-items-center mb-2 p-2 bg-black rounded high-priority" data-priority="high" data-class="Person">
+                                <div>
+                                    <small class="fw-bold text-warning">Person</small><br>
+                                    <small class="text-muted">Conf: 89%</small>
+                                </div>
+                                <small class="text-muted">18:04:12</small>
+                            </div>
+                            <div class="detection-item d-flex justify-content-between align-items-center mb-2 p-2 bg-black rounded" data-priority="medium" data-class="Vehicle">
+                                <div>
+                                    <small class="fw-bold text-info">Vehicle</small><br>
+                                    <small class="text-muted">Conf: 92%</small>
+                                </div>
+                                <small class="text-muted">18:03:45</small>
+                            </div>
+                            <div class="detection-item d-flex justify-content-between align-items-center mb-2 p-2 bg-black rounded high-priority" data-priority="high" data-class="Debris">
+                                <div>
+                                    <small class="fw-bold text-danger">Debris</small><br>
+                                    <small class="text-muted">Conf: 76%</small>
+                                </div>
+                                <small class="text-muted">18:02:33</small>
+                            </div>
+                            <div class="detection-item d-flex justify-content-between align-items-center mb-2 p-2 bg-black rounded high-priority" data-priority="high" data-class="Person">
+                                <div>
+                                    <small class="fw-bold text-warning">Person</small><br>
+                                    <small class="text-muted">Conf: 94%</small>
+                                </div>
+                                <small class="text-muted">18:01:21</small>
+                            </div>
+                            <div class="detection-item d-flex justify-content-between align-items-center mb-2 p-2 bg-black rounded" data-priority="low" data-class="Building">
+                                <div>
+                                    <small class="fw-bold text-success">Building</small><br>
+                                    <small class="text-muted">Conf: 87%</small>
+                                </div>
+                                <small class="text-muted">18:00:45</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detection Analytics -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-chart-line me-2"></i>Detection Analytics
+                    </h5>
+                    <div>
+                        <button class="export-btn" id="export-data-btn">
+                            <i class="fas fa-download me-1"></i>Export Data
+                        </button>
+                        <button class="heatmap-btn" id="heatmap-toggle-btn">
+                            <i class="fas fa-th me-1"></i>Heatmap View
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <!-- Time Range Buttons -->
+                            <div class="time-range-buttons mb-3">
+                                <button class="time-range-btn active" data-range="1h">1H</button>
+                                <button class="time-range-btn" data-range="6h">6H</button>
+                                <button class="time-range-btn" data-range="24h">24H</button>
+                            </div>
+
+                            <!-- Interactive Chart Container -->
+                            <div class="chart-container" id="chart-view">
+                                <canvas id="detection-analytics-chart"></canvas>
+                            </div>
+
+                            <!-- Heatmap Container -->
+                            <div class="heatmap-container" id="heatmap-view">
+                                <div class="heatmap-grid" id="heatmap-grid">
+                                    <!-- Heatmap cells will be generated dynamically -->
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <h6 class="fw-bold">Object Summary</h6>
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between">
+                                    <span>Persons</span>
+                                    <span class="fw-bold text-warning">87</span>
+                                </div>
+                                <div class="progress" style="height: 8px;">
+                                    <div class="progress-bar bg-warning" style="width: 60%"></div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between">
+                                    <span>Vehicles</span>
+                                    <span class="fw-bold text-info">43</span>
+                                </div>
+                                <div class="progress" style="height: 8px;">
+                                    <div class="progress-bar bg-info" style="width: 30%"></div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between">
+                                    <span>Debris</span>
+                                    <span class="fw-bold text-danger">23</span>
+                                </div>
+                                <div class="progress" style="height: 8px;">
+                                    <div class="progress-bar bg-danger" style="width: 16%"></div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between">
+                                    <span>Buildings</span>
+                                    <span class="fw-bold text-success">12</span>
+                                </div>
+                                <div class="progress" style="height: 8px;">
+                                    <div class="progress-bar bg-success" style="width: 8%"></div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -164,240 +402,418 @@
     </div>
 </div>
 
-<!-- Toast Container -->
-<div class="toast-container position-fixed top-0 end-0 p-3" id="toast-container"></div>
+{% block extra_js %}
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.min.js"></script>
+{% endblock %}
 
 <script>
-class VihangamDetection {
-    constructor() {
-        this.websocket = null;
-        this.isActive = false;
-        this.confidenceThreshold = 0.25;
-        
-        this.init();
-    }
-    
-    init() {
-        this.setupEventListeners();
-        this.connectWebSocket();
-        this.updateConnectionStatus('connecting');
-    }
-    
-    setupEventListeners() {
-        document.getElementById('start-detection-btn').addEventListener('click', () => {
-            this.startDetection();
-        });
-        
-        document.getElementById('stop-detection-btn').addEventListener('click', () => {
-            this.stopDetection();
-        });
-        
-        document.getElementById('confidence-slider').addEventListener('input', (e) => {
-            this.confidenceThreshold = e.target.value / 100;
-            document.getElementById('confidence-display').textContent = e.target.value + '%';
-        });
-    }
-    
-    connectWebSocket() {
-        const wsScheme = window.location.protocol === "https:" ? "wss" : "ws";
-        const wsPath = `${wsScheme}://${window.location.host}/ws/detection/`;
-        
-        this.websocket = new WebSocket(wsPath);
-        
-        this.websocket.onopen = () => {
-            console.log('WebSocket connected');
-            this.updateConnectionStatus('connected');
-            this.addActivity('System connected successfully');
-        };
-        
-        this.websocket.onmessage = (event) => {
-            const data = JSON.parse(event.data);
-            this.handleMessage(data);
-        };
-        
-        this.websocket.onclose = () => {
-            console.log('WebSocket disconnected');
-            this.updateConnectionStatus('disconnected');
-            this.addActivity('Connection lost - attempting to reconnect');
-            
-            // Reconnect after 3 seconds
-            setTimeout(() => {
-                this.connectWebSocket();
-            }, 3000);
-        };
-        
-        this.websocket.onerror = (error) => {
-            console.error('WebSocket error:', error);
-            this.updateConnectionStatus('error');
-            this.fallbackToSimulation();
-        };
-    }
-    
-    handleMessage(data) {
-        switch (data.type) {
-            case 'connection_status':
-                this.addActivity(data.message);
-                break;
-            case 'detection_started':
-                this.onDetectionStarted();
-                this.addActivity('Detection started');
-                break;
-            case 'detection_stopped':
-                this.onDetectionStopped();
-                this.addActivity('Detection stopped');
-                break;
-            case 'detection_update':
-                this.updateDetectionResults(data.data);
-                break;
-            case 'error':
-                this.showError(data.message);
-                break;
-        }
-    }
-    
-    startDetection() {
-        if (this.websocket && this.websocket.readyState === WebSocket.OPEN) {
-            this.websocket.send(JSON.stringify({
-                command: 'start_detection',
-                confidence: this.confidenceThreshold
-            }));
-        } else {
-            // Fallback to local simulation
-            this.onDetectionStarted();
-            this.addActivity('Started detection simulation');
-            this.simulateDetection();
-        }
-    }
-    
-    stopDetection() {
-        if (this.websocket && this.websocket.readyState === WebSocket.OPEN) {
-            this.websocket.send(JSON.stringify({
-                command: 'stop_detection'
-            }));
-        } else {
-            // Fallback to local simulation
-            this.onDetectionStopped();
-            this.addActivity('Stopped detection simulation');
-        }
-    }
-    
-    onDetectionStarted() {
-        this.isActive = true;
-        document.getElementById('start-detection-btn').disabled = true;
-        document.getElementById('stop-detection-btn').disabled = false;
-        document.getElementById('status-badge').textContent = 'ACTIVE';
-        document.getElementById('status-badge').className = 'badge bg-success';
-        
-        document.getElementById('detection-display').innerHTML = `
-            <i class="fas fa-cog fa-spin fa-4x text-primary mb-3"></i>
-            <h5 class="text-primary">Detection Active</h5>
-            <p class="text-muted">Monitoring for objects...</p>
-        `;
-    }
-    
-    onDetectionStopped() {
-        this.isActive = false;
-        document.getElementById('start-detection-btn').disabled = false;
-        document.getElementById('stop-detection-btn').disabled = true;
-        document.getElementById('status-badge').textContent = 'READY';
-        document.getElementById('status-badge').className = 'badge bg-secondary';
-        
-        document.getElementById('detection-display').innerHTML = `
-            <i class="fas fa-eye fa-4x text-muted mb-3"></i>
-            <h5 class="text-muted">Detection Stopped</h5>
-            <p class="text-muted">Click "Start Detection" to resume</p>
-        `;
-    }
-    
-    updateDetectionResults(data) {
-        // Update statistics
-        document.getElementById('objects-count').textContent = data.total_count || 0;
-        document.getElementById('priority-count').textContent = data.high_priority_count || 0;
-        document.getElementById('fps-count').textContent = (data.fps || 30) + ' FPS';
-        
-        // Add detection to activity
-        if (data.total_count > 0) {
-            this.addActivity(`Detected ${data.total_count} objects`);
-        }
-    }
-    
-    updateConnectionStatus(status) {
-        const indicator = document.getElementById('connection-indicator');
-        const statusText = document.getElementById('connection-status');
-        
-        switch (status) {
-            case 'connected':
-                indicator.className = 'spinner-grow spinner-grow-sm text-success me-2';
-                statusText.textContent = 'Connected to system';
-                break;
-            case 'connecting':
-                indicator.className = 'spinner-grow spinner-grow-sm text-warning me-2';
-                statusText.textContent = 'Connecting...';
-                break;
-            case 'disconnected':
-                indicator.className = 'spinner-grow spinner-grow-sm text-secondary me-2';
-                statusText.textContent = 'Disconnected';
-                break;
-            case 'error':
-                indicator.className = 'spinner-grow spinner-grow-sm text-danger me-2';
-                statusText.textContent = 'Connection error';
-                break;
-        }
-    }
-    
-    addActivity(message) {
-        const activityList = document.getElementById('activity-list');
-        const time = new Date().toLocaleTimeString();
-        
-        const activity = document.createElement('div');
-        activity.className = 'mb-2 p-2 bg-light rounded';
-        activity.innerHTML = `
-            <small class="fw-bold">${message}</small><br>
-            <small class="text-muted">${time}</small>
-        `;
-        
-        activityList.prepend(activity);
-        
-        // Keep only last 5 activities
-        while (activityList.children.length > 5) {
-            activityList.removeChild(activityList.lastChild);
-        }
-    }
-    
-    showError(message) {
-        console.error('Error:', message);
-        this.addActivity(`Error: ${message}`);
-    }
-    
-    fallbackToSimulation() {
-        console.log('WebSocket not available, using simulation mode');
-        this.updateConnectionStatus('disconnected');
-        this.addActivity('WebSocket unavailable - using simulation mode');
-        
-        // Override WebSocket methods to use local simulation
-        this.websocketAvailable = false;
-    }
-    
-    simulateDetection() {
-        if (this.isActive) {
-            // Simulate detection results
-            const mockData = {
-                total_count: Math.floor(Math.random() * 5),
-                high_priority_count: Math.floor(Math.random() * 2),
-                fps: 28 + Math.floor(Math.random() * 5)
-            };
-            
-            this.updateDetectionResults(mockData);
-            
-            // Continue simulation
-            setTimeout(() => this.simulateDetection(), 2000);
-        }
-    }
-}
+    // Enhanced Detection Page JavaScript with Advanced Features
+    document.addEventListener('DOMContentLoaded', function() {
+        // Core elements
+        const startBtn = document.getElementById('start-detection-btn');
+        const stopBtn = document.getElementById('stop-detection-btn');
+        const statusBadge = document.getElementById('detection-status');
+        const confidenceSlider = document.getElementById('confidence-slider');
+        const confidenceValue = document.getElementById('confidence-value');
 
-// Initialize when page loads
-document.addEventListener('DOMContentLoaded', function() {
-    new VihangamDetection();
-});
+        // New interactive elements
+        const highPriorityCard = document.getElementById('high-priority-card');
+        const detectionList = document.getElementById('detection-list');
+        const boundingBoxes = document.querySelectorAll('.bounding-box');
+        const detectionTooltip = document.getElementById('detection-tooltip');
+        const recordBtn = document.getElementById('record-btn');
+        const stopRecordBtn = document.getElementById('stop-record-btn');
+        const playbackBtn = document.getElementById('playback-btn');
+        const modelInfoIcon = document.getElementById('model-info-icon');
+        const modelTooltip = document.getElementById('model-tooltip');
+        const modelSelect = document.getElementById('model-select');
+        const presetSelect = document.getElementById('preset-select');
+        const exportDataBtn = document.getElementById('export-data-btn');
+        const heatmapToggleBtn = document.getElementById('heatmap-toggle-btn');
+        const chartView = document.getElementById('chart-view');
+        const heatmapView = document.getElementById('heatmap-view');
+        const timeRangeButtons = document.querySelectorAll('.time-range-btn');
+
+        // Global variables
+        let detectionChart = null;
+        let sparklineCharts = {};
+        let isRecording = false;
+        let isHighPriorityFiltered = false;
+        let currentView = 'chart';
+
+        // Model information data
+        const modelInfo = {
+            'yolo-general': 'YOLOv8 General: Optimized for detecting common objects including people, vehicles, and everyday items with high accuracy.',
+            'yolo-people': 'YOLOv8 People: Specialized model for human detection and tracking with enhanced accuracy for disaster rescue scenarios.',
+            'yolo-vehicle': 'YOLOv8 Vehicle: Trained specifically for vehicle detection including cars, trucks, emergency vehicles, and aircraft.',
+            'custom-disaster': 'Custom Disaster: Specialized model trained on disaster-specific objects like debris, damaged structures, and emergency equipment.'
+        };
+
+        // Preset configurations
+        const presetConfigs = {
+            'search-rescue': {
+                checkboxes: ['person', 'vehicle', 'debris'],
+                alerts: { 'auto-alerts': true, 'priority-only': true }
+            },
+            'damage-assessment': {
+                checkboxes: ['building', 'debris', 'vehicle'],
+                alerts: { 'auto-alerts': true, 'priority-only': false }
+            }
+        };
+
+        // Initialize Charts
+        function initializeCharts() {
+            // Main Analytics Chart
+            const ctx = document.getElementById('detection-analytics-chart').getContext('2d');
+            detectionChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: generateTimeLabels('1h'),
+                    datasets: [{
+                        label: 'Objects Detected',
+                        data: generateSampleData(12),
+                        borderColor: 'rgba(0, 212, 255, 1)',
+                        backgroundColor: 'rgba(0, 212, 255, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                            titleColor: 'rgba(0, 212, 255, 1)',
+                            bodyColor: 'white',
+                            borderColor: 'rgba(255, 255, 255, 0.2)',
+                            borderWidth: 1
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                            ticks: { color: 'rgba(255, 255, 255, 0.7)' }
+                        },
+                        x: {
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                            ticks: { color: 'rgba(255, 255, 255, 0.7)' }
+                        }
+                    }
+                }
+            });
+
+            // Initialize Sparklines
+            initializeSparklines();
+        }
+
+        // Initialize Sparkline Charts
+        function initializeSparklines() {
+            const sparklineIds = ['objects-sparkline', 'priority-sparkline', 'accuracy-sparkline', 'speed-sparkline'];
+            const sparklineColors = ['rgba(0, 212, 255, 1)', 'rgba(255, 183, 0, 1)', 'rgba(0, 255, 136, 1)', 'rgba(0, 212, 255, 1)'];
+
+            sparklineIds.forEach((id, index) => {
+                const ctx = document.getElementById(id)?.getContext('2d');
+                if (ctx) {
+                    sparklineCharts[id] = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: Array.from({length: 10}, (_, i) => i),
+                            datasets: [{
+                                data: generateSparklineData(),
+                                borderColor: sparklineColors[index],
+                                backgroundColor: sparklineColors[index],
+                                borderWidth: 1.5,
+                                pointRadius: 0,
+                                fill: false,
+                                tension: 0.4
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: { legend: { display: false }, tooltip: { enabled: false } },
+                            scales: {
+                                x: { display: false },
+                                y: { display: false }
+                            },
+                            interaction: { intersect: false }
+                        }
+                    });
+                }
+            });
+        }
+
+        // Generate sample data
+        function generateSampleData(points) {
+            return Array.from({length: points}, () => Math.floor(Math.random() * 50) + 10);
+        }
+
+        function generateSparklineData() {
+            return Array.from({length: 10}, () => Math.random() * 100);
+        }
+
+        function generateTimeLabels(range) {
+            const now = new Date();
+            const labels = [];
+            let interval, points;
+
+            switch(range) {
+                case '1h':
+                    interval = 5; // 5 minutes
+                    points = 12;
+                    break;
+                case '6h':
+                    interval = 30; // 30 minutes
+                    points = 12;
+                    break;
+                case '24h':
+                    interval = 120; // 2 hours
+                    points = 12;
+                    break;
+            }
+
+            for (let i = points - 1; i >= 0; i--) {
+                const time = new Date(now - (i * interval * 60000));
+                labels.push(time.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }));
+            }
+
+            return labels;
+        }
+
+        // Initialize Heatmap
+        function initializeHeatmap() {
+            const heatmapGrid = document.getElementById('heatmap-grid');
+            heatmapGrid.innerHTML = '';
+
+            // Create 300 cells (20x15 grid)
+            for (let i = 0; i < 300; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'heatmap-cell';
+                const intensity = Math.floor(Math.random() * 6); // 0-5 intensity
+                if (intensity > 0) {
+                    cell.classList.add(`intensity-${intensity}`);
+                }
+                heatmapGrid.appendChild(cell);
+            }
+        }
+
+        // Start/Stop Detection
+        startBtn.addEventListener('click', function() {
+            startBtn.disabled = true;
+            stopBtn.disabled = false;
+            statusBadge.textContent = 'PROCESSING';
+            statusBadge.className = 'badge bg-warning';
+
+            setTimeout(() => {
+                statusBadge.textContent = 'ACTIVE';
+                statusBadge.className = 'badge bg-success';
+            }, 1000);
+        });
+
+        stopBtn.addEventListener('click', function() {
+            startBtn.disabled = false;
+            stopBtn.disabled = true;
+            statusBadge.textContent = 'STOPPED';
+            statusBadge.className = 'badge bg-secondary';
+        });
+
+        // Confidence Slider
+        confidenceSlider.addEventListener('input', function() {
+            confidenceValue.textContent = this.value + '%';
+        });
+
+        // High Priority Card Click for Filtering
+        highPriorityCard.addEventListener('click', function() {
+            isHighPriorityFiltered = !isHighPriorityFiltered;
+
+            if (isHighPriorityFiltered) {
+                this.classList.add('stats-card-active');
+                // Filter detection list to show only high priority
+                const detectionItems = detectionList.querySelectorAll('.detection-item');
+                detectionItems.forEach(item => {
+                    if (item.dataset.priority !== 'high') {
+                        item.classList.add('filtered-out');
+                    } else {
+                        item.classList.remove('filtered-out');
+                    }
+                });
+            } else {
+                this.classList.remove('stats-card-active');
+                // Show all detection items
+                const detectionItems = detectionList.querySelectorAll('.detection-item');
+                detectionItems.forEach(item => {
+                    item.classList.remove('filtered-out');
+                });
+            }
+        });
+
+        // Bounding Box Hover Tooltips
+        boundingBoxes.forEach(box => {
+            box.addEventListener('mouseenter', function(e) {
+                const objectClass = this.dataset.class;
+                const confidence = this.dataset.confidence;
+                detectionTooltip.textContent = `${objectClass} - ${confidence}% confidence`;
+                detectionTooltip.style.display = 'block';
+                detectionTooltip.style.left = e.pageX + 10 + 'px';
+                detectionTooltip.style.top = e.pageY - 30 + 'px';
+            });
+
+            box.addEventListener('mousemove', function(e) {
+                detectionTooltip.style.left = e.pageX + 10 + 'px';
+                detectionTooltip.style.top = e.pageY - 30 + 'px';
+            });
+
+            box.addEventListener('mouseleave', function() {
+                detectionTooltip.style.display = 'none';
+            });
+        });
+
+        // Recording Controls
+        recordBtn.addEventListener('click', function() {
+            if (!isRecording) {
+                isRecording = true;
+                this.classList.add('recording');
+                this.innerHTML = '<i class="fas fa-circle me-1"></i>Recording...';
+                stopRecordBtn.disabled = false;
+                playbackBtn.disabled = true;
+            }
+        });
+
+        stopRecordBtn.addEventListener('click', function() {
+            isRecording = false;
+            recordBtn.classList.remove('recording');
+            recordBtn.innerHTML = '<i class="fas fa-circle me-1"></i>Record';
+            this.disabled = true;
+            playbackBtn.disabled = false;
+        });
+
+        playbackBtn.addEventListener('click', function() {
+            alert('Playback functionality would be implemented here');
+        });
+
+        // Model Information Tooltips
+        modelInfoIcon.addEventListener('mouseenter', function(e) {
+            const selectedModel = modelSelect.value;
+            const info = modelInfo[selectedModel] || 'No information available';
+            modelTooltip.textContent = info;
+            modelTooltip.style.display = 'block';
+            modelTooltip.style.left = e.pageX + 10 + 'px';
+            modelTooltip.style.top = e.pageY - 30 + 'px';
+        });
+
+        modelInfoIcon.addEventListener('mouseleave', function() {
+            modelTooltip.style.display = 'none';
+        });
+
+        // Preset Configuration Loading
+        presetSelect.addEventListener('change', function() {
+            const selectedPreset = this.value;
+            if (selectedPreset && presetConfigs[selectedPreset]) {
+                const config = presetConfigs[selectedPreset];
+
+                // Set checkboxes
+                const allCheckboxes = ['person', 'vehicle', 'building', 'debris'];
+                allCheckboxes.forEach(checkbox => {
+                    const element = document.getElementById(checkbox);
+                    if (element) {
+                        element.checked = config.checkboxes.includes(checkbox);
+                    }
+                });
+
+                // Set alert settings
+                Object.keys(config.alerts).forEach(alertId => {
+                    const element = document.getElementById(alertId);
+                    if (element) {
+                        element.checked = config.alerts[alertId];
+                    }
+                });
+            }
+        });
+
+        // Time Range Buttons
+        timeRangeButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                // Remove active class from all buttons
+                timeRangeButtons.forEach(btn => btn.classList.remove('active'));
+                // Add active class to clicked button
+                this.classList.add('active');
+
+                // Update chart data
+                const range = this.dataset.range;
+                detectionChart.data.labels = generateTimeLabels(range);
+                detectionChart.data.datasets[0].data = generateSampleData(12);
+                detectionChart.update();
+            });
+        });
+
+        // Export Data
+        exportDataBtn.addEventListener('click', function() {
+            // Simulate data export
+            const data = {
+                timestamp: new Date().toISOString(),
+                detections: {
+                    total_objects: 247,
+                    high_priority: 12,
+                    accuracy: 94.2,
+                    processing_speed: 28
+                }
+            };
+
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `detection_data_${new Date().getTime()}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        });
+
+        // Heatmap Toggle
+        heatmapToggleBtn.addEventListener('click', function() {
+            if (currentView === 'chart') {
+                chartView.style.display = 'none';
+                heatmapView.style.display = 'block';
+                this.innerHTML = '<i class="fas fa-chart-line me-1"></i>Chart View';
+                currentView = 'heatmap';
+                initializeHeatmap();
+            } else {
+                chartView.style.display = 'block';
+                heatmapView.style.display = 'none';
+                this.innerHTML = '<i class="fas fa-th me-1"></i>Heatmap View';
+                currentView = 'chart';
+            }
+        });
+
+        // Simulate real-time updates
+        setInterval(() => {
+            const objectsCount = document.getElementById('objects-count');
+            const currentCount = parseInt(objectsCount.textContent);
+            if (statusBadge.textContent === 'ACTIVE') {
+                objectsCount.textContent = currentCount + Math.floor(Math.random() * 3);
+
+                // Update sparklines
+                Object.values(sparklineCharts).forEach(chart => {
+                    if (chart) {
+                        chart.data.datasets[0].data.shift();
+                        chart.data.datasets[0].data.push(Math.random() * 100);
+                        chart.update('none');
+                    }
+                });
+            }
+        }, 5000);
+
+        // Initialize everything
+        setTimeout(() => {
+            initializeCharts();
+            initializeHeatmap();
+        }, 100);
+    });
 </script>
 {% endblock %}

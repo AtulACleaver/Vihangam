@@ -1,335 +1,238 @@
-/* Dashboard Specific CSS for Vihangam Drone System */
+/* ====== Root Variables: Simple, Consistent Dark Palette ====== */
+:root {
+    --accent: #00bcd4;           /* Cyan accent */
+    --success: #4caf50;          /* Green for success */
+    --warning: #ffc107;          /* Amber for warning */
+    --danger: #f44336;           /* Red for danger */
+    --info: #2196f3;             /* Blue for info */
 
-/* Dashboard Header Styling */
-.dashboard-header {
-    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
-    color: white;
-    padding: 2rem 0;
-    margin-bottom: 2rem;
-    border-radius: 0.5rem;
+    --bg-main: #181a20;          /* Main dark background */
+    --bg-secondary: #23262f;     /* Slightly lighter for cards/nav */
+    --glass: rgba(255,255,255,0.04); /* Glass effect for overlays */
+    --border: #23262f;           /* Subtle border */
+    --text-main: #f5f6fa;        /* Main text color */
+    --text-muted: #a0a3b1;       /* Muted/secondary text */
 }
 
-/* Status Cards */
+/* ====== Global Styles ====== */
+body, .dark-theme {
+    background: var(--bg-main);
+    color: var(--text-main);
+    font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+/* ====== Dashboard Header ====== */
+.dashboard-header {
+    background: var(--bg-secondary);
+    color: var(--text-main);
+    padding: 1.2rem 1.5rem;
+    margin-bottom: 1.2rem;
+    border-radius: 14px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.18);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+/* ====== Status Cards ====== */
 .status-card {
-    background: linear-gradient(45deg, var(--card-color, #007bff), var(--card-color-light, #4dabf7));
-    border-radius: 1rem;
-    padding: 1.5rem;
-    color: white;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    background: var(--glass);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.1rem 1.2rem;
+    color: var(--text-main);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+    transition: box-shadow 0.2s, transform 0.2s;
+    margin-bottom: 1rem;
+    min-width: 0;
 }
 
 .status-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 6px 24px rgba(0,188,212,0.10);
+    transform: translateY(-3px) scale(1.01);
+    border-color: var(--accent);
 }
 
-/* Video Feed Styling */
-.video-feed {
-    background: linear-gradient(145deg, #2c3e50, #34495e);
-    border-radius: 0.75rem;
-    position: relative;
+/* Status Card Color Variants */
+.status-card.bg-primary { border-left: 4px solid var(--accent); }
+.status-card.bg-success { border-left: 4px solid var(--success); }
+.status-card.bg-warning { border-left: 4px solid var(--warning); }
+.status-card.bg-info { border-left: 4px solid var(--info); }
+
+/* ====== Video Feed & Containers ====== */
+.video-feed, .video-container {
+    background: var(--glass);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
     overflow: hidden;
+    margin-bottom: 1rem;
 }
 
-.video-feed::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: repeating-linear-gradient(
-        90deg,
-        transparent,
-        transparent 2px,
-        rgba(255, 255, 255, 0.02) 2px,
-        rgba(255, 255, 255, 0.02) 4px
-    );
-    pointer-events: none;
-    z-index: 1;
-}
-
-/* Control Panel Styling */
+/* ====== Control Panel ====== */
 .control-panel {
-    background: linear-gradient(145deg, #f8f9fa, #e9ecef);
-    border-radius: 0.75rem;
-    padding: 1.5rem;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.2rem 1.5rem;
+    color: var(--text-main);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+    margin-bottom: 1rem;
 }
 
+/* Control Buttons */
 .control-button {
     width: 100%;
-    padding: 0.75rem;
-    margin-bottom: 0.5rem;
-    border-radius: 0.5rem;
+    padding: 10px 0;
+    margin-bottom: 10px;
+    border-radius: 8px;
     font-weight: 600;
-    transition: all 0.2s ease;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    transition: background 0.2s, transform 0.2s;
 }
 
 .control-button:hover {
-    transform: scale(1.02);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    background: #0097a7;
+    transform: translateY(-2px) scale(1.01);
 }
 
-/* GPS Coordinates Display */
+/* ====== GPS Display ====== */
 .gps-display {
-    background: linear-gradient(145deg, #ffffff, #f1f3f4);
-    border: 1px solid #e0e0e0;
-    border-radius: 0.5rem;
-    padding: 1rem;
-    font-family: 'Courier New', monospace;
+    background: var(--glass);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem 1.2rem;
+    font-family: 'Courier New', 'Monaco', monospace;
+    color: var(--text-main);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
 }
 
-/* Activity Log Styling */
+/* ====== Activity Log ====== */
 .activity-log {
-    max-height: 400px;
+    max-height: 320px;
     overflow-y: auto;
+    border-radius: 10px;
+    background: var(--bg-secondary);
+    margin-bottom: 1rem;
 }
 
 .activity-log .table {
-    font-size: 0.9rem;
+    font-size: 0.92rem;
+    margin-bottom: 0;
+    color: #1b1b1b;
 }
 
 .activity-log tbody tr:hover {
-    background: linear-gradient(90deg, rgba(0, 123, 255, 0.05), rgba(0, 123, 255, 0.1));
+    background: rgba(0,188,212,0.08);
     cursor: pointer;
 }
 
-/* Detection Specific Styling */
+/* ====== Detection Components ====== */
 .detection-container {
-    position: relative;
-    background: radial-gradient(circle at center, #2c3e50, #1a252f);
-    border: 2px solid #34495e;
-}
-
-.detection-overlay {
-    background: rgba(0, 0, 0, 0.1);
+    background: var(--glass);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+    overflow: hidden;
+    margin-bottom: 1rem;
 }
 
 .bounding-box {
     position: absolute;
-    border: 2px solid #e74c3c;
-    background: rgba(231, 76, 60, 0.1);
-    border-radius: 4px;
+    border: 2px solid var(--danger);
+    background: rgba(244,67,54,0.10);
+    border-radius: 6px;
+    animation: detectionPulse 2s infinite;
+}
+
+@keyframes detectionPulse {
+    0%, 100% { opacity: 0.8; }
+    50% { opacity: 1; }
 }
 
 .detection-label {
     position: absolute;
-    background: #e74c3c;
-    color: white;
-    padding: 2px 6px;
+    background: var(--danger);
+    color: #fff;
+    padding: 2px 8px;
     font-size: 0.75rem;
-    border-radius: 4px 4px 0 0;
+    border-radius: 6px 6px 0 0;
     top: -20px;
     left: 0;
+    font-weight: 600;
 }
 
-.confidence-meter {
-    background: linear-gradient(90deg, #e74c3c 0%, #f39c12 50%, #27ae60 100%);
-    height: 4px;
-    border-radius: 2px;
-    margin-top: 2px;
-}
-
-/* Detection Stats */
+/* ====== Detection Stats ====== */
 .detection-stats {
-    background: linear-gradient(145deg, #fff, #f8f9fa);
-    border-radius: 0.5rem;
-    padding: 1rem;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem 1.2rem;
     margin-bottom: 1rem;
+    color: var(--text-main);
 }
 
-.detection-list {
-    background: #f8f9fa;
-    border-radius: 0.5rem;
-    padding: 0.5rem;
-}
-
-.detection-item {
-    background: white;
-    border: 1px solid #dee2e6;
-    border-radius: 0.375rem;
-    padding: 0.75rem;
-    margin-bottom: 0.5rem;
-    transition: all 0.2s ease;
-}
-
-.detection-item:hover {
-    border-color: #007bff;
-    box-shadow: 0 2px 4px rgba(0, 123, 255, 0.1);
-}
-
-/* Pathfinding Map Styling */
-.map-visualization {
-    background: linear-gradient(145deg, #ecf0f1, #bdc3c7);
-    position: relative;
+/* ====== Map Visualization ====== */
+.map-visualization, .map-container {
+    background: var(--glass);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.10);
     overflow: hidden;
-}
-
-.path-line {
-    stroke-dasharray: 10, 5;
-    animation: dash 2s linear infinite;
-}
-
-@keyframes dash {
-    to {
-        stroke-dashoffset: -15;
-    }
-}
-
-.waypoint {
-    animation: bounce 2s infinite;
-}
-
-@keyframes bounce {
-    0%, 20%, 50%, 80%, 100% {
-        transform: translateY(0);
-    }
-    40% {
-        transform: translateY(-10px);
-    }
-    60% {
-        transform: translateY(-5px);
-    }
-}
-
-.drone-marker {
-    animation: float 3s ease-in-out infinite;
-    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
-}
-
-@keyframes float {
-    0% { transform: translateY(0px); }
-    50% { transform: translateY(-10px); }
-    100% { transform: translateY(0px); }
-}
-
-/* Navigation Controls */
-.nav-controls {
-    background: linear-gradient(145deg, #ffffff, #f1f3f4);
-    border-radius: 0.75rem;
-    padding: 1.5rem;
-}
-
-.algorithm-selector {
-    background: linear-gradient(145deg, #e3f2fd, #bbdefb);
-    border-radius: 0.5rem;
-    padding: 1rem;
     margin-bottom: 1rem;
 }
 
-/* Emergency Styling */
+/* ====== Emergency Alert ====== */
 .emergency-alert {
-    background: linear-gradient(135deg, #dc3545, #c82333);
-    color: white;
-    border: none;
-    animation: emergencyPulse 1s infinite;
+    background: var(--danger);
+    color: #fff;
+    border: 2px solid var(--danger);
+    border-radius: 10px;
+    animation: emergencyPulse 1.5s infinite;
+    box-shadow: 0 2px 8px rgba(244,67,54,0.15);
 }
 
 @keyframes emergencyPulse {
-    0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); }
-    70% { box-shadow: 0 0 0 10px rgba(220, 53, 69, 0); }
-    100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
+    0% { box-shadow: 0 0 0 0 rgba(244,67,54,0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(244,67,54,0); }
+    100% { box-shadow: 0 0 0 0 rgba(244,67,54,0); }
 }
 
-/* Mission Critical Indicators */
-.critical-indicator {
-    position: relative;
-    overflow: hidden;
-}
+/* ====== Utility Classes ====== */
+.text-accent { color: var(--accent) !important; }
+.text-success { color: var(--success) !important; }
+.text-warning { color: var(--warning) !important; }
+.text-danger { color: var(--danger) !important; }
+.text-info { color: var(--info) !important; }
+.text-muted { color: var(--text-muted) !important; }
 
-.critical-indicator::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, 
-        transparent, 
-        rgba(255, 255, 255, 0.2), 
-        transparent
-    );
-    animation: shimmer 2s infinite;
-}
-
-@keyframes shimmer {
-    100% { left: 100%; }
-}
-
-/* Real-time Data Styling */
-.realtime-data {
-    position: relative;
-}
-
-.realtime-indicator {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    width: 12px;
-    height: 12px;
-    background: #28a745;
-    border-radius: 50%;
-    animation: pulse 2s infinite;
-}
-
-/* Weather and Environment Indicators */
-.weather-indicator {
-    background: linear-gradient(145deg, #74b9ff, #0984e3);
-    color: white;
-    padding: 0.5rem 1rem;
-    border-radius: 2rem;
-    font-size: 0.875rem;
-    display: inline-block;
-    margin: 0.25rem;
-}
-
-/* System Health Indicators */
-.health-good { color: #28a745; }
-.health-warning { color: #ffc107; }
-.health-critical { color: #dc3545; }
-
-/* Responsive Dashboard Layout */
-@media (max-width: 1200px) {
-    .control-panel {
-        margin-top: 1rem;
-    }
-    
-    .video-feed {
-        height: 300px;
-    }
-}
-
+/* ====== Responsive Tweaks ====== */
 @media (max-width: 768px) {
-    .status-card {
-        margin-bottom: 1rem;
+    .dashboard-header,
+    .control-panel,
+    .status-card,
+    .detection-stats,
+    .map-visualization,
+    .map-container {
+        padding: 0.8rem 1rem;
+        border-radius: 10px;
     }
-    
-    .dashboard-header {
-        padding: 1rem 0;
-        text-align: center;
-    }
-    
-    .control-button {
-        font-size: 0.875rem;
-        padding: 0.5rem;
-    }
+    .status-card { margin-bottom: 0.8rem; }
 }
 
-/* Dark Mode Support */
-@media (prefers-color-scheme: dark) {
-    .control-panel {
-        background: linear-gradient(145deg, #2c3e50, #34495e);
-        color: white;
-    }
-    
-    .gps-display {
-        background: linear-gradient(145deg, #34495e, #2c3e50);
-        color: white;
-        border-color: #555;
-    }
-    
-    .detection-stats {
-        background: linear-gradient(145deg, #34495e, #2c3e50);
-        color: white;
-    }
+/* ====== Custom Scrollbar for Dark Theme ====== */
+::-webkit-scrollbar {
+    width: 7px;
+}
+::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 4px;
+}
+::-webkit-scrollbar-track {
+    background: var(--bg-main);
 }

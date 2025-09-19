@@ -1,0 +1,409 @@
+/* Pathfinding Page Styles - Low Altitude Navigation Focus */
+
+/* Altitude Mode Selector */
+.altitude-mode-selector {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 20px;
+    backdrop-filter: blur(10px);
+}
+
+.altitude-toggle {
+    display: flex;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 4px;
+    gap: 4px;
+}
+
+.altitude-toggle-btn {
+    flex: 1;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--text-secondary);
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.altitude-toggle-btn.active {
+    background: var(--gradient-accent);
+    color: white;
+    box-shadow: 0 2px 8px rgba(0, 212, 255, 0.3);
+}
+
+.altitude-toggle-btn:hover:not(.active) {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+}
+
+/* Algorithm Visualization */
+.algorithm-visualization {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 20px;
+    backdrop-filter: blur(10px);
+}
+
+.pathfinding-grid {
+    display: grid;
+    grid-template-columns: repeat(20, 1fr);
+    grid-template-rows: repeat(15, 1fr);
+    gap: 1px;
+    height: 200px;
+    background: var(--bg-secondary);
+    border-radius: 8px;
+    padding: 4px;
+}
+
+.grid-cell {
+    background: var(--glass-bg);
+    border-radius: 2px;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.grid-cell.empty {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.grid-cell.obstacle {
+    background: var(--danger-color);
+    box-shadow: 0 0 4px rgba(255, 71, 87, 0.5);
+}
+
+.grid-cell.path {
+    background: var(--primary-accent);
+    box-shadow: 0 0 4px rgba(0, 212, 255, 0.5);
+    animation: pathGlow 2s infinite alternate;
+}
+
+.grid-cell.explored {
+    background: rgba(255, 183, 0, 0.3);
+}
+
+.grid-cell.start {
+    background: var(--success-color);
+    box-shadow: 0 0 6px rgba(0, 255, 136, 0.7);
+}
+
+.grid-cell.goal {
+    background: var(--warning-color);
+    box-shadow: 0 0 6px rgba(255, 183, 0, 0.7);
+}
+
+@keyframes pathGlow {
+    0% { opacity: 0.8; }
+    100% { opacity: 1; }
+}
+
+/* Terrain Awareness */
+.terrain-info {
+    display: flex;
+    gap: 12px;
+    margin-top: 12px;
+    font-size: 0.85rem;
+}
+
+.terrain-legend {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.terrain-color {
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+}
+
+/* Obstacle Detection Panel */
+.obstacle-panel {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 16px;
+    backdrop-filter: blur(10px);
+}
+
+.obstacle-list {
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.obstacle-item {
+    display: flex;
+    justify-content: between;
+    align-items: center;
+    padding: 8px 12px;
+    margin-bottom: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    border-left: 4px solid var(--warning-color);
+}
+
+.obstacle-item.critical {
+    border-left-color: var(--danger-color);
+    background: rgba(255, 71, 87, 0.1);
+}
+
+.obstacle-distance {
+    font-weight: 600;
+    color: var(--primary-accent);
+}
+
+/* A* Algorithm Stats */
+.algorithm-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.stat-item {
+    text-align: center;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    border: 1px solid var(--glass-border);
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-accent);
+    display: block;
+}
+
+.stat-label {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-top: 4px;
+}
+
+/* Low Altitude Specific Styling */
+.low-altitude-mode .altitude-section {
+    background: rgba(0, 212, 255, 0.1);
+    border: 1px solid rgba(0, 212, 255, 0.3);
+}
+
+.high-altitude-mode .altitude-section {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    opacity: 0.7;
+}
+
+.high-altitude-mode .algorithm-visualization,
+.high-altitude-mode .obstacle-panel {
+    display: none;
+}
+
+/* Terrain Following Controls */
+.terrain-following {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    padding: 12px;
+    margin-top: 12px;
+}
+
+.terrain-following h6 {
+    color: var(--primary-accent);
+    margin-bottom: 8px;
+}
+
+.terrain-clearance-display {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.clearance-indicator {
+    flex-grow: 1;
+    height: 6px;
+    background: var(--glass-bg);
+    border-radius: 3px;
+    overflow: hidden;
+    position: relative;
+}
+
+.clearance-bar {
+    height: 100%;
+    background: var(--gradient-success);
+    transition: width 0.3s ease, background-color 0.3s ease;
+    border-radius: 3px;
+}
+
+.clearance-bar.warning {
+    background: var(--gradient-warning);
+}
+
+.clearance-bar.danger {
+    background: var(--gradient-danger);
+}
+
+/* Navigation Mode Indicator */
+.nav-mode-indicator {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 6px 12px;
+    backdrop-filter: blur(10px);
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.nav-mode-indicator.low-altitude {
+    color: var(--primary-accent);
+    border-color: rgba(0, 212, 255, 0.5);
+}
+
+.nav-mode-indicator.high-altitude {
+    color: var(--text-secondary);
+}
+
+/* Map Enhancements for Low Altitude */
+.map-overlay-controls {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    z-index: 1000;
+    display: flex;
+    gap: 8px;
+}
+
+.map-control-btn {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    color: var(--text-primary);
+    padding: 8px 12px;
+    border-radius: 6px;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+    font-size: 0.85rem;
+}
+
+.map-control-btn:hover {
+    background: rgba(0, 212, 255, 0.2);
+    border-color: var(--primary-accent);
+    color: var(--primary-accent);
+}
+
+.map-control-btn.active {
+    background: var(--primary-accent);
+    color: white;
+    border-color: var(--primary-accent);
+}
+
+/* Dynamic Path Calculation */
+.path-calculation-progress {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    padding: 12px;
+    margin-top: 12px;
+    display: none;
+}
+
+.path-calculation-progress.active {
+    display: block;
+}
+
+.calculation-steps {
+    margin-top: 8px;
+}
+
+.calculation-step {
+    display: flex;
+    justify-content: between;
+    align-items: center;
+    padding: 4px 0;
+    font-size: 0.85rem;
+}
+
+.step-status {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--glass-border);
+    margin-left: auto;
+}
+
+.step-status.complete {
+    background: var(--success-color);
+}
+
+.step-status.active {
+    background: var(--warning-color);
+    animation: pulse 1s infinite;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .pathfinding-grid {
+        grid-template-columns: repeat(15, 1fr);
+        grid-template-rows: repeat(10, 1fr);
+        height: 150px;
+    }
+
+    .algorithm-stats {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+
+    .altitude-toggle {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .terrain-info {
+        flex-direction: column;
+        gap: 8px;
+    }
+}
+
+/* Animation for A* algorithm visualization */
+@keyframes aStarExploration {
+    0% { transform: scale(0.8); opacity: 0.5; }
+    50% { transform: scale(1.1); opacity: 0.8; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.grid-cell.exploring {
+    animation: aStarExploration 0.5s ease-out;
+}
+
+/* Low altitude warning indicators */
+.altitude-warning {
+    background: rgba(255, 183, 0, 0.2);
+    border: 1px solid var(--warning-color);
+    border-radius: 8px;
+    padding: 12px;
+    margin-top: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.altitude-warning.critical {
+    background: rgba(255, 71, 87, 0.2);
+    border-color: var(--danger-color);
+}
+
+.altitude-warning-icon {
+    color: var(--warning-color);
+    font-size: 1.2rem;
+}
+
+.altitude-warning.critical .altitude-warning-icon {
+    color: var(--danger-color);
+}

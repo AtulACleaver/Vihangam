@@ -19,16 +19,21 @@
     <div class="row mb-4">
         <div class="col-12">
             <div class="d-flex justify-content-between align-items-center">
-                <h1 class="display-6 fw-bold text-primary">
-                    <i class="fas fa-tachometer-alt me-2"></i>Mission Control Dashboard
+                <h1 class="display-6 fw-bold text-accent">
+                    <i class="fas fa-tachometer-alt me-2 text-accent"></i>Mission Control Dashboard
                 </h1>
-                <div class="d-flex gap-2">
-                    <button class="btn btn-success" id="emergency-btn">
+                <div class="d-flex gap-2 align-items-center">
+                    <button class="btn btn-danger" id="emergency-btn">
                         <i class="fas fa-exclamation-triangle me-1"></i>Emergency Protocol
                     </button>
-                    <button class="btn btn-outline-primary" id="refresh-btn">
-                        <i class="fas fa-sync-alt me-1"></i>Refresh Data
-                    </button>
+                    <div class="d-flex align-items-center gap-2">
+                        <button class="btn btn-outline-primary" id="refresh-btn">
+                            <i class="fas fa-sync-alt me-1"></i>Refresh Data
+                        </button>
+                        <span class="small text-muted" id="last-update-time">
+                            Last updated: 18:15:32
+                        </span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -37,7 +42,7 @@
     <!-- Status Cards Row -->
     <div class="row mb-4">
         <div class="col-xl-3 col-md-6 mb-3">
-            <div class="card bg-primary text-white h-100">
+            <div class="card status-card bg-primary h-100">
                 <div class="card-body">
                     <div class="d-flex justify-content-between">
                         <div>
@@ -46,7 +51,7 @@
                             <small><i class="fas fa-arrow-up me-1"></i>2 operational</small>
                         </div>
                         <div class="align-self-center">
-                            <i class="fas fa-helicopter fa-2x"></i>
+                            <i class="fas fa-helicopter fa-2x text-accent"></i>
                         </div>
                     </div>
                 </div>
@@ -54,7 +59,7 @@
         </div>
 
         <div class="col-xl-3 col-md-6 mb-3">
-            <div class="card bg-success text-white h-100">
+            <div class="card status-card bg-success h-100">
                 <div class="card-body">
                     <div class="d-flex justify-content-between">
                         <div>
@@ -63,7 +68,7 @@
                             <small><i class="fas fa-map-marker-alt me-1"></i>5 critical zones</small>
                         </div>
                         <div class="align-self-center">
-                            <i class="fas fa-map fa-2x"></i>
+                            <i class="fas fa-map fa-2x text-success"></i>
                         </div>
                     </div>
                 </div>
@@ -71,7 +76,7 @@
         </div>
 
         <div class="col-xl-3 col-md-6 mb-3">
-            <div class="card bg-warning text-white h-100">
+            <div class="card status-card bg-warning h-100">
                 <div class="card-body">
                     <div class="d-flex justify-content-between">
                         <div>
@@ -80,7 +85,7 @@
                             <small><i class="fas fa-eye me-1"></i>2 high priority</small>
                         </div>
                         <div class="align-self-center">
-                            <i class="fas fa-exclamation-circle fa-2x"></i>
+                            <i class="fas fa-exclamation-circle fa-2x text-warning"></i>
                         </div>
                     </div>
                 </div>
@@ -88,7 +93,7 @@
         </div>
 
         <div class="col-xl-3 col-md-6 mb-3">
-            <div class="card bg-info text-white h-100">
+            <div class="card status-card bg-info h-100">
                 <div class="card-body">
                     <div class="d-flex justify-content-between">
                         <div>
@@ -97,7 +102,7 @@
                             <small><i class="fas fa-clock me-1"></i>Since deployment</small>
                         </div>
                         <div class="align-self-center">
-                            <i class="fas fa-stopwatch fa-2x"></i>
+                            <i class="fas fa-stopwatch fa-2x text-info"></i>
                         </div>
                     </div>
                 </div>
@@ -112,28 +117,82 @@
             <div class="card h-100">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="card-title mb-0">
-                        <i class="fas fa-video me-2"></i>Live Drone Feed - Drone Alpha
+                        <i class="fas fa-video me-2"></i>Live Drone Feed - <span id="active-drone-name">Drone Alpha</span>
                     </h5>
                     <div class="btn-group btn-group-sm">
-                        <button class="btn btn-outline-primary">Alpha</button>
-                        <button class="btn btn-outline-primary">Beta</button>
-                        <button class="btn btn-outline-primary">Gamma</button>
+                        <button class="btn btn-outline-primary active" data-drone="Alpha">Alpha</button>
+                        <button class="btn btn-outline-primary" data-drone="Beta">Beta</button>
+                        <button class="btn btn-outline-primary" data-drone="Gamma">Gamma</button>
                     </div>
                 </div>
                 <div class="card-body">
-                    <div class="video-container bg-dark d-flex align-items-center justify-content-center" style="height: 400px;">
-                        <div class="text-center text-light">
-                            <i class="fas fa-video fa-3x mb-3"></i>
-                            <p>Live video feed will appear here</p>
-                            <small>Connecting to drone camera...</small>
+                    <!-- Primary Video Feed -->
+                    <div class="primary-video-container position-relative mb-3">
+                        <div class="video-feed bg-dark-glass d-flex align-items-center justify-content-center" id="primary-video" data-drone="Alpha" style="height: 350px;">
+                            <div class="text-center text-light">
+                                <i class="fas fa-video fa-3x mb-3"></i>
+                                <p>Live video feed - Drone Alpha</p>
+                                <small>Connecting to drone camera...</small>
+                            </div>
+                        </div>
+                        
+                        <!-- Telemetry Overlay -->
+                        <div class="telemetry-overlay position-absolute top-0 start-0 m-3">
+                            <div class="telemetry-data glass-effect p-2">
+                                <div class="telemetry-item mb-1">
+                                    <i class="fas fa-mountain text-info me-1"></i>
+                                    <span class="telemetry-label">Alt:</span>
+                                    <span class="telemetry-value" id="telemetry-altitude">150m</span>
+                                </div>
+                                <div class="telemetry-item mb-1">
+                                    <i class="fas fa-tachometer-alt text-warning me-1"></i>
+                                    <span class="telemetry-label">Speed:</span>
+                                    <span class="telemetry-value" id="telemetry-speed">45 km/h</span>
+                                </div>
+                                <div class="telemetry-item">
+                                    <i class="fas fa-battery-three-quarters text-success me-1"></i>
+                                    <span class="telemetry-label">Battery:</span>
+                                    <span class="telemetry-value" id="telemetry-battery">87%</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div class="mt-3 d-flex justify-content-between align-items-center">
+                    
+                    <!-- Secondary Video Feeds -->
+                    <div class="secondary-feeds-container mb-3">
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <div class="video-feed bg-primary d-flex align-items-center justify-content-center secondary-video" id="secondary-video-beta" data-drone="Beta" style="height: 120px; cursor: pointer;">
+                                    <div class="text-center text-light">
+                                        <i class="fas fa-video mb-1"></i>
+                                        <p class="small mb-0">Drone Beta</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="video-feed bg-primary d-flex align-items-center justify-content-center secondary-video" id="secondary-video-gamma" data-drone="Gamma" style="height: 120px; cursor: pointer;">
+                                    <div class="text-center text-light">
+                                        <i class="fas fa-video mb-1"></i>
+                                        <p class="small mb-0">Drone Gamma</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Video Controls -->
+                    <div class="d-flex justify-content-between align-items-center">
                         <div>
                             <span class="badge bg-success">LIVE</span>
                             <small class="text-muted ms-2">1920x1080 @ 30fps</small>
                         </div>
                         <div class="btn-group btn-group-sm">
+                            <button class="btn btn-outline-secondary" id="zoom-out-btn" title="Zoom Out">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <button class="btn btn-outline-secondary" id="zoom-in-btn" title="Zoom In">
+                                <i class="fas fa-plus"></i>
+                            </button>
                             <button class="btn btn-outline-secondary">
                                 <i class="fas fa-expand"></i>
                             </button>
@@ -163,14 +222,14 @@
                         <h6 class="fw-bold">Current Status</h6>
                         <div class="row text-center">
                             <div class="col-6">
-                                <div class="bg-light p-2 rounded">
-                                    <small class="text-muted">Altitude</small>
+                                <div class="bg-black p-2 rounded">
+                                    <small class="text-white">Altitude</small>
                                     <div class="fw-bold text-primary">150m</div>
                                 </div>
                             </div>
                             <div class="col-6">
-                                <div class="bg-light p-2 rounded">
-                                    <small class="text-muted">Battery</small>
+                                <div class="bg-black p-2 rounded">
+                                    <small class="text-white">Battery</small>
                                     <div class="fw-bold text-success">87%</div>
                                 </div>
                             </div>
@@ -195,18 +254,21 @@
                             </button>
                         </div>
                     </div>
-
-                    <!-- GPS Coordinates -->
-                    <div>
-                        <h6 class="fw-bold">GPS Coordinates</h6>
-                        <div class="bg-light p-3 rounded">
-                            <div class="small">
-                                <div><strong>Lat:</strong> 28.6139° N</div>
-                                <div><strong>Lng:</strong> 77.2090° E</div>
-                                <div><strong>Alt:</strong> 150m ASL</div>
-                                <div class="mt-2">
-                                    <span class="badge bg-success">GPS Lock: Strong</span>
-                                </div>
+                    
+                    <!-- Camera Modes -->
+                    <div class="mb-4">
+                        <h6 class="fw-bold">Camera Modes</h6>
+                        <div class="camera-modes glass-effect p-3 rounded">
+                            <div class="d-grid gap-2">
+                                <button class="btn btn-outline-primary active" data-camera-mode="standard">
+                                    <i class="fas fa-camera me-1"></i>Standard
+                                </button>
+                                <button class="btn btn-outline-warning" data-camera-mode="thermal">
+                                    <i class="fas fa-thermometer-half me-1"></i>Thermal
+                                </button>
+                                <button class="btn btn-outline-info" data-camera-mode="night-vision">
+                                    <i class="fas fa-moon me-1"></i>Night Vision
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -220,13 +282,45 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
-                    <h5 class="card-title mb-0">
-                        <i class="fas fa-history me-2"></i>Recent Activity Log
-                    </h5>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-history me-2"></i>Recent Activity Log
+                        </h5>
+                        <div class="d-flex gap-2">
+                            <!-- Search Bar -->
+                            <div class="input-group input-group-sm" style="width: 250px;">
+                                <input type="search" class="form-control" id="activity-search" placeholder="Search activity log...">
+                                <button class="btn btn-outline-secondary" type="button" id="clear-search">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            
+                            <!-- Filter Dropdown -->
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" id="activity-filter" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-filter me-1"></i>Filter
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="activity-filter">
+                                    <li><h6 class="dropdown-header">Filter by Drone</h6></li>
+                                    <li><label class="dropdown-item"><input type="checkbox" class="form-check-input me-2 drone-filter" value="Alpha" checked> Alpha</label></li>
+                                    <li><label class="dropdown-item"><input type="checkbox" class="form-check-input me-2 drone-filter" value="Beta" checked> Beta</label></li>
+                                    <li><label class="dropdown-item"><input type="checkbox" class="form-check-input me-2 drone-filter" value="Gamma" checked> Gamma</label></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><h6 class="dropdown-header">Filter by Event</h6></li>
+                                    <li><label class="dropdown-item"><input type="checkbox" class="form-check-input me-2 event-filter" value="Alert" checked> <span class="badge bg-warning">Alert</span></label></li>
+                                    <li><label class="dropdown-item"><input type="checkbox" class="form-check-input me-2 event-filter" value="Info" checked> <span class="badge bg-info">Info</span></label></li>
+                                    <li><label class="dropdown-item"><input type="checkbox" class="form-check-input me-2 event-filter" value="Success" checked> <span class="badge bg-success">Success</span></label></li>
+                                    <li><label class="dropdown-item"><input type="checkbox" class="form-check-input me-2 event-filter" value="OK" checked> <span class="badge bg-success">OK</span></label></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><button class="dropdown-item text-center" id="reset-filters"><i class="fas fa-undo me-1"></i>Reset All</button></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
-                        <table class="table table-hover">
+                        <table class="table table-hover" id="activity-log-table">
                             <thead>
                                 <tr>
                                     <th>Time</th>
@@ -237,33 +331,77 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
+                                <tr class="activity-row clickable-row" 
+                                    data-time="18:03:45" 
+                                    data-drone="Alpha" 
+                                    data-event="Object Detection Alert" 
+                                    data-status="Alert" 
+                                    data-details="Person detected in restricted zone at coordinates 28.6139° N, 77.2090° E. Alert triggered by thermal imaging sensor. Confidence level: 92%. Recommended action: Investigate and assess threat level.">
                                     <td>18:03:45</td>
                                     <td>Alpha</td>
                                     <td>Object Detection</td>
                                     <td><span class="badge bg-warning">Alert</span></td>
                                     <td>Person detected in restricted zone</td>
                                 </tr>
-                                <tr>
+                                <tr class="activity-row clickable-row" 
+                                    data-time="18:01:22" 
+                                    data-drone="Beta" 
+                                    data-event="Route Update" 
+                                    data-status="Info" 
+                                    data-details="Flight path automatically recalculated due to weather conditions. Wind speed: 35 km/h, Gusts up to 45 km/h. New ETA to destination: 18:15:00. Battery consumption increased by 8%.">
                                     <td>18:01:22</td>
                                     <td>Beta</td>
                                     <td>Route Update</td>
                                     <td><span class="badge bg-info">Info</span></td>
                                     <td>Path recalculated due to weather</td>
                                 </tr>
-                                <tr>
+                                <tr class="activity-row clickable-row" 
+                                    data-time="17:58:10" 
+                                    data-drone="Gamma" 
+                                    data-event="Battery Status Check" 
+                                    data-status="OK" 
+                                    data-details="Routine battery health check completed. Current charge: 92%, Voltage: 22.4V, Temperature: 25°C. Estimated flight time remaining: 2 hours 15 minutes. Battery condition: Excellent.">
                                     <td>17:58:10</td>
                                     <td>Gamma</td>
                                     <td>Battery Check</td>
                                     <td><span class="badge bg-success">OK</span></td>
                                     <td>Battery level: 92%</td>
                                 </tr>
-                                <tr>
+                                <tr class="activity-row clickable-row" 
+                                    data-time="17:55:33" 
+                                    data-drone="Alpha" 
+                                    data-event="Mission Initialization" 
+                                    data-status="Success" 
+                                    data-details="Disaster response mission successfully initiated. Mission ID: DR-2024-001. Objective: Search and rescue operation in flood-affected area. Expected duration: 4 hours. All systems operational.">
                                     <td>17:55:33</td>
                                     <td>Alpha</td>
                                     <td>Mission Start</td>
                                     <td><span class="badge bg-success">Success</span></td>
                                     <td>Disaster response mission initiated</td>
+                                </tr>
+                                <tr class="activity-row clickable-row" 
+                                    data-time="17:52:18" 
+                                    data-drone="Beta" 
+                                    data-event="Communication Test" 
+                                    data-status="Success" 
+                                    data-details="Communication link established with ground control. Signal strength: Excellent (-45 dBm). Latency: 12ms. All telemetry systems online and transmitting data at 10Hz frequency.">
+                                    <td>17:52:18</td>
+                                    <td>Beta</td>
+                                    <td>Comm Test</td>
+                                    <td><span class="badge bg-success">Success</span></td>
+                                    <td>Communication link established</td>
+                                </tr>
+                                <tr class="activity-row clickable-row" 
+                                    data-time="17:48:55" 
+                                    data-drone="Alpha" 
+                                    data-event="GPS Lock Acquired" 
+                                    data-status="Info" 
+                                    data-details="GPS satellite lock acquired. Satellites in view: 12, HDOP: 0.8, Accuracy: ±1.2m. Position: 28.6139° N, 77.2090° E, 150m ASL. GPS system ready for navigation.">
+                                    <td>17:48:55</td>
+                                    <td>Alpha</td>
+                                    <td>GPS Lock</td>
+                                    <td><span class="badge bg-info">Info</span></td>
+                                    <td>GPS satellite lock acquired</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -274,21 +412,112 @@
     </div>
 </div>
 
+<!-- Log Entry Detail Modal -->
+<div class="modal fade" id="logEntryModal" tabindex="-1" aria-labelledby="logEntryModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content glass-effect">
+            <div class="modal-header">
+                <h5 class="modal-title" id="logEntryModalLabel">
+                    <i class="fas fa-info-circle me-2"></i>Log Entry Details
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <h6 class="fw-bold text-accent">Event Type:</h6>
+                        <p id="modal-event-type" class="mb-2"></p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <h6 class="fw-bold text-accent">Timestamp:</h6>
+                        <p id="modal-timestamp" class="mb-2"></p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <h6 class="fw-bold text-accent">Drone:</h6>
+                        <p id="modal-drone" class="mb-2"></p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <h6 class="fw-bold text-accent">Status:</h6>
+                        <p id="modal-status" class="mb-2"></p>
+                    </div>
+                    <div class="col-12 mb-3">
+                        <h6 class="fw-bold text-accent">Detailed Information:</h6>
+                        <p id="modal-details" class="mb-3"></p>
+                    </div>
+                    <div class="col-12">
+                        <h6 class="fw-bold text-accent">Video Snapshot:</h6>
+                        <div class="video-snapshot-placeholder bg-dark d-flex align-items-center justify-content-center" style="height: 200px; border-radius: 8px;">
+                            <div class="text-center text-light">
+                                <i class="fas fa-camera fa-2x mb-2"></i>
+                                <p class="mb-0">Snapshot from video feed at event time</p>
+                                <small class="text-muted">Image placeholder - would show actual frame</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-primary" id="view-full-video">
+                    <i class="fas fa-play me-1"></i>View Full Video
+                </button>
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
     // Dashboard specific JavaScript
     document.addEventListener('DOMContentLoaded', function() {
-        // Emergency button handler
-        document.getElementById('emergency-btn').addEventListener('click', function() {
+        // Emergency Alert System
+        const emergencyAlerts = [
+            "Emergency protocol activated: All drones returning to base",
+            "Emergency protocol activated: Drone Alpha has lost communication",
+            "Emergency protocol activated: Critical weather conditions detected",
+            "Emergency protocol activated: Unauthorized aircraft in restricted zone",
+            "Emergency protocol activated: Low battery emergency landing initiated"
+        ];
+        
+        // Function to trigger emergency alert with sound
+        function triggerEmergencyAlert(message) {
             const alert = document.getElementById('emergency-alert');
-            document.getElementById('emergency-message').textContent = 'Emergency protocol activated - All drones returning to base';
+            const messageElement = document.getElementById('emergency-message');
+            
+            // Set detailed message
+            messageElement.textContent = message;
             alert.style.display = 'block';
             alert.classList.add('show');
+            
+            // Play audible alert
+            try {
+                const alertSound = new Audio('/static/sounds/alert.mp3');
+                alertSound.volume = 0.7;
+                alertSound.play().catch(function(error) {
+                    console.log('Audio playback failed:', error);
+                    // Fallback: Browser notification sound or visual feedback
+                    document.body.style.animation = 'flash-red 0.5s ease-in-out 3';
+                });
+            } catch (error) {
+                console.log('Audio not available:', error);
+                // Visual feedback fallback
+                document.body.style.animation = 'flash-red 0.5s ease-in-out 3';
+            }
+        }
+        
+        // Emergency button handler
+        document.getElementById('emergency-btn').addEventListener('click', function() {
+            // Get a random emergency message for demonstration
+            const randomMessage = emergencyAlerts[Math.floor(Math.random() * emergencyAlerts.length)];
+            triggerEmergencyAlert(randomMessage);
         });
 
-        // Refresh button handler
+        // Refresh button handler with last update time
         document.getElementById('refresh-btn').addEventListener('click', function() {
             const btn = this;
             const icon = btn.querySelector('i');
+            const lastUpdateElement = document.getElementById('last-update-time');
             
             icon.classList.add('fa-spin');
             btn.disabled = true;
@@ -296,8 +525,552 @@
             setTimeout(() => {
                 icon.classList.remove('fa-spin');
                 btn.disabled = false;
+                
+                // Update the last update time
+                const now = new Date();
+                const timeString = now.toLocaleTimeString('en-GB', { 
+                    hour12: false,
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                });
+                lastUpdateElement.textContent = `Last updated: ${timeString}`;
             }, 2000);
         });
+        
+        // Initialize notification system
+        const notificationBell = document.getElementById('notification-bell');
+        const notificationBadge = document.getElementById('notification-badge');
+        
+        if (notificationBell && notificationBadge) {
+            // Example: Show notification badge after 5 seconds (simulate incoming alert)
+            setTimeout(() => {
+                notificationBadge.style.display = 'block';
+                notificationBell.classList.add('has-alerts');
+            }, 5000);
+            
+            // Notification bell click handler
+            notificationBell.addEventListener('click', function() {
+                // Hide badge and remove alert animation
+                notificationBadge.style.display = 'none';
+                this.classList.remove('has-alerts');
+                
+                // Here you would typically show a dropdown or modal with notifications
+                console.log('Notification bell clicked - show notifications panel');
+            });
+        }
+        
+        // Video Feed Management
+        const primaryVideo = document.getElementById('primary-video');
+        const secondaryVideos = document.querySelectorAll('.secondary-video');
+        const activeDroneName = document.getElementById('active-drone-name');
+        const droneButtons = document.querySelectorAll('.btn-group [data-drone]');
+        
+        // Video feed swap functionality
+        secondaryVideos.forEach(video => {
+            video.addEventListener('click', function() {
+                const clickedDrone = this.getAttribute('data-drone');
+                const currentPrimaryDrone = primaryVideo.getAttribute('data-drone');
+                
+                // Swap video feeds
+                swapVideoFeeds(currentPrimaryDrone, clickedDrone);
+            });
+        });
+        
+        // Drone button handlers
+        droneButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const selectedDrone = this.getAttribute('data-drone');
+                const currentPrimaryDrone = primaryVideo.getAttribute('data-drone');
+                
+                if (selectedDrone !== currentPrimaryDrone) {
+                    swapVideoFeeds(currentPrimaryDrone, selectedDrone);
+                }
+                
+                // Update active button
+                droneButtons.forEach(btn => btn.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+        
+        function swapVideoFeeds(currentPrimary, newPrimary) {
+            // Update primary video
+            const primaryContent = primaryVideo.querySelector('.text-center');
+            const newPrimaryVideo = document.getElementById(`secondary-video-${newPrimary.toLowerCase()}`);
+            const newPrimaryContent = newPrimaryVideo ? newPrimaryVideo.querySelector('.text-center') : null;
+            
+            if (primaryContent && newPrimaryContent) {
+                primaryContent.innerHTML = `
+                    <i class="fas fa-video fa-3x mb-3"></i>
+                    <p>Live video feed - Drone ${newPrimary}</p>
+                    <small>Connecting to drone camera...</small>
+                `;
+                
+                newPrimaryContent.innerHTML = `
+                    <i class="fas fa-video mb-1"></i>
+                    <p class="small mb-0">Drone ${currentPrimary}</p>
+                `;
+            }
+            
+            // Update data attributes
+            primaryVideo.setAttribute('data-drone', newPrimary);
+            if (newPrimaryVideo) {
+                newPrimaryVideo.setAttribute('data-drone', currentPrimary);
+            }
+            
+            // Update active drone name
+            if (activeDroneName) {
+                activeDroneName.textContent = `Drone ${newPrimary}`;
+            }
+            
+            // Update telemetry data (simulated)
+            updateTelemetryData(newPrimary);
+        }
+        
+        function updateTelemetryData(drone) {
+            const telemetryData = {
+                'Alpha': { altitude: '150m', speed: '45 km/h', battery: '87%' },
+                'Beta': { altitude: '180m', speed: '52 km/h', battery: '91%' },
+                'Gamma': { altitude: '125m', speed: '38 km/h', battery: '78%' }
+            };
+            
+            const data = telemetryData[drone] || telemetryData['Alpha'];
+            
+            document.getElementById('telemetry-altitude').textContent = data.altitude;
+            document.getElementById('telemetry-speed').textContent = data.speed;
+            document.getElementById('telemetry-battery').textContent = data.battery;
+        }
+        
+        // Zoom controls
+        const zoomInBtn = document.getElementById('zoom-in-btn');
+        const zoomOutBtn = document.getElementById('zoom-out-btn');
+        let currentZoom = 1;
+        
+        if (zoomInBtn && zoomOutBtn) {
+            zoomInBtn.addEventListener('click', function() {
+                currentZoom = Math.min(currentZoom + 0.2, 3);
+                updateZoomFeedback();
+            });
+            
+            zoomOutBtn.addEventListener('click', function() {
+                currentZoom = Math.max(currentZoom - 0.2, 0.5);
+                updateZoomFeedback();
+            });
+            
+            function updateZoomFeedback() {
+                // Visual feedback for zoom (in real implementation, this would control camera zoom)
+                const zoomLevel = Math.round(currentZoom * 100);
+                console.log(`Zoom level: ${zoomLevel}%`);
+                
+                // Update button states
+                zoomInBtn.disabled = currentZoom >= 3;
+                zoomOutBtn.disabled = currentZoom <= 0.5;
+            }
+        }
+        
+        // Manual Flight Controls
+        const dPadButtons = document.querySelectorAll('.d-pad-btn');
+        const altitudeUpBtn = document.getElementById('altitude-up');
+        const altitudeDownBtn = document.getElementById('altitude-down');
+        
+        dPadButtons.forEach(button => {
+            button.addEventListener('mousedown', function() {
+                const direction = this.getAttribute('data-direction');
+                console.log(`Moving ${direction}`);
+                this.classList.add('btn-primary');
+                this.classList.remove('btn-outline-secondary');
+            });
+            
+            button.addEventListener('mouseup', function() {
+                this.classList.remove('btn-primary');
+                this.classList.add('btn-outline-secondary');
+            });
+        });
+        
+        if (altitudeUpBtn && altitudeDownBtn) {
+            altitudeUpBtn.addEventListener('click', function() {
+                console.log('Increasing altitude');
+                this.classList.add('btn-info');
+                this.classList.remove('btn-outline-info');
+                setTimeout(() => {
+                    this.classList.remove('btn-info');
+                    this.classList.add('btn-outline-info');
+                }, 200);
+            });
+            
+            altitudeDownBtn.addEventListener('click', function() {
+                console.log('Decreasing altitude');
+                this.classList.add('btn-info');
+                this.classList.remove('btn-outline-info');
+                setTimeout(() => {
+                    this.classList.remove('btn-info');
+                    this.classList.add('btn-outline-info');
+                }, 200);
+            });
+        }
+        
+        // Camera Mode Controls
+        const cameraModeButtons = document.querySelectorAll('[data-camera-mode]');
+        
+        cameraModeButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const mode = this.getAttribute('data-camera-mode');
+                console.log(`Switching to ${mode} camera mode`);
+                
+                // Update active button
+                cameraModeButtons.forEach(btn => {
+                    btn.classList.remove('active');
+                    // Reset to outline style
+                    if (btn.classList.contains('btn-outline-primary')) btn.classList.add('btn-outline-primary');
+                    if (btn.classList.contains('btn-outline-warning')) btn.classList.add('btn-outline-warning');
+                    if (btn.classList.contains('btn-outline-info')) btn.classList.add('btn-outline-info');
+                });
+                
+                this.classList.add('active');
+            });
+        });
+        
+        // Activity Log Search and Filter
+        const activitySearch = document.getElementById('activity-search');
+        const clearSearchBtn = document.getElementById('clear-search');
+        const droneFilters = document.querySelectorAll('.drone-filter');
+        const eventFilters = document.querySelectorAll('.event-filter');
+        const resetFiltersBtn = document.getElementById('reset-filters');
+        const activityRows = document.querySelectorAll('.activity-row');
+        
+        function filterActivityLog() {
+            const searchTerm = activitySearch.value.toLowerCase();
+            const selectedDrones = Array.from(droneFilters).filter(cb => cb.checked).map(cb => cb.value);
+            const selectedEvents = Array.from(eventFilters).filter(cb => cb.checked).map(cb => cb.value);
+            
+            activityRows.forEach(row => {
+                const drone = row.getAttribute('data-drone');
+                const status = row.getAttribute('data-status');
+                const rowText = row.textContent.toLowerCase();
+                
+                const matchesSearch = searchTerm === '' || rowText.includes(searchTerm);
+                const matchesDrone = selectedDrones.includes(drone);
+                const matchesEvent = selectedEvents.includes(status);
+                
+                if (matchesSearch && matchesDrone && matchesEvent) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+        
+        if (activitySearch) {
+            activitySearch.addEventListener('input', filterActivityLog);
+        }
+        
+        if (clearSearchBtn) {
+            clearSearchBtn.addEventListener('click', function() {
+                activitySearch.value = '';
+                filterActivityLog();
+            });
+        }
+        
+        droneFilters.forEach(filter => {
+            filter.addEventListener('change', filterActivityLog);
+        });
+        
+        eventFilters.forEach(filter => {
+            filter.addEventListener('change', filterActivityLog);
+        });
+        
+        if (resetFiltersBtn) {
+            resetFiltersBtn.addEventListener('click', function() {
+                // Reset all checkboxes
+                [...droneFilters, ...eventFilters].forEach(cb => cb.checked = true);
+                activitySearch.value = '';
+                filterActivityLog();
+            });
+        }
+        
+        // Activity Log Row Click Handler (Modal)
+        const logEntryModal = new bootstrap.Modal(document.getElementById('logEntryModal'));
+        
+        activityRows.forEach(row => {
+            row.addEventListener('click', function() {
+                const eventType = this.getAttribute('data-event');
+                const timestamp = this.getAttribute('data-time');
+                const drone = this.getAttribute('data-drone');
+                const status = this.getAttribute('data-status');
+                const details = this.getAttribute('data-details');
+                
+                // Populate modal
+                document.getElementById('modal-event-type').textContent = eventType;
+                document.getElementById('modal-timestamp').textContent = timestamp;
+                document.getElementById('modal-drone').textContent = `Drone ${drone}`;
+                
+                const statusElement = document.getElementById('modal-status');
+                const badgeClass = {
+                    'Alert': 'bg-warning',
+                    'Info': 'bg-info',
+                    'Success': 'bg-success',
+                    'OK': 'bg-success'
+                }[status] || 'bg-secondary';
+                
+                statusElement.innerHTML = `<span class="badge ${badgeClass}">${status}</span>`;
+                document.getElementById('modal-details').textContent = details;
+                
+                // Show modal
+                logEntryModal.show();
+            });
+        });
+        
+        // View Full Video button in modal
+        const viewFullVideoBtn = document.getElementById('view-full-video');
+        if (viewFullVideoBtn) {
+            viewFullVideoBtn.addEventListener('click', function() {
+                console.log('Opening full video view');
+                // In a real implementation, this would open a video player or navigate to a video page
+                alert('Full video view would open here');
+            });
+        }
     });
 </script>
+
+<style>
+/* Emergency alert visual feedback animation */
+@keyframes flash-red {
+    0% { background-color: transparent; }
+    50% { background-color: rgba(255, 71, 87, 0.2); }
+    100% { background-color: transparent; }
+}
+
+/* Last update time styling */
+#last-update-time {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 4px 8px;
+    border-radius: 6px;
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(5px);
+    font-size: 0.8rem;
+    white-space: nowrap;
+}
+
+/* Video Feed Enhancements */
+.video-feed {
+    border-radius: 12px;
+    overflow: hidden;
+    border: 2px solid var(--glass-border);
+    transition: all 0.3s ease;
+}
+
+.video-feed:hover {
+    border-color: var(--primary-accent);
+    box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+}
+
+.secondary-video {
+    border: 1px solid var(--glass-border);
+    transition: all 0.3s ease;
+}
+
+.secondary-video:hover {
+    border-color: var(--primary-accent);
+    transform: scale(1.02);
+    box-shadow: 0 4px 15px rgba(0, 212, 255, 0.2);
+}
+
+/* Telemetry Overlay */
+.telemetry-overlay {
+    z-index: 10;
+    pointer-events: none;
+}
+
+.telemetry-data {
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    font-size: 0.8rem;
+    min-width: 120px;
+}
+
+.telemetry-item {
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+}
+
+.telemetry-label {
+    color: var(--text-secondary);
+    margin-right: 4px;
+    font-weight: 500;
+}
+
+.telemetry-value {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+/* Flight Controls Styling */
+.flight-controls-container {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+}
+
+.d-pad-container {
+    position: relative;
+}
+
+.d-pad-btn {
+    transition: all 0.2s ease;
+    border-radius: 50% !important;
+}
+
+.d-pad-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 212, 255, 0.3);
+}
+
+.d-pad-btn:active {
+    transform: scale(0.95);
+}
+
+/* Camera Mode Controls */
+.camera-modes {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+}
+
+.camera-modes .btn {
+    transition: all 0.3s ease;
+}
+
+.camera-modes .btn:hover {
+    transform: translateY(-2px);
+}
+
+/* Activity Log Enhancements */
+.clickable-row {
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.clickable-row:hover {
+    background-color: rgba(0, 212, 255, 0.1) !important;
+    transform: translateX(5px);
+    box-shadow: -3px 0 0 var(--primary-accent);
+}
+
+/* Search and Filter Controls */
+#activity-search {
+    background: var(--glass-bg) !important;
+    border: 1px solid var(--glass-border) !important;
+    color: var(--text-primary) !important;
+    backdrop-filter: blur(10px);
+}
+
+#activity-search:focus {
+    background: rgba(255, 255, 255, 0.15) !important;
+    border-color: var(--primary-accent) !important;
+    box-shadow: 0 0 0 0.2rem rgba(0, 212, 255, 0.25) !important;
+}
+
+#activity-search::placeholder {
+    color: var(--text-muted) !important;
+}
+
+.dropdown-menu {
+    background: var(--glass-bg) !important;
+    backdrop-filter: blur(15px) !important;
+    border: 1px solid var(--glass-border) !important;
+    border-radius: 12px !important;
+    box-shadow: var(--glass-shadow) !important;
+}
+
+.dropdown-item {
+    color: var(--text-primary) !important;
+    transition: all 0.3s ease;
+}
+
+.dropdown-item:hover {
+    background-color: rgba(0, 212, 255, 0.2) !important;
+    color: var(--primary-accent) !important;
+}
+
+.dropdown-header {
+    color: var(--text-accent) !important;
+    font-weight: 600;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Modal Styling */
+.modal-content {
+    background: rgba(26, 26, 36, 0.95) !important;
+    backdrop-filter: blur(15px) !important;
+    border: 1px solid var(--glass-border) !important;
+    border-radius: 16px !important;
+    color: var(--text-primary) !important;
+}
+
+.modal-header {
+    border-bottom: 1px solid var(--glass-border) !important;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.modal-footer {
+    border-top: 1px solid var(--glass-border) !important;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.video-snapshot-placeholder {
+    background: var(--glass-bg) !important;
+    border: 1px solid var(--glass-border) !important;
+}
+
+/* Button States for Controls */
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Zoom Control Feedback */
+.zoom-active {
+    background: rgba(0, 212, 255, 0.2) !important;
+    border-color: var(--primary-accent) !important;
+    color: var(--primary-accent) !important;
+}
+
+/* Animation for button interactions */
+@keyframes buttonPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.btn-pulse {
+    animation: buttonPulse 0.3s ease;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .telemetry-data {
+        font-size: 0.7rem;
+        min-width: 100px;
+    }
+    
+    .d-pad-container {
+        width: 100px !important;
+        height: 100px !important;
+    }
+    
+    .d-pad-btn {
+        width: 30px !important;
+        height: 30px !important;
+    }
+    
+    .secondary-feeds-container .col-6 {
+        margin-bottom: 10px;
+    }
+}
+</style>
 {% endblock %}
