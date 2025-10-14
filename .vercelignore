@@ -1,88 +1,17 @@
-# Python cache and compiled files
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-*.pyo
-*.pyc
-
-# Virtual environment
-venv/
-env/
-ENV/
-.env/
-.venv/
-
-# Local development
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-
-# Database
-db.sqlite3
-*.db
-*.sqlite
-
-# Media files (if large)
-media/
-uploads/
-
-# Static files (will be handled by WhiteNoise)
-staticfiles/
-static_root/
-
-# Development files
-.vscode/
-.idea/
-*.log
-*.pid
-*.seed
-*.pid.lock
-
-# OS generated files
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
-
-# Large audio/video files
-*.mp3
-*.mp4
-*.wav
-*.avi
-*.mov
-
-# Python executables (these shouldn't be in your project)
-*.exe
-python.exe
-pythonw.exe
-
-# Node modules (if any)
-node_modules/
-
-# Documentation that's not needed for deployment
-docs/
-documentation/
-*.md
-!README.md
-
-# Test files
-tests/
-*test.py
-*tests.py
-
-# Git
-.git/
+node_modules
+.vscode
+.git
 .gitignore
-
-# Heroku files (not needed for Vercel)
-Procfile
-deploy-to-heroku.ps1
-
-# Other deployment configs
-vercel.json.bak
+.DS_Store
+*.log
+tests
+docs
+scripts
+*.psd
+*.mov
+*.mp4
+raw_assets/
+.cache/
+.build/
+.env.local
+.env.*.local
