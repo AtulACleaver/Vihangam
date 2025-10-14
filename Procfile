@@ -1,0 +1,2 @@
+web: cd disaster_dashboard && daphne -b 0.0.0.0 -p $PORT disaster_dashboard.asgi:application
+release: cd disaster_dashboard && python manage.py migrate --noinput && python manage.py collectstatic --noinput
