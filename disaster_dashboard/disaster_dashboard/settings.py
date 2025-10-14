@@ -40,13 +40,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # Django Channels for WebSocket support
-    'channels',
-    # Vihangam apps
+    # Vihangam apps (WebSocket features disabled for Vercel)
     'apps.dashboard',
     'apps.detection',
     'apps.pathfinding',
 ]
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -144,27 +143,9 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 MEDIA_URL = 'media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-# Django Channels configuration
-ASGI_APPLICATION = 'disaster_dashboard.asgi.application'
-
-# Channel layers (for WebSocket support)
-# Use Redis if available (Heroku), otherwise fallback to in-memory
-redis_url = config('REDIS_URL', default=None)
-if redis_url:
-    CHANNEL_LAYERS = {
-        'default': {
-            'BACKEND': 'channels_redis.core.RedisChannelLayer',
-            'CONFIG': {
-                'hosts': [redis_url],
-            },
-        },
-    }
-else:
-    CHANNEL_LAYERS = {
-        'default': {
-            'BACKEND': 'channels.layers.InMemoryChannelLayer'
-        }
-    }
+# Using WSGI for Vercel deployment (WebSocket support disabled)
+# ASGI_APPLICATION = 'disaster_dashboard.asgi.application'  # Commented out for Vercel
+# CHANNEL_LAYERS = {}  # Commented out for Vercel
 
 # Logging configuration
 LOGGING = {
