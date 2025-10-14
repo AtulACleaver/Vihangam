@@ -5,7 +5,8 @@
       "src": "disaster_dashboard/disaster_dashboard/wsgi.py",
       "use": "@vercel/python",
       "config": {
-        "maxLambdaSize": "15mb"
+        "maxLambdaSize": "15mb",
+        "runtime": "python3.9"
       }
     }
   ],
@@ -25,10 +26,5 @@
   ],
   "env": {
     "DJANGO_SETTINGS_MODULE": "disaster_dashboard.settings"
-  },
-  "functions": {
-    "disaster_dashboard/disaster_dashboard/wsgi.py": {
-      "runtime": "python3.9"
-    }
   }
 }
